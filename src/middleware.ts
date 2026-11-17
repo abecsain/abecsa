@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { COOKIE_NAME } from "@/lib/auth";
+
+const COOKIE_NAME = "abecsa_session";
 
 // Basic decoding for Edge middleware (payload extraction)
 function decodeJwtPayload(token: string) {
