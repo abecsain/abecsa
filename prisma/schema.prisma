@@ -1,0 +1,607 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String
+  name          String
+  role          String    // ADMIN, MANAGER, ENGINEER, CUSTOMER
+  phone         String?
+  avatar        String?
+  status        String    @default("ACTIVE") // ACTIVE, INACTIVE, SUSPENDED
+  department    String?
+  jobTitle      String?
+  hourlyRate    Float?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  customerProfile   CustomerProfile?
+  managedProjects   Project[]           @relation("ManagedProjects")
+  assignedTasks     Task[]              @relation("AssignedTasks")
+  createdTasks      Task[]              @relation("CreatedTasks")
+  projectMemberships ProjectMember[]
+  uploadedFiles     File[]
+  createdFolders    Folder[]
+  sentNotices       NoticeMessage[]     @relation("SentNotices")
+  assignedTickets   SupportTicket[]     @relation("AssignedTickets")
+  sentTicketMsgs    TicketMessage[]
+  crmLeadsManaged   CrmLead[]           @relation("ManagedLeads")
+  crmActivities     CrmActivity[]
+  whatsappAccounts  WhatsAppAccount[]
+  whatsappMessages  WhatsAppMessage[]   @relation("SentWhatsAppMessages")
+  notifications     Notification[]
+  leaveRequests     LeaveRequest[]      @relation("UserLeaves")
+  approvedLeaves    LeaveRequest[]      @relation("ApprovedLeaves")
+  attendances       Attendance[]
+  workLogs          WorkLog[]
+  auditLogs         AuditLog[]
+  taskComments      TaskComment[]
+  visitorSessions   VisitorSession[]
+}
+
+model CustomerProfile {
+  id                String    @id @default(uuid())
+  userId            String    @unique
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyName       String
+  businessType      String?
+  address           String?
+  gstNumber         String?
+  assignedManagerId String?
+  leadSource        String?
+  status            String    @default("ACTIVE") // ACTIVE, INACTIVE, PROSPECT
+  notes             String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  projects          Project[]
+  quotations        Quotation[]
+  invoices          Invoice[]
+  payments          Payment[]
+  folders           Folder[]
+  files             File[]
+  noticesReceived   NoticeMessage[]
+  supportTickets    SupportTicket[]
+  whatsappMessages  WhatsAppMessage[]
+}
+
+model Project {
+  id              String          @id @default(uuid())
+  projectId       String          @unique // e.g. ABC-PRJ-101
+  name            String
+  description     String?
+  customerId      String
+  customer        CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  managerId       String?
+  manager         User?           @relation("ManagedProjects", fields: [managerId], references: [id])
+  serviceCategory String          // Web, Mobile, ERP, AI, etc.
+  budget          Float           @default(0)
+  priority        String          @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  status          String          @default("PLANNING") // INQUIRY, PLANNING, QUOTATION_SENT, APPROVED, IN_PROGRESS, UNDER_REVIEW, TESTING, CLIENT_APPROVAL, COMPLETED, ON_HOLD, CANCELLED
+  startDate       DateTime?
+  deliveryDate    DateTime?
+  techStack       String?         // comma-separated or JSON
+  progress        Int             @default(0) // 0 - 100
+  requirements    String?
+  stagingUrl      String?
+  repoUrl         String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  members         ProjectMember[]
+  tasks           Task[]
+  milestones      Milestone[]
+  quotations      Quotation[]
+  invoices        Invoice[]
+  folders         Folder[]
+  files           File[]
+  supportTickets  SupportTicket[]
+  workLogs        WorkLog[]
+}
+
+model ProjectMember {
+  id          String    @id @default(uuid())
+  projectId   String
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role        String    @default("ENGINEER") // MANAGER, ENGINEER, LEAD
+  assignedAt  DateTime  @default(now())
+
+  @@unique([projectId, userId])
+}
+
+model Task {
+  id              String          @id @default(uuid())
+  projectId       String
+  project         Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title           String
+  description     String?
+  assignedToId    String?
+  assignedTo      User?           @relation("AssignedTasks", fields: [assignedToId], references: [id])
+  createdById     String?
+  createdBy       User?           @relation("CreatedTasks", fields: [createdById], references: [id])
+  priority        String          @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  status          String          @default("TODO")   // TODO, IN_PROGRESS, CODE_REVIEW, COMPLETED
+  startDate       DateTime?
+  dueDate         DateTime?
+  estimatedHours  Float           @default(0)
+  actualHours     Float           @default(0)
+  order           Int             @default(0)
+  deliverableUrl  String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  comments        TaskComment[]
+  checklists      TaskChecklist[]
+  workLogs        WorkLog[]
+}
+
+model TaskComment {
+  id          String    @id @default(uuid())
+  taskId      String
+  task        Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comment     String
+  isInternal  Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+}
+
+model TaskChecklist {
+  id          String    @id @default(uuid())
+  taskId      String
+  task        Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  title       String
+  isCompleted Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+}
+
+model Milestone {
+  id          String               @id @default(uuid())
+  projectId   String
+  project     Project              @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  dueDate     DateTime?
+  status      String               @default("PENDING") // PENDING, IN_PROGRESS, SUBMITTED_FOR_APPROVAL, APPROVED, REJECTED
+  order       Int                  @default(0)
+  clientNote  String?
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  approvals   MilestoneApproval[]
+}
+
+model MilestoneApproval {
+  id          String    @id @default(uuid())
+  milestoneId String
+  milestone   Milestone @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
+  status      String    // APPROVED, REJECTED
+  feedback    String?
+  decidedAt   DateTime  @default(now())
+}
+
+model Quotation {
+  id              String          @id @default(uuid())
+  quotationNumber String          @unique // e.g. QT-2026-001
+  customerId      String
+  customer        CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  projectId       String?
+  project         Project?        @relation(fields: [projectId], references: [id])
+  title           String
+  currency        String          @default("INR")
+  subtotal        Float           @default(0)
+  discount        Float           @default(0)
+  taxRate         Float           @default(18.0)
+  taxAmount       Float           @default(0)
+  totalAmount     Float           @default(0)
+  paymentTerms    String?
+  validUntil      DateTime?
+  notes           String?
+  termsConditions String?
+  status          String          @default("SENT") // DRAFT, SENT, VIEWED, APPROVED, REJECTED, CONVERTED_TO_PROJECT, CONVERTED_TO_INVOICE
+  clientResponse  String?
+  pdfUrl          String?
+  revisionNumber  Int             @default(1)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  items           QuotationItem[]
+  invoices        Invoice[]
+}
+
+model QuotationItem {
+  id          String    @id @default(uuid())
+  quotationId String
+  quotation   Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+  description String
+  quantity    Int       @default(1)
+  unitPrice   Float     @default(0)
+  amount      Float     @default(0)
+}
+
+model Invoice {
+  id              String          @id @default(uuid())
+  invoiceNumber   String          @unique // e.g. INV-2026-001
+  quotationId     String?
+  quotation       Quotation?      @relation(fields: [quotationId], references: [id])
+  customerId      String
+  customer        CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  projectId       String?
+  project         Project?        @relation(fields: [projectId], references: [id])
+  issueDate       DateTime        @default(now())
+  dueDate         DateTime
+  currency        String          @default("INR")
+  subtotal        Float           @default(0)
+  taxAmount       Float           @default(0)
+  totalAmount     Float           @default(0)
+  amountPaid      Float           @default(0)
+  balanceAmount   Float           @default(0)
+  status          String          @default("UNPAID") // UNPAID, PARTIALLY_PAID, PAID, OVERDUE, CANCELLED
+  paymentTerms    String?
+  notes           String?
+  pdfUrl          String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  items           InvoiceItem[]
+  payments        Payment[]
+}
+
+model InvoiceItem {
+  id          String    @id @default(uuid())
+  invoiceId   String
+  invoice     Invoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  description String
+  quantity    Int       @default(1)
+  unitPrice   Float     @default(0)
+  amount      Float     @default(0)
+}
+
+model Payment {
+  id                    String          @id @default(uuid())
+  invoiceId             String
+  invoice               Invoice         @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  customerId            String
+  customer              CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  amount                Float
+  paymentDate           DateTime        @default(now())
+  paymentMethod         String          @default("BANK_TRANSFER") // BANK_TRANSFER, UPI, CREDIT_CARD, CASH, CHEQUE, ONLINE
+  transactionReference  String?
+  receiptUrl            String?
+  status                String          @default("VERIFIED") // PENDING_VERIFICATION, VERIFIED, REJECTED
+  verifiedById          String?
+  notes                 String?
+  createdAt             DateTime        @default(now())
+}
+
+model Folder {
+  id                String          @id @default(uuid())
+  name              String
+  parentId          String?
+  parent            Folder?         @relation("FolderHierarchy", fields: [parentId], references: [id])
+  children          Folder[]        @relation("FolderHierarchy")
+  projectId         String?
+  project           Project?        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  customerId        String?
+  customer          CustomerProfile? @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  createdById       String?
+  createdBy         User?           @relation(fields: [createdById], references: [id])
+  isCustomerVisible Boolean         @default(true)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  files             File[]
+}
+
+model File {
+  id                String          @id @default(uuid())
+  folderId          String?
+  folder            Folder?         @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  projectId         String?
+  project           Project?        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  customerId        String?
+  customer          CustomerProfile? @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  uploadedById      String?
+  uploadedBy        User?           @relation(fields: [uploadedById], references: [id])
+  fileName          String
+  originalName      String
+  fileUrl           String
+  fileType          String          // PDF, IMAGE, DOCX, ZIP, OTHER
+  fileSize          Int             @default(0) // bytes
+  mimeType          String?
+  isCustomerVisible Boolean         @default(true)
+  description       String?
+  version           Int             @default(1)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+}
+
+model NoticeMessage {
+  id          String          @id @default(uuid())
+  customerId  String
+  customer    CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  senderId    String
+  sender      User            @relation("SentNotices", fields: [senderId], references: [id])
+  title       String
+  message     String
+  priority    String          @default("NORMAL") // NORMAL, IMPORTANT, URGENT
+  actionUrl   String?
+  actionLabel String?
+  isRead      Boolean         @default(false)
+  readAt      DateTime?
+  createdAt   DateTime        @default(now())
+}
+
+model SupportTicket {
+  id            String          @id @default(uuid())
+  ticketNumber  String          @unique // e.g. TIK-1001
+  customerId    String
+  customer      CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  projectId     String?
+  project       Project?        @relation(fields: [projectId], references: [id])
+  assignedToId  String?
+  assignedTo    User?           @relation("AssignedTickets", fields: [assignedToId], references: [id])
+  subject       String
+  description   String
+  category      String          @default("GENERAL") // TECHNICAL, BILLING, FEATURE_REQUEST, BUG, GENERAL
+  priority      String          @default("MEDIUM")  // LOW, MEDIUM, HIGH, URGENT
+  status        String          @default("OPEN")    // OPEN, ASSIGNED, IN_PROGRESS, WAITING_FOR_CUSTOMER, RESOLVED, CLOSED
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  messages      TicketMessage[]
+}
+
+model TicketMessage {
+  id            String        @id @default(uuid())
+  ticketId      String
+  ticket        SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  senderId      String
+  sender        User          @relation(fields: [senderId], references: [id])
+  message       String
+  isInternal    Boolean       @default(false)
+  attachmentUrl String?
+  createdAt     DateTime      @default(now())
+}
+
+model CrmLead {
+  id                  String        @id @default(uuid())
+  leadNumber          String        @unique // e.g. LEAD-2026-001
+  name                String
+  email               String
+  phone               String?
+  companyName         String?
+  serviceInterested   String?
+  budgetRange         String?
+  preferredContact    String?       @default("WHATSAPP") // WHATSAPP, EMAIL, PHONE
+  message             String?
+  status              String        @default("NEW_LEAD") // NEW_LEAD, DISCOVERY, QUOTATION_SENT, NEGOTIATION, CONVERTED, LOST
+  assignedManagerId   String?
+  assignedManager     User?         @relation("ManagedLeads", fields: [assignedManagerId], references: [id])
+  score               Int           @default(50)
+  source              String?       @default("WEBSITE_CONTACT")
+  convertedCustomerId String?
+  convertedProjectId  String?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  activities          CrmActivity[]
+}
+
+model CrmActivity {
+  id            String    @id @default(uuid())
+  leadId        String
+  lead          CrmLead   @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  activityType  String    // CALL, EMAIL, WHATSAPP, MEETING, NOTE, STATUS_CHANGE
+  notes         String
+  createdAt     DateTime  @default(now())
+}
+
+model WhatsAppAccount {
+  id                String            @id @default(uuid())
+  accountType       String            // COMPANY_CENTRAL, MANAGER_PERSONAL
+  userId            String?
+  user              User?             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phoneNumber       String?
+  businessAccountId String?
+  connectionStatus  String            @default("DISCONNECTED") // CONNECTED, PAIRING_QR, DISCONNECTED
+  qrCode            String?
+  lastHeartbeat     DateTime?
+  webhookUrl        String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  messages          WhatsAppMessage[]
+}
+
+model WhatsAppTemplate {
+  id            String    @id @default(uuid())
+  templateName  String    @unique
+  category      String    // GREETING, PROJECT_UPDATE, QUOTATION_ALERT, PAYMENT_REMINDER, GENERAL
+  language      String    @default("en")
+  bodyText      String
+  variablesJson String?   // e.g. ["customer_name", "project_name"]
+  isApproved    Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+}
+
+model WhatsAppMessage {
+  id              String            @id @default(uuid())
+  accountId       String
+  account         WhatsAppAccount   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  senderId        String?
+  sender          User?             @relation("SentWhatsAppMessages", fields: [senderId], references: [id])
+  recipientPhone  String
+  recipientName   String?
+  customerId      String?
+  customer        CustomerProfile?  @relation(fields: [customerId], references: [id])
+  messageType     String            @default("CUSTOM_TEXT") // TEMPLATE, CUSTOM_TEXT, MEDIA, QUOTATION_ALERT, INVOICE_ALERT, GREETING
+  templateName    String?
+  content         String
+  mediaUrl        String?
+  status          String            @default("SENT") // QUEUED, SENT, DELIVERED, READ, FAILED
+  failureReason   String?
+  messageId       String?           // e.g. wamid.HBg...
+  sentAt          DateTime          @default(now())
+  deliveredAt     DateTime?
+  readAt          DateTime?
+}
+
+model Notification {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      String    @default("INFO") // INFO, SUCCESS, WARNING, ALERT
+  linkUrl   String?
+  isRead    Boolean   @default(false)
+  createdAt DateTime  @default(now())
+}
+
+model LeaveRequest {
+  id            String    @id @default(uuid())
+  userId        String
+  user          User      @relation("UserLeaves", fields: [userId], references: [id], onDelete: Cascade)
+  leaveType     String    // CASUAL, SICK, PAID, UNPAID
+  startDate     DateTime
+  endDate       DateTime
+  totalDays     Int       @default(1)
+  reason        String
+  status        String    @default("PENDING") // PENDING, APPROVED, REJECTED
+  approvedById  String?
+  approvedBy    User?     @relation("ApprovedLeaves", fields: [approvedById], references: [id])
+  reviewNote    String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Attendance {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date      DateTime  @default(now())
+  checkIn   DateTime  @default(now())
+  checkOut  DateTime?
+  status    String    @default("PRESENT") // PRESENT, LATE, HALF_DAY, ABSENT
+  notes     String?
+  createdAt DateTime  @default(now())
+}
+
+model WorkLog {
+  id              String    @id @default(uuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  taskId          String?
+  task            Task?     @relation(fields: [taskId], references: [id])
+  projectId       String?
+  project         Project?  @relation(fields: [projectId], references: [id])
+  date            DateTime  @default(now())
+  hoursSpent      Float     @default(1.0)
+  description     String
+  deliverablesUrl String?
+  createdAt       DateTime  @default(now())
+}
+
+model AuditLog {
+  id         String    @id @default(uuid())
+  userId     String?
+  user       User?     @relation(fields: [userId], references: [id])
+  action     String
+  entityType String
+  entityId   String?
+  details    String?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime  @default(now())
+}
+
+model CompanySettings {
+  id              String    @id @default("abecsa-settings")
+  companyName     String    @default("ABECSA Software Solutions")
+  tagline         String    @default("Enterprise Digital & Software Engineering")
+  logoUrl         String    @default("/logo.png")
+  email           String    @default("contact@abecsa.in")
+  phone           String    @default("+91 98765 43210")
+  address         String    @default("Cyber City Tech Park, Tower B, Level 4, Bengaluru, Karnataka 560100")
+  website         String    @default("https://abecsa.in")
+  gstNumber       String    @default("29AABCA1234F1Z8")
+  currency        String    @default("INR")
+  currencySymbol  String    @default("₹")
+  defaultTaxRate  Float     @default(18.0)
+  invoicePrefix   String    @default("INV-2026-")
+  quotationPrefix String    @default("QT-2026-")
+  whatsappNumber  String    @default("+91 98765 43210")
+  smtpHost        String?
+  smtpPort        Int?
+  smtpUser        String?
+  smtpPass        String?
+  isConfigured    Boolean   @default(true)
+  updatedAt       DateTime  @updatedAt
+}
+
+model SoftwareProduct {
+  id              String    @id @default(uuid())
+  code            String    @unique // e.g. ABECSA-ERP-01
+  name            String
+  category        String    // ERP, Healthcare, Invoicing, Mobile, Logistics, E-Commerce, Education, POS
+  description     String
+  price           Float     // in INR
+  billingType     String    @default("ONE_TIME") // ONE_TIME, ANNUAL, MONTHLY
+  badge           String?   // "Bestseller", "New Release", "Hot"
+  features        String    // JSON array or comma-separated strings
+  demoUrl         String?
+  techStack       String?
+  imageUrl        String?
+  whatsappPhone   String    @default("+91 98765 43210")
+  isActive        Boolean   @default(true)
+  salesCount      Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model VisitorSession {
+  id            String       @id @default(uuid())
+  visitorToken  String       @unique // e.g. vis_abc123 stored in cookie / localStorage
+  userId        String?
+  user          User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  ipAddress     String?
+  userAgent     String?
+  deviceType    String?      // Mobile, Desktop, Tablet
+  city          String?
+  name          String?
+  email         String?
+  phone         String?
+  landingPage   String?
+  referrer      String?
+  pageViewCount Int          @default(1)
+  loginCount    Int          @default(0)
+  lastActiveAt  DateTime     @default(now())
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  pageViews     PageView[]
+}
+
+model PageView {
+  id          String          @id @default(uuid())
+  sessionId   String
+  session     VisitorSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  path        String          // e.g. /shop, /customer/quotations
+  pageTitle   String?
+  referrer    String?
+  durationSec Int             @default(0)
+  createdAt   DateTime        @default(now())
+}
