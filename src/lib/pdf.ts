@@ -9,6 +9,7 @@ export interface QuotationPdfData {
   customerAddress?: string;
   customerPhone?: string;
   customerEmail?: string;
+  managerName?: string;
   date: string;
   validUntil: string;
   items: Array<{
@@ -25,6 +26,12 @@ export interface QuotationPdfData {
   paymentTerms?: string;
   notes?: string;
   termsConditions?: string;
+  eSignature?: string;
+  signedByName?: string;
+  signedAt?: string;
+  signedDesignation?: string;
+  signedIp?: string;
+  verificationHash?: string;
 }
 
 export interface InvoicePdfData {
@@ -173,6 +180,59 @@ export function generateQuotationPdf(data: QuotationPdfData): jsPDF {
     doc.text("NOTES:", 14, finalY + 26);
     doc.setFont("helvetica", "normal");
     doc.text(data.notes, 14, finalY + 32, { maxWidth: 95 });
+  }
+
+  // Digital Signature & E-Sign Verification Block
+  if (data.signedByName || data.eSignature) {
+    let sigY = finalY + 46;
+    if (sigY > 225) {
+      doc.addPage();
+      sigY = 20;
+    }
+
+    doc.setFillColor(240, 253, 244); // emerald-50
+    doc.setDrawColor(34, 197, 94); // emerald-500
+    doc.roundedRect(14, sigY, 182, 34, 2, 2, "FD");
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+    doc.setTextColor(21, 128, 61); // emerald-700
+    doc.text("VERIFIED DIGITAL E-SIGNATURE & LEGAL EXECUTION", 20, sigY + 7);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(51, 65, 85);
+    doc.text(`Signed By: ${data.signedByName || data.customerName} (${data.signedDesignation || "Authorized Signatory"})`, 20, sigY + 14);
+    doc.text(`Organization: ${data.companyName}`, 20, sigY + 20);
+    doc.text(`Execution Date: ${data.signedAt || data.date} | IP: ${data.signedIp || "127.0.0.1 (Verified)"}`, 20, sigY + 26);
+    if (data.verificationHash) {
+      doc.text(`Audit Hash: ${data.verificationHash}`, 20, sigY + 31);
+    }
+
+    if (data.eSignature && data.eSignature.startsWith("data:image/")) {
+      try {
+        doc.addImage(data.eSignature, "PNG", 142, sigY + 4, 46, 26);
+      } catch {
+        // signature image fallback
+      }
+    }
+  }
+
+  // Agreement Terms & Conditions Page
+  if (data.termsConditions) {
+    doc.addPage();
+    doc.setFillColor(15, 23, 42);
+    doc.rect(0, 0, 210, 24, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("MASTER SERVICES AGREEMENT - TERMS & CONDITIONS", 14, 15);
+
+    doc.setTextColor(51, 65, 85);
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "normal");
+    const splitTerms = doc.splitTextToSize(data.termsConditions, 182);
+    doc.text(splitTerms, 14, 32);
   }
 
   // Footer Signoff

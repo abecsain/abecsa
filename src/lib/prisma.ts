@@ -31,22 +31,13 @@ export function resolveDatabaseUrl(): string {
   }
 
   if (needsCopy) {
-    const candidates = [
-      path.join(process.cwd(), "prisma", "dev.db"),
-      path.join(process.cwd(), "dev.db"),
-      path.resolve("./prisma/dev.db"),
-      path.resolve("./dev.db"),
-    ];
-
-    for (const candidate of candidates) {
-      try {
-        if (fs.existsSync(candidate) && fs.statSync(candidate).size > 0) {
-          fs.copyFileSync(candidate, tmpDbPath);
-          break;
-        }
-      } catch {
-        // try next candidate
+    const sourceDb = path.join(process.cwd(), "prisma", "dev.db");
+    try {
+      if (fs.existsSync(sourceDb) && fs.statSync(sourceDb).size > 0) {
+        fs.copyFileSync(sourceDb, tmpDbPath);
       }
+    } catch {
+      // non-fatal
     }
   }
 
