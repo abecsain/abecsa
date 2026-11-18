@@ -3,11 +3,16 @@ import "./globals.css";
 import VisitorTracker from "@/components/public/VisitorTracker";
 
 export const metadata: Metadata = {
-  title: "ABECSA Software Solutions | Enterprise Software & Client Management",
+  title: "ABECSA",
   description:
     "ABECSA Software Solutions - Custom Web Applications, Enterprise ERP, Mobile Apps, AI Engineering, and Client Management Portal.",
   icons: {
-    icon: "/logo.png",
+    icon: [
+      { url: "/icon.png", type: "image/png" },
+      { url: "/favicon.ico" },
+      { url: "/logo-a.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
   },
 };
 

@@ -13,6 +13,8 @@ export async function POST(req: NextRequest) {
       name,
       email,
       phone,
+      query,
+      message,
       isLoginAction,
     } = data;
 
@@ -107,7 +109,7 @@ export async function POST(req: NextRequest) {
               : "Website Consultation",
             source: "WEBSITE_VISITOR_TRACKER",
             status: "NEW_LEAD",
-            message: `Captured from ${path} on ${deviceType} (${ipAddress}). Total pages viewed: ${session.pageViewCount}.`,
+            message: query || message || `Captured from ${path} on ${deviceType} (${ipAddress}). Total pages viewed: ${session.pageViewCount}.`,
           },
         });
       }
