@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
   },
   serverExternalPackages: ["@prisma/client", "bcryptjs", "@whiskeysockets/baileys", "pino"],
   outputFileTracingIncludes: {
-    "/**": ["./prisma/dev.db", "./dev.db"],
+    "/**": ["./prisma/dev.db"],
   },
 };
 

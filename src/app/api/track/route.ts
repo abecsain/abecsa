@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
 
+// Deduplication map to prevent database thrashing on rapid refreshes
+const recentBeaconCache = new Map<string, number>();
+
 export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
@@ -20,6 +23,25 @@ export async function POST(req: NextRequest) {
 
     if (!visitorToken) {
       return NextResponse.json({ error: "visitorToken is required" }, { status: 400 });
+    }
+
+    // Deduplicate passive page beacons within 30 seconds
+    const isPassiveBeacon = !phone && !email && !query && !message && !isLoginAction;
+    if (isPassiveBeacon) {
+      const cacheKey = `${visitorToken}:${path}`;
+      const now = Date.now();
+      const lastSeen = recentBeaconCache.get(cacheKey);
+      if (lastSeen && now - lastSeen < 30000) {
+        return NextResponse.json({ ok: true, cached: true });
+      }
+      recentBeaconCache.set(cacheKey, now);
+
+      // Clean old entries
+      if (recentBeaconCache.size > 2000) {
+        for (const [k, time] of recentBeaconCache.entries()) {
+          if (now - time > 60000) recentBeaconCache.delete(k);
+        }
+      }
     }
 
     // Extract headers

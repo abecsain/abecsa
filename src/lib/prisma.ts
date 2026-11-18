@@ -13,56 +13,44 @@ export function resolveDatabaseUrl(): string {
     return process.env.DATABASE_URL;
   }
 
-  // 2. On Vercel / AWS Lambda / Serverless environments, /var/task is read-only.
-  // Stage SQLite database into /tmp so that read-locks and write operations succeed without EROFS errors.
-  const isServerless =
-    Boolean(process.env.VERCEL) ||
-    Boolean(process.env.AWS_LAMBDA_FUNCTION_NAME) ||
-    Boolean(process.env.VERCEL_ENV) ||
-    process.env.NODE_ENV === "production";
+  // 2. For SQLite (both local dev and serverless/Vercel):
+  // We stage the active SQLite database in os.tmpdir() so that:
+  // - On Vercel: it runs in the writable /tmp filesystem without EROFS errors
+  // - In local Next.js dev: it lives OUTSIDE the watched project workspace.
+  //   This completely prevents Turbopack from detecting dev.db changes and triggering
+  //   an infinite hot-reload / page flickering loop!
+  const tmpDbPath = path.join(os.tmpdir(), "abecsa_dev.db").replace(/\\/g, "/");
 
-  if (isServerless) {
-    const tmpDbPath = path.join(os.tmpdir(), "abecsa_dev.db").replace(/\\/g, "/");
-
-    let needsCopy = true;
-    try {
-      if (fs.existsSync(tmpDbPath) && fs.statSync(tmpDbPath).size > 0) {
-        needsCopy = false;
-      }
-    } catch {
-      needsCopy = true;
+  let needsCopy = true;
+  try {
+    if (fs.existsSync(tmpDbPath) && fs.statSync(tmpDbPath).size > 0) {
+      needsCopy = false;
     }
+  } catch {
+    needsCopy = true;
+  }
 
-    if (needsCopy) {
-      const candidates = [
-        path.join(process.cwd(), "prisma", "dev.db"),
-        path.join(process.cwd(), "dev.db"),
-        path.resolve("./prisma/dev.db"),
-        path.resolve("./dev.db"),
-      ];
+  if (needsCopy) {
+    const candidates = [
+      path.join(process.cwd(), "prisma", "dev.db"),
+      path.join(process.cwd(), "dev.db"),
+      path.resolve("./prisma/dev.db"),
+      path.resolve("./dev.db"),
+    ];
 
-      for (const candidate of candidates) {
-        try {
-          if (fs.existsSync(candidate) && fs.statSync(candidate).size > 0) {
-            fs.copyFileSync(candidate, tmpDbPath);
-            break;
-          }
-        } catch {
-          // try next candidate
+    for (const candidate of candidates) {
+      try {
+        if (fs.existsSync(candidate) && fs.statSync(candidate).size > 0) {
+          fs.copyFileSync(candidate, tmpDbPath);
+          break;
         }
+      } catch {
+        // try next candidate
       }
     }
-
-    return `file:${tmpDbPath}`;
   }
 
-  // 3. Local development: use absolute path to prisma/dev.db to avoid working-directory discrepancies
-  const localPrismaDb = path.resolve(process.cwd(), "prisma", "dev.db").replace(/\\/g, "/");
-  if (fs.existsSync(localPrismaDb)) {
-    return `file:${localPrismaDb}`;
-  }
-
-  return process.env.DATABASE_URL || "file:./dev.db";
+  return `file:${tmpDbPath}`;
 }
 
 export const prisma =

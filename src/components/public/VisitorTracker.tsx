@@ -31,6 +31,7 @@ export default function VisitorTracker() {
 
   // Auto-dismiss timer ref
   const autoDownTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const lastTrackedRef = useRef<string>("");
 
   // Don't show public lead widget inside role workspaces
   const isWorkspace =
@@ -58,8 +59,8 @@ export default function VisitorTracker() {
         // Automatically get down in 2 seconds
         autoDownTimerRef.current = setTimeout(() => {
           setShowTeaser(false);
-        }, 2500);
-      }, 1200);
+        }, 2200);
+      }, 1000);
 
       return () => {
         clearTimeout(openTimer);
@@ -68,9 +69,12 @@ export default function VisitorTracker() {
     }
   }, [isWorkspace]);
 
-  // Send background beacon on page navigation
+  // Send background beacon once per unique route navigation
   useEffect(() => {
     if (!visitorToken || !pathname) return;
+    const trackKey = `${visitorToken}:${pathname}`;
+    if (lastTrackedRef.current === trackKey) return;
+    lastTrackedRef.current = trackKey;
 
     const trackPage = async () => {
       try {
@@ -152,7 +156,7 @@ export default function VisitorTracker() {
       {showTeaser && !showDrawer && (
         <div
           onClick={openFullQueryModal}
-          className="fixed bottom-20 right-6 z-50 max-w-xs bg-slate-900 text-white p-3.5 rounded-2xl shadow-2xl border border-sky-500/30 flex items-center gap-3 cursor-pointer transition-all duration-300 animate-bounce hover:animate-none hover:scale-105"
+          className="fixed bottom-20 right-6 z-50 max-w-xs bg-slate-900 text-white p-3.5 rounded-2xl shadow-2xl border border-sky-500/30 flex items-center gap-3 cursor-pointer transition-all duration-300 animate-in fade-in slide-in-from-bottom-2 hover:scale-105"
         >
           <div className="h-8 w-8 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center shrink-0">
             <Sparkles className="w-4 h-4" />
