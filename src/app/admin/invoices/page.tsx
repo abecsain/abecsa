@@ -14,6 +14,7 @@ import {
   FileText,
   Trash2,
   Edit2,
+  MessageSquare,
 } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { generateInvoicePdf } from "@/lib/pdf";
@@ -37,7 +38,7 @@ interface Invoice {
     companyName: string;
     address: string | null;
     gstNumber: string | null;
-    user: { name: string; email: string };
+    user: { name: string; email: string; phone?: string | null };
   };
   project: { id: string; name: string } | null;
   items: Array<{ description: string; quantity: number; unitPrice: number; amount: number }>;
@@ -270,6 +271,50 @@ export default function AdminInvoicesPage() {
     }
   };
 
+  const handleSendWhatsAppInvoice = async (inv: Invoice, isReminder = false) => {
+    const customerPhone = inv.customer?.user?.phone || "9876543214";
+    try {
+      const res = await fetch("/api/whatsapp/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phone: customerPhone,
+          invoiceData: {
+            companyName: "ABECSA Software Solutions",
+            invoiceNumber: inv.invoiceNumber,
+            customerName: `${inv.customer.companyName} (${inv.customer.user.name})`,
+            issueDate: formatDate(inv.issueDate),
+            dueDate: formatDate(inv.dueDate),
+            items: inv.items.map((it) => ({
+              description: it.description,
+              quantity: it.quantity,
+              amount: it.amount,
+            })),
+            subtotal: inv.subtotal,
+            taxAmount: inv.taxAmount,
+            totalAmount: inv.totalAmount,
+            amountPaid: inv.amountPaid,
+            balanceAmount: inv.balanceAmount,
+            paymentMode: "UPI / Bank Transfer",
+            upiId: "abecsa@okhdfcbank",
+          },
+          isReminder,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        alert(`✓ WhatsApp ${isReminder ? "Reminder (तकादा)" : "Invoice Bill"} sent automatically to ${customerPhone}!`);
+      } else if (data.fallbackUrl) {
+        window.open(data.fallbackUrl, "_blank");
+      } else {
+        alert(data.error || "Failed to send WhatsApp message");
+      }
+    } catch (err: any) {
+      alert("Error dispatching WhatsApp: " + err.message);
+    }
+  };
+
   const filteredInvoices = invoices.filter(
     (i) =>
       i.invoiceNumber.toLowerCase().includes(search.toLowerCase()) ||
@@ -391,6 +436,15 @@ export default function AdminInvoicesPage() {
                       >
                         <Download className="w-3.5 h-3.5" />
                         <span>PDF</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleSendWhatsAppInvoice(inv, inv.balanceAmount > 0)}
+                        className="px-2 py-1.5 rounded-lg border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-semibold flex items-center gap-1 cursor-pointer text-xs"
+                        title={inv.balanceAmount > 0 ? "Send 1-Click WhatsApp Bill & तकादा Reminder" : "Send WhatsApp Receipt"}
+                      >
+                        <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>{inv.balanceAmount > 0 ? "WhatsApp तकादा" : "WhatsApp"}</span>
                       </button>
 
                       <button

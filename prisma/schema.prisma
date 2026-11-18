@@ -417,8 +417,9 @@ model WhatsAppAccount {
   user              User?             @relation(fields: [userId], references: [id], onDelete: Cascade)
   phoneNumber       String?
   businessAccountId String?
-  connectionStatus  String            @default("DISCONNECTED") // CONNECTED, PAIRING_QR, DISCONNECTED
+  connectionStatus  String            @default("DISCONNECTED") // CONNECTED, PAIRING_QR, WAITING_FOR_PAIRING, DISCONNECTED
   qrCode            String?
+  sessionBundle     String?           // Cloud-synced Baileys multi-file credentials bundle
   lastHeartbeat     DateTime?
   webhookUrl        String?
   createdAt         DateTime          @default(now())

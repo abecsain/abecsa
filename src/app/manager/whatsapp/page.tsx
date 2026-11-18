@@ -176,30 +176,26 @@ export default function ManagerWhatsAppPage() {
 
     setSending(true);
     try {
-      const res = await fetch("/api/whatsapp", {
+      const res = await fetch("/api/whatsapp/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          accountId: account?.id,
-          recipientPhone,
-          recipientName,
-          content: messageContent,
-          messageType: "GREETING",
+          phone: recipientPhone,
+          message: messageContent,
         }),
       });
 
       const data = await res.json();
       if (res.ok && data.success) {
-        showNotification(`Greeting dispatched to ${recipientPhone}!`);
-
-        if (autoOpenWeb) {
-          launchWhatsAppWebTab(recipientPhone, messageContent);
-        }
-
+        showNotification(`✓ WhatsApp message dispatched automatically to ${recipientPhone}!`);
         setMessageContent("");
         fetchWhatsApp();
+      } else if (data.fallbackUrl) {
+        window.open(data.fallbackUrl, "_blank");
+        showNotification(`Opening direct 1-click WhatsApp fallback for ${recipientPhone}...`);
+        setMessageContent("");
       } else {
-        alert(data.error || "Failed to send");
+        alert(data.error || "Failed to send message");
       }
     } catch {
       alert("Error sending message");

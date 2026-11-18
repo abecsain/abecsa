@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import VisitorTracker from "@/components/public/VisitorTracker";
+import AndroidExternalLinks from "@/components/AndroidExternalLinks";
 
 export const metadata: Metadata = {
   title: "ABECSA",
@@ -24,6 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full antialiased scroll-smooth">
       <body className="min-h-full flex flex-col bg-slate-50 text-slate-900">
+        <AndroidExternalLinks />
         {children}
         <VisitorTracker />
       </body>
