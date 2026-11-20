@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import {
   Send,
   FileSpreadsheet,
@@ -13,6 +14,7 @@ import {
   AlertCircle,
   ExternalLink,
   Trash2,
+  Gift,
 } from "lucide-react";
 
 export default function ManagerPushToolsPage() {
@@ -232,12 +234,21 @@ export default function ManagerPushToolsPage() {
           </p>
         </div>
 
-        {statusMsg && (
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span>{statusMsg}</span>
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          <Link
+            href="/manager/gifts"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 transition-colors shadow-2xs"
+          >
+            <Gift className="w-4 h-4 text-amber-600" />
+            <span>Scratch Card Gifts Hub</span>
+          </Link>
+          {statusMsg && (
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>{statusMsg}</span>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Target Client Selector */}

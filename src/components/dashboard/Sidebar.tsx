@@ -26,6 +26,7 @@ import {
   X,
   Activity,
   ShoppingBag,
+  Gift,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -51,6 +52,7 @@ export default function DashboardSidebar({
           { href: "/admin/users", label: "User Management", icon: Users },
           { href: "/admin/crm", label: "CRM & Lead Pipeline", icon: Target },
           { href: "/admin/quotations", label: "Quotations", icon: FileSpreadsheet },
+          { href: "/admin/gifts", label: "Scratch Card Gifts", icon: Gift, highlight: true },
           { href: "/admin/invoices", label: "Invoices & Payments", icon: Receipt },
           { href: "/admin/vault", label: "Asset Vault & Files", icon: FolderLock },
           { href: "/admin/shop", label: "Software Store Admin", icon: ShoppingBag },
@@ -68,6 +70,7 @@ export default function DashboardSidebar({
           { href: "/manager/users", label: "Clients & Engineers", icon: Users },
           { href: "/manager/crm", label: "CRM Leads & Pipeline", icon: Target },
           { href: "/manager/push", label: "Push to Client Portal", icon: Send, highlight: true },
+          { href: "/manager/gifts", label: "Scratch Card Gifts", icon: Gift, highlight: true },
           { href: "/manager/whatsapp", label: "My WhatsApp Web", icon: MessageSquare, badge: "Active" },
           { href: "/manager/quotations", label: "Quotations", icon: FileSpreadsheet },
           { href: "/manager/invoices", label: "Invoices", icon: Receipt },

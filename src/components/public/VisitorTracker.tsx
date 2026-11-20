@@ -156,7 +156,7 @@ export default function VisitorTracker() {
       {showTeaser && !showDrawer && (
         <div
           onClick={openFullQueryModal}
-          className="fixed bottom-20 right-6 z-50 max-w-xs bg-slate-900 text-white p-3.5 rounded-2xl shadow-2xl border border-sky-500/30 flex items-center gap-3 cursor-pointer transition-all duration-300 animate-in fade-in slide-in-from-bottom-2 hover:scale-105"
+          className="fixed bottom-32 sm:bottom-20 right-4 sm:right-6 z-50 max-w-[280px] sm:max-w-xs bg-slate-900 text-white p-3 sm:p-3.5 rounded-2xl shadow-2xl border border-sky-500/30 flex items-center gap-3 cursor-pointer transition-all duration-300 animate-in fade-in slide-in-from-bottom-2 hover:scale-105"
         >
           <div className="h-8 w-8 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center shrink-0">
             <Sparkles className="w-4 h-4" />
@@ -177,18 +177,18 @@ export default function VisitorTracker() {
         </div>
       )}
 
-      {/* Floating Query Trigger Pill (Bottom-Right) */}
-      <div className="fixed bottom-6 right-6 z-40">
+      {/* Floating Query Trigger Pill (Bottom-Right, positioned safely above mobile bottom bar) */}
+      <div className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-40">
         {!showDrawer && (
           <button
             onClick={openFullQueryModal}
-            className="flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-slate-950 text-white hover:bg-slate-900 shadow-2xl border border-sky-500/40 text-xs font-bold transition-all duration-300 hover:scale-105 cursor-pointer group"
+            className="flex items-center gap-2 sm:gap-2.5 px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-full bg-slate-950 text-white hover:bg-slate-900 shadow-2xl border border-sky-500/40 text-xs font-bold transition-all duration-300 hover:scale-105 cursor-pointer group"
           >
             <span className="relative flex h-2.5 w-2.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
             </span>
-            <MessageSquare className="w-4 h-4 text-sky-400 group-hover:scale-110 transition-transform" />
+            <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-sky-400 group-hover:scale-110 transition-transform" />
             <span>Send Query</span>
           </button>
         )}
@@ -196,7 +196,7 @@ export default function VisitorTracker() {
 
       {/* Full Send Query Card (Bottom-Right) */}
       {showDrawer && (
-        <div className="fixed bottom-6 right-6 z-50 w-[92vw] sm:w-[390px] bg-white rounded-2xl shadow-2xl border border-slate-200/90 overflow-hidden transition-all duration-300 animate-in fade-in slide-in-from-bottom-4">
+        <div className="fixed bottom-4 sm:bottom-6 right-3 sm:right-6 z-50 w-[94vw] sm:w-[390px] max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-2xl border border-slate-200/90 overflow-hidden transition-all duration-300 animate-in fade-in slide-in-from-bottom-4">
           {/* Header */}
           <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-sky-950 text-white p-4 flex items-center justify-between border-b border-slate-800">
             <div className="flex items-center gap-2.5">

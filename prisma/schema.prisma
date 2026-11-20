@@ -46,6 +46,7 @@ model User {
   auditLogs         AuditLog[]
   taskComments      TaskComment[]
   visitorSessions   VisitorSession[]
+  scratchGifts      ScratchGift[]
 }
 
 model CustomerProfile {
@@ -607,3 +608,28 @@ model PageView {
   durationSec Int             @default(0)
   createdAt   DateTime        @default(now())
 }
+
+model ScratchGift {
+  id               String    @id @default(uuid())
+  slug             String    @unique // e.g. gift_abc123 for URL /gift/gift_abc123
+  title            String    // e.g. "Exclusive Diwali Gift for Sharma Infotech"
+  prizeTitle       String    // e.g. "FLAT ₹15,000 OFF on Next Sprint"
+  prizeDescription String?   // Details or terms
+  couponCode       String?   // e.g. "ABECSA-GIFT-99"
+  customerName     String?   // Optional client recipient
+  customerPhone    String?   // Optional mobile / WhatsApp number
+  buttonText       String    @default("Claim Gift on WhatsApp") // Custom button text
+  redirectionType  String    @default("WHATSAPP") // "WHATSAPP" or "CUSTOM_URL"
+  customUrl        String?   // If redirectionType is CUSTOM_URL
+  whatsappMessage  String?   // Custom WhatsApp prefilled message
+  isScratched      Boolean   @default(false)
+  isClaimed        Boolean   @default(false)
+  scratchedAt      DateTime?
+  claimedAt        DateTime?
+  expiresAt        DateTime?
+  createdById      String
+  createdBy        User      @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
