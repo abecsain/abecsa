@@ -14,12 +14,12 @@ import {
   Sparkles,
   MessageSquare,
   ChevronRight,
+  ChevronDown,
   Send,
   Zap,
   Clock,
   ExternalLink,
   Phone,
-  Database,
   Building2,
   Truck,
   Stethoscope,
@@ -31,13 +31,19 @@ import {
   Laptop,
   Check,
   Lock,
+  FileText,
+  Users,
+  Award,
+  HelpCircle,
 } from "lucide-react";
 import PublicNavbar from "@/components/public/Navbar";
 import PublicFooter from "@/components/public/Footer";
 
 export default function HomePage() {
   const [activeCategory, setActiveCategory] = useState<"ALL" | "WEB" | "MOBILE" | "ERP" | "WHATSAPP" | "PRODUCTS">("ALL");
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
+  // Proposal / Lead Form State
   const [leadForm, setLeadForm] = useState({
     name: "",
     email: "",
@@ -79,24 +85,57 @@ export default function HomePage() {
     }
   };
 
+  // Company Overview Pillars
+  const companyPillars = [
+    {
+      icon: Code2,
+      title: "Bespoke Engineering",
+      badge: "Custom Code",
+      badgeColor: "bg-sky-50 text-sky-700 border-sky-200",
+      description: "Tailor-made web applications, client portals, SaaS architectures, and cloud APIs built from the ground up for your specific business workflow.",
+    },
+    {
+      icon: Smartphone,
+      title: "Mobile App Development",
+      badge: "iOS & Android",
+      badgeColor: "bg-indigo-50 text-indigo-700 border-indigo-200",
+      description: "High-performance native-feel cross-platform apps with offline local database caching, background sync, biometrics, and GPS telemetry.",
+    },
+    {
+      icon: Layers,
+      title: "Enterprise ERP & CRM",
+      badge: "Operations OS",
+      badgeColor: "bg-emerald-50 text-emerald-700 border-emerald-200",
+      description: "Complete business operating systems: automated GST invoicing, multi-warehouse inventory, staff attendance, and client collaboration vaults.",
+    },
+    {
+      icon: Bot,
+      title: "Automated WhatsApp Sync",
+      badge: "Zero API Fees",
+      badgeColor: "bg-emerald-50 text-emerald-700 border-emerald-200",
+      description: "Headless WhatsApp Web integration powered by Baileys. Send POS receipts, GST bills, and overdue payment reminders (तकादा) automatically.",
+    },
+  ];
+
+  // Comprehensive Services Catalog
   const comprehensiveServices = [
     {
       id: "web-apps",
       category: "WEB",
       icon: Code2,
-      badge: "High Performance",
+      badge: "Sub-Second Latency",
       badgeColor: "bg-sky-50 text-sky-700 border-sky-200",
       title: "Custom Web Applications & SaaS Platforms",
-      tagline: "Ultra-fast Next.js 16, React, and Node.js solutions built for scalability.",
+      tagline: "Ultra-fast Next.js, React, and Node.js solutions engineered for high concurrency.",
       description:
-        "We engineer high-concurrency client portals, SaaS platforms, and enterprise dashboards. Every application is optimized for sub-second load times, role-based access control (RBAC), and high security.",
+        "We build scalable web portals, SaaS platforms, and enterprise dashboards. Every application is optimized for sub-second page loads, role-based access control (RBAC), and bank-grade data security.",
       deliverables: [
         "Full-Stack Next.js (App Router), React & TypeScript architecture",
-        "Role-Based Access Control (Admin, Manager, Staff, Customer)",
+        "Granular Role-Based Access Control (Admin, Manager, Staff, Customer)",
         "PostgreSQL / SQLite database modeling & optimized indexing",
         "GST-compliant invoicing & automatic PDF generation",
         "Payment gateways: Razorpay, Stripe, UPI, Bank Transfer",
-        "Responsive, mobile-first design with Tailwind CSS v4",
+        "Responsive, mobile-first design with modern Tailwind styling",
       ],
       idealFor: "Startups, SaaS Founders, Corporate Portals, Digital Marketplaces",
       typicalTimeline: "3 to 6 Weeks",
@@ -109,9 +148,9 @@ export default function HomePage() {
       badge: "iOS & Android",
       badgeColor: "bg-indigo-50 text-indigo-700 border-indigo-200",
       title: "Cross-Platform Mobile App Engineering",
-      tagline: "Universal iOS and Android apps with native performance & offline sync.",
+      tagline: "Universal iOS and Android apps with 60fps animations & offline sync.",
       description:
-        "We build clean, fluid cross-platform mobile apps using React Native and Flutter. Designed for smooth 60fps animations, background telemetry, push notifications, and seamless app store releases.",
+        "We build clean, fluid cross-platform mobile apps using React Native and Flutter. Designed for smooth animations, background telemetry, push notifications, and seamless app store releases.",
       deliverables: [
         "Universal iOS & Android codebase with native-feel UI/UX",
         "Offline-first local SQLite caching & background sync engine",
@@ -131,7 +170,7 @@ export default function HomePage() {
       badge: "Most Popular",
       badgeColor: "bg-emerald-50 text-emerald-700 border-emerald-200",
       title: "Enterprise Custom ERP & CRM Operating Systems",
-      tagline: "End-to-end automation for invoicing, inventory, HR, and customer workflows.",
+      tagline: "Centralized automation for invoicing, inventory, HR, and customer workflows.",
       description:
         "Replace fragmented spreadsheets with a centralized, enterprise-grade operating system. Manage dispatch pipelines, multi-warehouse inventory, staff attendance, GST filing, and client contracts in one cockpit.",
       deliverables: [
@@ -179,9 +218,9 @@ export default function HomePage() {
       description:
         "Skip months of development with our pre-built, battle-tested software products. Includes 100% source code, self-hosted deployment scripts, lifetime commercial license, and optional customization.",
       deliverables: [
-        "NovaStore: Omnichannel Multi-Store E-Commerce Suite",
         "PulseCare: Hospital, Clinic & Pharmacy Management ERP",
         "AeroFleet: GPS Telemetry, Fleet Tracking & Dispatch System",
+        "NovaStore: Omnichannel Multi-Store E-Commerce Suite",
         "BistroTouch: Restaurant POS, Kitchen Display & Table Ordering",
         "LedgerPro: GST Billing, Client Collaboration & Asset Vault",
         "EduCampus: College & School ERP with Fee Management",
@@ -214,6 +253,41 @@ export default function HomePage() {
     },
   ];
 
+  // Industry Verticals
+  const industries = [
+    {
+      icon: Stethoscope,
+      title: "Healthcare & Clinics",
+      desc: "Patient OPD/IPD registers, doctor rostering, electronic health records (EHR), automated lab report delivery, and pharmacy billing.",
+    },
+    {
+      icon: Truck,
+      title: "Logistics & Transport",
+      desc: "Real-time GPS vehicle tracking, fuel consumption logs, driver trip sheets, e-way bill generation, and automated delivery notifications.",
+    },
+    {
+      icon: ShoppingBag,
+      title: "Retail & Distribution",
+      desc: "Multi-branch stock sync, barcode scanning, POS counter billing, customer credit passbooks, and WhatsApp tax invoices.",
+    },
+    {
+      icon: UtensilsCrossed,
+      title: "Hospitality & Dining",
+      desc: "Cloud restaurant POS, Kitchen Display Systems (KDS), contactless QR menus, table reservations, and Swiggy/Zomato consolidation.",
+    },
+    {
+      icon: Building2,
+      title: "Manufacturing & Plants",
+      desc: "Bill of materials (BOM), shop-floor production stages, raw material replenishment alerts, equipment maintenance, and GST filing.",
+    },
+    {
+      icon: GraduationCap,
+      title: "Education & Academies",
+      desc: "Student admissions, digital fee collection receipts, exam report cards, teacher attendance registers, and parent WhatsApp updates.",
+    },
+  ];
+
+  // Turnkey Ready-to-Deploy Products
   const turnkeyProducts = [
     {
       title: "PulseCare Hospital & Clinic ERP",
@@ -243,9 +317,61 @@ export default function HomePage() {
       title: "BistroTouch Restaurant Cloud POS",
       category: "Food & Beverage",
       icon: UtensilsCrossed,
-      features: "Kitchen Display (KDS), Table QR Menus, Swiggy/Zomato Sync, Daily Sales Book",
+      features: "Kitchen Display (KDS), Table QR Menus, Delivery Aggregator Sync, Daily Sales Book",
       price: "₹85,000",
       demoSlug: "/demos",
+    },
+  ];
+
+  // 4-Step Lifecycle
+  const processSteps = [
+    {
+      number: "01",
+      title: "Scope & Free Architecture Plan",
+      description: "We analyze your business workflow, map database structures, and deliver an itemized commercial proposal within 24 hours.",
+    },
+    {
+      number: "02",
+      title: "Milestone Sprints & Live Staging",
+      description: "Track progress in your private Client Portal. Test live staging sandbox URLs and review code commits every sprint cycle.",
+    },
+    {
+      number: "03",
+      title: "Quality Assurance & E-Sign Signoff",
+      description: "Rigorous automated and manual testing. Approve deliverables through legal digital signature seals directly on the web portal.",
+    },
+    {
+      number: "04",
+      title: "Zero-Downtime Launch & 24/7 SLA",
+      description: "We deploy to your private cloud with custom domain, SSL, automated daily backups, and 24/7 technical maintenance.",
+    },
+  ];
+
+  // FAQ Items
+  const faqList = [
+    {
+      q: "Do I get full commercial ownership of the source code and database?",
+      a: "Yes, 100%. Whether we build a custom solution from scratch or you purchase a turnkey product, you receive complete source code, database schemas, and documentation with a perpetual commercial license. No recurring per-user software licensing fees.",
+    },
+    {
+      q: "How does the private Client Portal (/customer) work?",
+      a: "From day one, you receive private login credentials to your dedicated Client Portal. There, you can monitor sprint progress percentages, review developer staging links, approve milestone deliverables, download GST tax invoices, and access your confidential file vault.",
+    },
+    {
+      q: "How are milestone payments and legal contracts handled?",
+      a: "We work with complete transparency. Every project starts with a formal Master Services Agreement and itemized quotation. Payments are split across milestones (e.g. 30% advance, 40% functional milestone, 30% final signoff). You can review and execute agreements directly on our web portal via digital E-Signature.",
+    },
+    {
+      q: "Can you automate WhatsApp billing and payment reminders without monthly API fees?",
+      a: "Yes! Our custom WhatsApp sync engine uses the headless Baileys Multi-Device protocol. You can pair your official business number via QR code or 8-digit mobile code. The server automatically dispatches POS receipts, PDF invoices, and payment reminders (तकादा) directly to customer phones.",
+    },
+    {
+      q: "How fast can my project go live?",
+      a: "Turnkey software products (like PulseCare, AeroFleet, NovaStore, BistroTouch) can be deployed with your branding, custom domain, and cloud database within 24 to 48 hours. Custom web or mobile development sprints typically take 2 to 6 weeks depending on scope.",
+    },
+    {
+      q: "Do you offer post-deployment support and AMC maintenance?",
+      a: "Absolutely. Every project includes complimentary post-launch warranty support. Additionally, we provide ongoing monthly maintenance covering 24/7 cloud monitoring, 99.9% uptime SLA, daily automated backups, security patching, and on-demand feature upgrades.",
     },
   ];
 
@@ -255,163 +381,180 @@ export default function HomePage() {
       : comprehensiveServices.filter((s) => s.category === activeCategory);
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-slate-900 selection:bg-sky-500 selection:text-white">
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 selection:bg-sky-500 selection:text-white">
       <PublicNavbar />
 
       {/* =========================================================================
-          HERO SECTION (Mobile-First, High Contrast, Direct Actionable CTAs)
+          HERO SECTION (Mobile-First, Generous, Clean, High Contrast, Direct Action)
       ========================================================================= */}
-      <section className="relative pt-8 pb-14 sm:pt-16 sm:pb-24 overflow-hidden bg-gradient-to-b from-slate-50 via-white to-white border-b border-slate-200">
+      <section className="relative pt-6 pb-12 sm:pt-14 sm:pb-20 overflow-hidden bg-gradient-to-b from-white via-sky-50/20 to-slate-50 border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto space-y-4 sm:space-y-6">
             
-            {/* Top Pill */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-50 border border-sky-200 text-sky-800 text-[11px] sm:text-xs font-bold shadow-xs">
+            {/* Top Announcement Pill */}
+            <div className="inline-flex items-center gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-sky-50 border border-sky-200/80 text-sky-800 text-[11px] sm:text-xs font-bold shadow-xs">
               <Sparkles className="w-3.5 h-3.5 text-sky-600 shrink-0" />
-              <span>Full-Stack Engineering & Enterprise Software</span>
+              <span>Enterprise Software & Digital Product Engineering</span>
             </div>
 
             {/* Main Headline */}
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-950 tracking-tight leading-[1.18]">
-              We Build Custom Software That Powers Your{" "}
+            <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-slate-950 tracking-tight leading-[1.15]">
+              We Engineer Custom Software That Powers Your{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-600 via-blue-600 to-indigo-600">
                 Business Growth
               </span>
             </h1>
 
-            {/* Subtitle */}
-            <p className="text-sm sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed px-1">
-              From enterprise web applications and mobile apps to custom ERPs and automated WhatsApp billing systems — ABECSA delivers high-speed, secure digital solutions with complete transparency.
+            {/* Generous Clear Description */}
+            <p className="text-xs sm:text-base md:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+              ABECSA delivers tailor-made web platforms, cross-platform mobile apps, complete ERP/CRM operating systems, and automated WhatsApp billing engines — with 100% source code ownership, guaranteed 99.9% uptime, and dedicated delivery managers.
             </p>
 
-            {/* 1-Tap Action Buttons (Mobile-Optimized Touch Targets) */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5 sm:gap-3.5 pt-2 max-w-md sm:max-w-none mx-auto">
-              <Link
-                href="/login"
-                className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-sm font-bold text-white bg-slate-950 hover:bg-slate-800 shadow-md transition-all active:scale-95 cursor-pointer"
-              >
-                <span>Client & Staff Login</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-
+            {/* Direct 1-Tap CTAs (Optimized for Mobile Touch) */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5 sm:gap-3.5 pt-1 sm:pt-2 max-w-md sm:max-w-none mx-auto">
               <a
                 href="#contact"
-                className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-sm font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 transition-all active:scale-95 cursor-pointer"
+                className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-slate-950 hover:bg-slate-800 shadow-md shadow-slate-950/10 transition-all active:scale-[0.98] cursor-pointer"
               >
                 <span>Request Project Proposal</span>
+                <ArrowRight className="w-4 h-4" />
               </a>
 
               <a
                 href="https://wa.me/919876543210?text=Hello%20ABECSA!%20I%20am%20interested%20in%20discussing%20a%20software%20project%20for%20my%20business."
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-sm font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 transition-all active:scale-95"
+                className="flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-xs sm:text-sm font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300/80 transition-all active:scale-[0.98]"
               >
                 <MessageSquare className="w-4 h-4 text-emerald-600" />
                 <span>Chat on WhatsApp</span>
               </a>
+
+              <Link
+                href="/login"
+                className="flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-xs sm:text-sm font-bold text-slate-800 bg-white hover:bg-slate-100 border border-slate-200 shadow-xs transition-all active:scale-[0.98]"
+              >
+                <ShieldCheck className="w-4 h-4 text-sky-600" />
+                <span>Client & Staff Login</span>
+              </Link>
             </div>
 
-            {/* Mobile Call-Now Fast Strip */}
-            <div className="pt-2 sm:hidden flex items-center justify-center gap-2 text-xs text-slate-500 font-semibold">
-              <Phone className="w-3.5 h-3.5 text-sky-600" />
-              <span>Direct Phone Sync:</span>
-              <a href="tel:+919876543210" className="text-slate-900 font-bold underline">
+            {/* Direct Phone Assistance Bar */}
+            <div className="pt-1 flex items-center justify-center gap-1.5 text-xs text-slate-500 font-medium">
+              <Phone className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+              <span>Need immediate consultation? Call us directly:</span>
+              <a href="tel:+919876543210" className="text-slate-900 font-bold underline hover:text-sky-600">
                 +91 98765 43210
               </a>
             </div>
 
-            {/* Trust Highlights */}
-            <div className="pt-6 sm:pt-8 flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-xs font-bold text-slate-600 border-t border-slate-100 mt-6">
-              <div className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>45+ Enterprise Deliveries</span>
+            {/* Live Trust Metrics Grid (2x2 on mobile, 4-col on desktop) */}
+            <div className="pt-6 sm:pt-8 grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 border-t border-slate-200/80 mt-6 text-left">
+              <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200/70 shadow-xs">
+                <div className="flex items-center gap-2 text-emerald-600 font-black text-lg sm:text-2xl">
+                  <span>45+</span>
+                </div>
+                <div className="text-[11px] sm:text-xs font-semibold text-slate-700 mt-0.5">Systems Deployed</div>
+                <div className="text-[10px] text-slate-400">Production-ready releases</div>
               </div>
-              <div className="flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-sky-600 shrink-0" />
-                <span>Dedicated Delivery Manager</span>
+
+              <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200/70 shadow-xs">
+                <div className="flex items-center gap-2 text-sky-600 font-black text-lg sm:text-2xl">
+                  <span>99.9%</span>
+                </div>
+                <div className="text-[11px] sm:text-xs font-semibold text-slate-700 mt-0.5">Uptime SLA</div>
+                <div className="text-[10px] text-slate-400">High-availability cloud</div>
               </div>
-              <div className="flex items-center gap-1.5">
-                <Clock className="w-4 h-4 text-indigo-600 shrink-0" />
-                <span>Live Client Sprint Portal</span>
+
+              <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200/70 shadow-xs">
+                <div className="flex items-center gap-2 text-indigo-600 font-black text-lg sm:text-2xl">
+                  <span>100%</span>
+                </div>
+                <div className="text-[11px] sm:text-xs font-semibold text-slate-700 mt-0.5">Code Ownership</div>
+                <div className="text-[10px] text-slate-400">Zero recurring vendor lock-in</div>
               </div>
-              <div className="flex items-center gap-1.5">
-                <Zap className="w-4 h-4 text-amber-500 shrink-0" />
-                <span>99.9% Uptime SLA</span>
+
+              <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200/70 shadow-xs">
+                <div className="flex items-center gap-2 text-amber-500 font-black text-lg sm:text-2xl">
+                  <span>24 Hrs</span>
+                </div>
+                <div className="text-[11px] sm:text-xs font-semibold text-slate-700 mt-0.5">Fast Proposals</div>
+                <div className="text-[10px] text-slate-400">Itemized cost roadmap</div>
               </div>
             </div>
+
           </div>
 
-          {/* Interactive Portal Preview Card */}
-          <div className="mt-10 sm:mt-14 max-w-5xl mx-auto rounded-2xl border border-slate-200 bg-slate-50/80 p-2.5 sm:p-4 shadow-xl">
-            <div className="rounded-xl bg-white border border-slate-200 overflow-hidden shadow-xs">
+          {/* Interactive Portal Preview Mockup */}
+          <div className="mt-8 sm:mt-12 max-w-5xl mx-auto rounded-2xl border border-slate-200 bg-white p-2.5 sm:p-4 shadow-xl">
+            <div className="rounded-xl bg-slate-900 border border-slate-800 overflow-hidden shadow-xs text-white">
               {/* Window Header */}
-              <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-xs">
+              <div className="px-4 py-2.5 bg-slate-950 border-b border-slate-800 flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
-                  <span className="h-2.5 w-2.5 rounded-full bg-rose-400" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
-                  <span className="ml-2 font-mono text-slate-500 text-[11px]">abecsa.site/cockpit</span>
+                  <span className="h-2.5 w-2.5 rounded-full bg-rose-500" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-amber-500" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+                  <span className="ml-2 font-mono text-slate-400 text-[10px] sm:text-[11px]">abecsa.site/cockpit</span>
                 </div>
-                <div className="flex items-center gap-1.5 text-emerald-700 font-bold text-[11px]">
+                <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-[10px] sm:text-[11px]">
                   <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>Enterprise OS Active</span>
+                  <span>Enterprise OS Live</span>
                 </div>
               </div>
 
-              {/* Window Content: 3 Integrated Perspectives */}
-              <div className="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-                <div className="p-4 rounded-xl bg-sky-50/60 border border-sky-100 flex flex-col justify-between">
+              {/* 3 Perspectives */}
+              <div className="p-3 sm:p-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="p-3.5 sm:p-4 rounded-xl bg-slate-800/80 border border-slate-700 flex flex-col justify-between">
                   <div>
-                    <span className="text-[10px] font-bold text-sky-700 uppercase tracking-wider block">
+                    <span className="text-[10px] font-bold text-sky-400 uppercase tracking-wider block">
                       Client Portal (`/customer`)
                     </span>
-                    <h4 className="text-sm font-bold text-slate-900 mt-1">Live Sprints & Invoices</h4>
-                    <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                      Approve milestones, view developer staging links, download GST invoices, and access private files.
+                    <h4 className="text-xs sm:text-sm font-bold text-white mt-1">Live Sprints & Invoices</h4>
+                    <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                      Approve milestones, view staging links, download GST tax invoices, and access private files.
                     </p>
                   </div>
                   <Link
                     href="/customer"
-                    className="mt-3 text-xs font-bold text-sky-700 hover:text-sky-800 flex items-center gap-1"
+                    className="mt-3 text-xs font-bold text-sky-400 hover:text-sky-300 flex items-center gap-1"
                   >
-                    <span>View Client View</span>
+                    <span>Inspect Client View</span>
                     <ChevronRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
 
-                <div className="p-4 rounded-xl bg-emerald-50/60 border border-emerald-100 flex flex-col justify-between">
+                <div className="p-3.5 sm:p-4 rounded-xl bg-slate-800/80 border border-slate-700 flex flex-col justify-between">
                   <div>
-                    <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider block">
+                    <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block">
                       Operations (`/manager`)
                     </span>
-                    <h4 className="text-sm font-bold text-slate-900 mt-1">Manager Cockpit</h4>
-                    <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                    <h4 className="text-xs sm:text-sm font-bold text-white mt-1">Manager Cockpit</h4>
+                    <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
                       Lead pipeline, WhatsApp Web gateway, squad assignments, and real-time client notice broadcast.
                     </p>
                   </div>
                   <Link
                     href="/manager"
-                    className="mt-3 text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1"
+                    className="mt-3 text-xs font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1"
                   >
                     <span>View Operations</span>
                     <ChevronRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
 
-                <div className="p-4 rounded-xl bg-slate-100/70 border border-slate-200 flex flex-col justify-between">
+                <div className="p-3.5 sm:p-4 rounded-xl bg-slate-800/80 border border-slate-700 flex flex-col justify-between">
                   <div>
-                    <span className="text-[10px] font-bold text-slate-700 uppercase tracking-wider block">
+                    <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">
                       Engineering (`/engineer`)
                     </span>
-                    <h4 className="text-sm font-bold text-slate-900 mt-1">Sprint Kanban Board</h4>
-                    <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                    <h4 className="text-xs sm:text-sm font-bold text-white mt-1">Sprint Kanban Board</h4>
+                    <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
                       Task specification criteria, PR review submissions, work hour logging, and staging deployments.
                     </p>
                   </div>
                   <Link
                     href="/engineer"
-                    className="mt-3 text-xs font-bold text-slate-700 hover:text-slate-900 flex items-center gap-1"
+                    className="mt-3 text-xs font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1"
                   >
                     <span>View Sprint Board</span>
                     <ChevronRight className="w-3.5 h-3.5" />
@@ -424,25 +567,82 @@ export default function HomePage() {
       </section>
 
       {/* =========================================================================
-          COMPREHENSIVE SERVICES SECTION (Interactive Mobile Filters & Full Detail)
+          SECTION 2: AT A GLANCE - WHO WE ARE & WHAT WE DO (NEW VISITOR GUIDE)
       ========================================================================= */}
-      <section className="py-14 sm:py-24 bg-white" id="services">
+      <section className="py-10 sm:py-16 bg-white border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto space-y-2 mb-8 sm:mb-12">
+            <span className="text-xs font-black uppercase tracking-widest text-sky-600 block">
+              AT A GLANCE
+            </span>
+            <h2 className="text-xl sm:text-3xl font-black text-slate-950 tracking-tight">
+              Why Forward-Thinking Businesses Choose ABECSA
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              We bridge the gap between creative product design, battle-tested full-stack engineering, and business operating transparency.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            {companyPillars.map((pillar, idx) => {
+              const Icon = pillar.icon;
+              return (
+                <div
+                  key={idx}
+                  className="bg-slate-50/70 rounded-2xl border border-slate-200/80 p-5 shadow-xs hover:border-sky-300 hover:shadow-md transition-all flex flex-col justify-between space-y-3"
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="h-10 w-10 rounded-xl bg-white text-sky-600 flex items-center justify-center border border-slate-200 shadow-2xs">
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${pillar.badgeColor}`}>
+                        {pillar.badge}
+                      </span>
+                    </div>
+
+                    <div>
+                      <h3 className="text-sm sm:text-base font-bold text-slate-950">{pillar.title}</h3>
+                      <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
+                        {pillar.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  <a
+                    href="#services"
+                    className="pt-2 text-xs font-bold text-sky-600 hover:text-sky-700 flex items-center gap-1 border-t border-slate-200/60"
+                  >
+                    <span>Learn more</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================================
+          SECTION 3: COMPREHENSIVE SERVICES CATALOG (MOBILE CATEGORY PILLS)
+      ========================================================================= */}
+      <section className="py-12 sm:py-20 bg-slate-50" id="services">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          {/* Section Header */}
-          <div className="text-center max-w-3xl mx-auto space-y-3 mb-8 sm:mb-14">
+          {/* Header */}
+          <div className="text-center max-w-3xl mx-auto space-y-3 mb-8 sm:mb-12">
             <span className="text-xs font-black uppercase tracking-widest text-sky-600 block">
               OUR SERVICES & ENGINEERING CAPABILITIES
             </span>
             <h2 className="text-2xl sm:text-4xl font-black text-slate-950 tracking-tight">
               What We Build, Deliver & Support
             </h2>
-            <p className="text-xs sm:text-base text-slate-600 leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
               Every digital solution is custom-architected with enterprise-grade standards, clean documentation, strict security, and complete source code ownership.
             </p>
 
             {/* Mobile Category Filter Bar */}
-            <div className="pt-4 flex items-center justify-center gap-1.5 sm:gap-2 flex-wrap">
+            <div className="pt-3 flex items-center justify-center gap-1.5 sm:gap-2 flex-wrap">
               {[
                 { id: "ALL", label: "All Capabilities" },
                 { id: "WEB", label: "Web & SaaS" },
@@ -457,7 +657,7 @@ export default function HomePage() {
                   className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
                     activeCategory === tab.id
                       ? "bg-slate-950 text-white shadow-xs"
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                      : "bg-white text-slate-700 hover:bg-slate-200 border border-slate-200"
                   }`}
                 >
                   {tab.label}
@@ -467,7 +667,7 @@ export default function HomePage() {
           </div>
 
           {/* Service Cards Grid (1 col on mobile, 2 cols on tablet/desktop) */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-7">
             {filteredServices.map((svc) => {
               const Icon = svc.icon;
               return (
@@ -478,8 +678,8 @@ export default function HomePage() {
                   <div className="space-y-4">
                     {/* Top Row: Icon + Badge + Starting Price */}
                     <div className="flex items-start justify-between gap-3">
-                      <div className="h-12 w-12 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center border border-sky-100 shadow-xs shrink-0">
-                        <Icon className="w-6 h-6" />
+                      <div className="h-11 w-11 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center border border-sky-100 shadow-2xs shrink-0">
+                        <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
                       </div>
                       <div className="flex flex-col items-end gap-1">
                         <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${svc.badgeColor}`}>
@@ -493,7 +693,7 @@ export default function HomePage() {
 
                     {/* Title & Tagline */}
                     <div>
-                      <h3 className="text-lg sm:text-xl font-bold text-slate-950">
+                      <h3 className="text-base sm:text-lg font-bold text-slate-950">
                         {svc.title}
                       </h3>
                       <p className="text-xs font-semibold text-sky-700 mt-0.5">
@@ -507,9 +707,9 @@ export default function HomePage() {
                     {/* Feature Deliverables Checklist */}
                     <div className="space-y-2 pt-2 border-t border-slate-100">
                       <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider block">
-                        Included Engineering Deliverables:
+                        Included Deliverables:
                       </span>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-2 text-xs">
                         {svc.deliverables.map((item, idx) => (
                           <div key={idx} className="flex items-start gap-1.5 text-slate-700">
                             <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
@@ -523,7 +723,7 @@ export default function HomePage() {
                   {/* Card Footer: Timeline + Action Buttons */}
                   <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
                     <div className="text-[11px] text-slate-500">
-                      <span className="font-semibold text-slate-700">Typical Sprint:</span>{" "}
+                      <span className="font-semibold text-slate-700">Sprint Timeline:</span>{" "}
                       <span>{svc.typicalTimeline}</span>
                     </div>
 
@@ -537,7 +737,7 @@ export default function HomePage() {
                         className="flex-1 sm:flex-initial px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
                       >
                         <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>Consult on WhatsApp</span>
+                        <span>WhatsApp</span>
                       </a>
 
                       <a
@@ -563,11 +763,11 @@ export default function HomePage() {
       </section>
 
       {/* =========================================================================
-          READY-TO-DEPLOY TURNKEY PRODUCTS SHELF (/demos & /shop)
+          SECTION 4: TURNKEY SOFTWARE SHELF (/demos & /shop)
       ========================================================================= */}
-      <section className="py-14 sm:py-20 bg-slate-50 border-t border-b border-slate-200">
+      <section className="py-12 sm:py-18 bg-white border-t border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
             <div>
               <span className="text-xs font-black uppercase tracking-widest text-sky-600 block">
                 TURNKEY SOFTWARE SHELF
@@ -583,35 +783,35 @@ export default function HomePage() {
             <div className="flex items-center gap-2 shrink-0">
               <Link
                 href="/demos"
-                className="px-4 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold flex items-center gap-1.5 shadow-xs"
+                className="px-3.5 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold flex items-center gap-1.5 shadow-2xs"
               >
-                <span>Explore Live Demos</span>
+                <span>Live Demos</span>
                 <ExternalLink className="w-3.5 h-3.5" />
               </Link>
               <Link
                 href="/shop"
-                className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs"
+                className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-2xs"
               >
-                <span>Visit Software Shop</span>
+                <span>Software Shop</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
             {turnkeyProducts.map((prod, i) => {
               const Icon = prod.icon;
               return (
                 <div
                   key={i}
-                  className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs hover:border-sky-300 hover:shadow-md transition-all flex flex-col justify-between space-y-4"
+                  className="bg-slate-50/80 rounded-2xl border border-slate-200 p-5 shadow-xs hover:border-sky-300 hover:shadow-md transition-all flex flex-col justify-between space-y-4"
                 >
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <div className="h-10 w-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center border border-sky-100">
+                      <div className="h-10 w-10 rounded-xl bg-white text-sky-600 flex items-center justify-center border border-slate-200">
                         <Icon className="w-5 h-5" />
                       </div>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700">
                         {prod.category}
                       </span>
                     </div>
@@ -624,7 +824,7 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                  <div className="pt-3 border-t border-slate-200/60 flex items-center justify-between">
                     <div>
                       <span className="text-[10px] text-slate-400 block">Commercial Code</span>
                       <span className="text-xs font-black text-slate-900">{prod.price}</span>
@@ -632,7 +832,7 @@ export default function HomePage() {
 
                     <Link
                       href={prod.demoSlug}
-                      className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-sky-50 hover:text-sky-700 text-slate-700 text-[11px] font-bold flex items-center gap-1 transition-colors"
+                      className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:bg-sky-50 hover:text-sky-700 text-slate-700 text-[11px] font-bold flex items-center gap-1 transition-colors"
                     >
                       <span>Try Demo</span>
                       <ChevronRight className="w-3 h-3" />
@@ -646,9 +846,91 @@ export default function HomePage() {
       </section>
 
       {/* =========================================================================
-          THE ABECSA ADVANTAGE: CLIENT PORTAL TRANSPARENCY
+          SECTION 5: INDUSTRIES WE TRANSFORM (REAL-WORLD WORKFLOWS)
       ========================================================================= */}
-      <section className="py-14 sm:py-20 bg-white">
+      <section className="py-12 sm:py-20 bg-slate-50 border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto space-y-2 mb-8 sm:mb-12">
+            <span className="text-xs font-black uppercase tracking-widest text-sky-600 block">
+              DOMAIN EXPERTISE
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight">
+              Software Tailored to Your Specific Industry
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              We understand that every sector requires specific regulatory compliance, hardware integration, and workflows.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {industries.map((ind, i) => {
+              const Icon = ind.icon;
+              return (
+                <div
+                  key={i}
+                  className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs hover:border-sky-300 hover:shadow-md transition-all space-y-3"
+                >
+                  <div className="h-10 w-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center border border-sky-100">
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900">{ind.title}</h3>
+                    <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                      {ind.desc}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================================
+          SECTION 6: HOW WE WORK (4-STEP PROVEN SPRINT LIFECYCLE)
+      ========================================================================= */}
+      <section className="py-12 sm:py-20 bg-white border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto space-y-2 mb-8 sm:mb-14">
+            <span className="text-xs font-black uppercase tracking-widest text-sky-600 block">
+              OUR PROVEN METHODOLOGY
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight">
+              From Concept to Production in 4 Transparent Steps
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              No black boxes. No surprises. You have real-time visibility and approval authority at every single milestone.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            {processSteps.map((step, idx) => (
+              <div
+                key={idx}
+                className="bg-slate-50/70 rounded-2xl border border-slate-200 p-5 shadow-xs relative flex flex-col justify-between space-y-4"
+              >
+                <div className="space-y-3">
+                  <div className="text-2xl font-black text-sky-600 font-mono">
+                    {step.number}
+                  </div>
+                  <h3 className="text-sm font-bold text-slate-900">{step.title}</h3>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    {step.description}
+                  </p>
+                </div>
+                <div className="pt-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  Step {idx + 1} of 4
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================================
+          SECTION 7: THE ABECSA ADVANTAGE (CLIENT PORTAL TRANSPARENCY)
+      ========================================================================= */}
+      <section className="py-12 sm:py-20 bg-slate-50 border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             
@@ -659,7 +941,7 @@ export default function HomePage() {
               <h2 className="text-2xl sm:text-4xl font-black text-slate-950 tracking-tight leading-tight">
                 Track Every Sprint & Milestone in Your Private Client Portal
               </h2>
-              <p className="text-xs sm:text-base text-slate-600 leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                 Unlike traditional agencies where development is a black box, ABECSA provides every client with an authenticated portal (`/customer`). You have real-time visibility from day one.
               </p>
 
@@ -698,7 +980,7 @@ export default function HomePage() {
               <div className="pt-2">
                 <Link
                   href="/customer"
-                  className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-slate-950 text-white hover:bg-slate-800 text-xs font-bold transition-all"
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-slate-950 text-white hover:bg-slate-800 text-xs font-bold transition-all shadow-xs"
                 >
                   <span>Explore Client Portal Experience</span>
                   <ArrowRight className="w-4 h-4" />
@@ -707,7 +989,7 @@ export default function HomePage() {
             </div>
 
             {/* Portal Architecture Illustration Card */}
-            <div className="lg:col-span-6 bg-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-800 space-y-4">
+            <div className="lg:col-span-6 bg-slate-900 text-white rounded-3xl p-5 sm:p-8 shadow-2xl border border-slate-800 space-y-4">
               <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                 <span className="text-xs font-bold text-sky-400">ABECSA Operating System Architecture</span>
                 <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-800">
@@ -715,10 +997,10 @@ export default function HomePage() {
                 </span>
               </div>
 
-              <div className="space-y-3 text-xs">
-                <div className="p-3.5 rounded-xl bg-slate-800/90 border border-slate-700 flex items-center justify-between">
+              <div className="space-y-2.5 text-xs">
+                <div className="p-3 rounded-xl bg-slate-800/90 border border-slate-700 flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <Building2 className="w-4 h-4 text-sky-400" />
+                    <Building2 className="w-4 h-4 text-sky-400 shrink-0" />
                     <div>
                       <span className="font-bold text-white block">Central Executive Admin</span>
                       <span className="text-[10px] text-slate-400">Total company control, invoices, HR & CRM audits</span>
@@ -727,20 +1009,20 @@ export default function HomePage() {
                   <span className="text-[10px] font-mono font-bold text-slate-300 bg-slate-700/60 px-2 py-0.5 rounded">/admin</span>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-slate-800/90 border border-slate-700 flex items-center justify-between">
+                <div className="p-3 rounded-xl bg-slate-800/90 border border-slate-700 flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <Layers className="w-4 h-4 text-emerald-400" />
+                    <Layers className="w-4 h-4 text-emerald-400 shrink-0" />
                     <div>
                       <span className="font-bold text-white block">Project Delivery Manager</span>
-                      <span className="text-[10px] text-slate-400">Client coordination, sprint assignment, WhatsApp Web gateway</span>
+                      <span className="text-[10px] text-slate-400">Client coordination, sprint allocation, WhatsApp Web gateway</span>
                     </div>
                   </div>
                   <span className="text-[10px] font-mono font-bold text-slate-300 bg-slate-700/60 px-2 py-0.5 rounded">/manager</span>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-slate-800/90 border border-slate-700 flex items-center justify-between">
+                <div className="p-3 rounded-xl bg-slate-800/90 border border-slate-700 flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <Code2 className="w-4 h-4 text-amber-400" />
+                    <Code2 className="w-4 h-4 text-amber-400 shrink-0" />
                     <div>
                       <span className="font-bold text-white block">Software Engineer Workspace</span>
                       <span className="text-[10px] text-slate-400">Sprint Kanban, code reviews, staging URLs & work logs</span>
@@ -749,9 +1031,9 @@ export default function HomePage() {
                   <span className="text-[10px] font-mono font-bold text-slate-300 bg-slate-700/60 px-2 py-0.5 rounded">/engineer</span>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-slate-800/90 border border-slate-700 flex items-center justify-between">
+                <div className="p-3 rounded-xl bg-slate-800/90 border border-slate-700 flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <Laptop className="w-4 h-4 text-indigo-400" />
+                    <Laptop className="w-4 h-4 text-indigo-400 shrink-0" />
                     <div>
                       <span className="font-bold text-white block">Enterprise Customer Portal</span>
                       <span className="text-[10px] text-slate-400">Milestone progress %, invoice settlement, private vault</span>
@@ -767,17 +1049,65 @@ export default function HomePage() {
       </section>
 
       {/* =========================================================================
-          CONTACT & PROPOSAL INQUIRY SECTION (Mobile-First Form & Direct WhatsApp)
+          SECTION 8: FREQUENTLY ASKED QUESTIONS (FAQ ACCORDION)
       ========================================================================= */}
-      <section className="py-14 sm:py-24 bg-slate-50 border-t border-slate-200" id="contact">
+      <section className="py-12 sm:py-20 bg-white border-b border-slate-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-slate-950 text-white rounded-3xl p-6 sm:p-12 shadow-2xl border border-slate-800">
+          <div className="text-center max-w-2xl mx-auto space-y-2 mb-8 sm:mb-12">
+            <span className="text-xs font-black uppercase tracking-widest text-sky-600 block">
+              FREQUENT QUESTIONS
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight">
+              Everything You Need to Know
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              Answers to top questions regarding source code ownership, milestones, WhatsApp bots, and cloud maintenance.
+            </p>
+          </div>
+
+          <div className="space-y-3">
+            {faqList.map((faq, index) => {
+              const isOpen = openFaqIndex === index;
+              return (
+                <div
+                  key={index}
+                  className="rounded-2xl border border-slate-200 overflow-hidden bg-slate-50/60 transition-all"
+                >
+                  <button
+                    onClick={() => setOpenFaqIndex(isOpen ? null : index)}
+                    className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-4 font-bold text-xs sm:text-sm text-slate-900 cursor-pointer hover:bg-slate-100/60 transition-colors"
+                  >
+                    <span>{faq.q}</span>
+                    <ChevronDown
+                      className={`w-4 h-4 text-slate-500 shrink-0 transition-transform duration-200 ${
+                        isOpen ? "rotate-180 text-sky-600" : ""
+                      }`}
+                    />
+                  </button>
+                  {isOpen && (
+                    <div className="px-4 pb-4 sm:px-5 sm:pb-5 text-xs text-slate-600 leading-relaxed border-t border-slate-200/60 pt-3 bg-white">
+                      {faq.a}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================================
+          SECTION 9: CONTACT & PROPOSAL INQUIRY FORM (MOBILE-FIRST)
+      ========================================================================= */}
+      <section className="py-12 sm:py-20 bg-slate-50" id="contact">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-slate-950 text-white rounded-3xl p-5 sm:p-10 shadow-2xl border border-slate-800">
             
-            <div className="max-w-xl mx-auto text-center space-y-2 mb-8">
+            <div className="max-w-xl mx-auto text-center space-y-2 mb-6 sm:mb-8">
               <span className="text-xs font-black uppercase tracking-widest text-sky-400 block">
                 START YOUR PROJECT
               </span>
-              <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
+              <h2 className="text-xl sm:text-3xl font-black tracking-tight">
                 Request an Itemized Project Proposal
               </h2>
               <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
@@ -786,11 +1116,11 @@ export default function HomePage() {
             </div>
 
             {submitted ? (
-              <div className="bg-white text-slate-900 p-8 rounded-2xl text-center space-y-3 animate-in fade-in">
+              <div className="bg-white text-slate-900 p-6 sm:p-8 rounded-2xl text-center space-y-3 animate-in fade-in">
                 <div className="h-12 w-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-xs">
                   <CheckCircle2 className="w-6 h-6" />
                 </div>
-                <h3 className="text-lg font-bold">Thank You! Your Request is Logged.</h3>
+                <h3 className="text-base sm:text-lg font-bold">Thank You! Your Request is Logged.</h3>
                 <p className="text-xs text-slate-600 max-w-sm mx-auto leading-relaxed">
                   A dedicated Delivery Manager has received your specifications and will follow up shortly with a customized software proposal.
                 </p>
@@ -813,14 +1143,14 @@ export default function HomePage() {
                 </div>
               </div>
             ) : (
-              <form onSubmit={handleLeadSubmit} className="space-y-4 text-xs">
+              <form onSubmit={handleLeadSubmit} className="space-y-3.5 text-xs">
                 {errorMsg && (
                   <div className="p-3 rounded-xl bg-rose-500/20 border border-rose-500/30 text-rose-200 text-xs">
                     {errorMsg}
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-semibold text-slate-300 mb-1">
                       Your Full Name <span className="text-rose-400">*</span>
@@ -849,7 +1179,7 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-semibold text-slate-300 mb-1">
                       WhatsApp / Mobile Number <span className="text-rose-400">*</span>
@@ -899,7 +1229,7 @@ export default function HomePage() {
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="w-full sm:w-auto px-7 py-3 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 transition-all shadow-md shadow-sky-500/20 active:scale-95"
+                    className="w-full sm:w-auto px-7 py-3 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 transition-all shadow-md shadow-sky-500/20 active:scale-[0.98]"
                   >
                     <Send className="w-4 h-4" />
                     <span>{submitting ? "Transmitting..." : "Submit Project Inquiry"}</span>
@@ -909,7 +1239,7 @@ export default function HomePage() {
                     href="https://wa.me/919876543210?text=Hello%20ABECSA!%20I%20want%20to%20discuss%20a%20new%20software%20project%20directly."
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full sm:w-auto px-5 py-3 rounded-xl border border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10 text-xs font-bold flex items-center justify-center gap-2 transition-all active:scale-95"
+                    className="w-full sm:w-auto px-5 py-3 rounded-xl border border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10 text-xs font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
                   >
                     <MessageSquare className="w-4 h-4 text-emerald-400" />
                     <span>Direct WhatsApp Chat</span>
@@ -920,6 +1250,37 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* =========================================================================
+          MOBILE STICKY BOTTOM QUICK ACTION BAR (Visible only on mobile sm:hidden)
+      ========================================================================= */}
+      <div className="sm:hidden fixed bottom-3 left-3 right-3 z-40 bg-slate-900/95 backdrop-blur-md text-white rounded-2xl p-2 shadow-2xl border border-slate-800 flex items-center justify-between gap-1.5 animate-in slide-in-from-bottom duration-300">
+        <a
+          href="#contact"
+          className="flex-1 py-2 px-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-[11px] font-bold text-center flex items-center justify-center gap-1 shadow-xs"
+        >
+          <Sparkles className="w-3.5 h-3.5" />
+          <span>Get Quote</span>
+        </a>
+
+        <a
+          href="https://wa.me/919876543210?text=Hello%20ABECSA!%20I%20would%20like%20to%20consult%20about%20a%20software%20project."
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex-1 py-2 px-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold text-center flex items-center justify-center gap-1 shadow-xs"
+        >
+          <MessageSquare className="w-3.5 h-3.5" />
+          <span>WhatsApp</span>
+        </a>
+
+        <a
+          href="tel:+919876543210"
+          className="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-bold text-center flex items-center justify-center gap-1 border border-slate-700"
+        >
+          <Phone className="w-3.5 h-3.5 text-sky-400" />
+          <span>Call</span>
+        </a>
+      </div>
 
       <PublicFooter />
     </div>

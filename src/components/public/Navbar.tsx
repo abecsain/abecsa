@@ -23,10 +23,10 @@ export default function PublicNavbar() {
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 shrink-0">
-            <div className="relative h-11 w-40">
+          <Link href="/" className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <div className="relative h-8 sm:h-11 w-32 sm:w-40">
               <Image
                 src="/logo.png"
                 alt="ABECSA Software Solutions"
