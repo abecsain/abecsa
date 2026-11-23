@@ -23,10 +23,10 @@ export default function PublicNavbar() {
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 sm:h-20">
+        <div className="flex items-center justify-between h-16 sm:h-20 gap-2 sm:gap-4">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 sm:gap-3 shrink-0">
-            <div className="relative h-8 sm:h-11 w-32 sm:w-40">
+          <Link href="/" className="flex items-center gap-2 sm:gap-3 shrink-0 mr-2 sm:mr-4 lg:mr-6">
+            <div className="relative h-8 sm:h-10 w-28 sm:w-36 lg:w-40">
               <Image
                 src="/logo.png"
                 alt="ABECSA Software Solutions"
@@ -39,91 +39,82 @@ export default function PublicNavbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
+          <nav className="hidden lg:flex items-center gap-3 lg:gap-4 xl:gap-6 2xl:gap-7 shrink-0">
             <Link
               href="/services"
-              className="text-xs xl:text-sm font-semibold text-slate-700 hover:text-sky-600 transition-colors flex items-center gap-1.5"
+              className="text-xs xl:text-sm font-semibold text-slate-700 hover:text-sky-600 transition-colors whitespace-nowrap shrink-0"
             >
-              <span>Services & Pricing</span>
-              <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-sky-100 text-sky-700">
-                Dynamic
-              </span>
+              Services & Pricing
             </Link>
             <Link
               href="/demos"
-              className="text-xs xl:text-sm font-semibold text-slate-700 hover:text-sky-600 transition-colors flex items-center gap-1.5"
+              className="text-xs xl:text-sm font-semibold text-slate-700 hover:text-sky-600 transition-colors whitespace-nowrap shrink-0"
             >
-              <span>Live Demos</span>
-              <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-sky-100 text-sky-700">
-                Interactive
-              </span>
+              Live Demos
             </Link>
             <Link
               href="/shop"
-              className="text-xs xl:text-sm font-semibold text-slate-700 hover:text-sky-600 transition-colors flex items-center gap-1.5"
+              className="text-xs xl:text-sm font-semibold text-slate-700 hover:text-sky-600 transition-colors whitespace-nowrap shrink-0"
             >
-              <span>Software Shop</span>
-              <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-700">
-                Buy Code
-              </span>
+              Software Shop
             </Link>
             <Link
               href="/domains"
-              className="text-xs xl:text-sm font-semibold text-slate-700 hover:text-sky-600 transition-colors"
+              className="text-xs xl:text-sm font-semibold text-slate-700 hover:text-sky-600 transition-colors whitespace-nowrap shrink-0"
             >
               Domains
             </Link>
             <Link
               href="/tools"
-              className="text-xs xl:text-sm font-semibold text-slate-700 hover:text-sky-600 transition-colors"
+              className="text-xs xl:text-sm font-semibold text-slate-700 hover:text-sky-600 transition-colors whitespace-nowrap shrink-0"
             >
-              Ping & Tools
+              Tools
             </Link>
             <Link
               href="/projects"
-              className="text-xs xl:text-sm font-semibold text-slate-700 hover:text-sky-600 transition-colors"
+              className="text-xs xl:text-sm font-semibold text-slate-700 hover:text-sky-600 transition-colors whitespace-nowrap shrink-0"
             >
               Projects
             </Link>
             <Link
               href="/contact"
-              className="text-xs xl:text-sm font-semibold text-slate-700 hover:text-sky-600 transition-colors"
+              className="text-xs xl:text-sm font-semibold text-slate-700 hover:text-sky-600 transition-colors whitespace-nowrap shrink-0"
             >
               Contact
             </Link>
           </nav>
 
           {/* Desktop Actions */}
-          <div className="hidden lg:flex items-center gap-2.5">
+          <div className="hidden lg:flex items-center gap-2 xl:gap-3 shrink-0 ml-auto">
             <Link
               href="/login"
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors whitespace-nowrap shrink-0"
             >
-              <ShieldCheck className="w-3.5 h-3.5 text-sky-600" />
+              <ShieldCheck className="w-3.5 h-3.5 text-sky-600 shrink-0" />
               <span>Portal Login</span>
             </Link>
 
             <Link
               href="/contact?type=quote"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-sky-600 hover:bg-sky-700 shadow-md shadow-sky-600/20 transition-all"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-sky-600 hover:bg-sky-700 shadow-sm shadow-sky-600/20 transition-all whitespace-nowrap shrink-0"
             >
-              <Sparkles className="w-3.5 h-3.5 text-sky-200" />
+              <Sparkles className="w-3.5 h-3.5 text-sky-200 shrink-0" />
               <span>Get a Quote</span>
             </Link>
           </div>
 
           {/* Mobile Right Controls */}
-          <div className="flex lg:hidden items-center gap-2">
+          <div className="flex lg:hidden items-center gap-2 shrink-0">
             <Link
               href="/login"
-              className="px-3 py-1.5 text-xs font-bold rounded-lg bg-sky-50 text-sky-700 border border-sky-200"
+              className="px-3 py-1.5 text-xs font-bold rounded-lg bg-sky-50 text-sky-700 border border-sky-200 whitespace-nowrap shrink-0"
             >
               Portal Login
             </Link>
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg text-slate-700 hover:bg-slate-100 focus:outline-none"
+              className="p-2 rounded-lg text-slate-700 hover:bg-slate-100 focus:outline-none shrink-0"
               aria-label="Toggle menu"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
