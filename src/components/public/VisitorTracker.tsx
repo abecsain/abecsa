@@ -40,6 +40,10 @@ export default function VisitorTracker() {
     pathname.startsWith("/engineer") ||
     pathname.startsWith("/customer");
 
+  const isSolutionsPage =
+    pathname.startsWith("/services") ||
+    pathname.startsWith("/solutions");
+
   // Initialize or load visitorToken
   useEffect(() => {
     let token = localStorage.getItem("abecsa_visitor_token");
@@ -178,21 +182,23 @@ export default function VisitorTracker() {
       )}
 
       {/* Floating Query Trigger Pill (Bottom-Right, positioned safely above mobile bottom bar) */}
-      <div className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-40">
-        {!showDrawer && (
-          <button
-            onClick={openFullQueryModal}
-            className="flex items-center gap-2 sm:gap-2.5 px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-full bg-slate-950 text-white hover:bg-slate-900 shadow-2xl border border-sky-500/40 text-xs font-bold transition-all duration-300 hover:scale-105 cursor-pointer group"
-          >
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-            </span>
-            <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-sky-400 group-hover:scale-110 transition-transform" />
-            <span>Send Query</span>
-          </button>
-        )}
-      </div>
+      {!isSolutionsPage && (
+        <div className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-40">
+          {!showDrawer && (
+            <button
+              onClick={openFullQueryModal}
+              className="flex items-center gap-2 sm:gap-2.5 px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-full bg-slate-950 text-white hover:bg-slate-900 shadow-2xl border border-sky-500/40 text-xs font-bold transition-all duration-300 hover:scale-105 cursor-pointer group"
+            >
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+              </span>
+              <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-sky-400 group-hover:scale-110 transition-transform" />
+              <span>Send Query</span>
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Full Send Query Card (Bottom-Right) */}
       {showDrawer && (
