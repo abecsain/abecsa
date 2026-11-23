@@ -75,8 +75,13 @@ export default function PublicFooter() {
             </h4>
             <ul className="space-y-2 text-sm text-slate-400">
               <li>
+                <Link href="/solutions" className="hover:text-white transition-colors text-sky-400 font-semibold">
+                  Software Catalog & Builder
+                </Link>
+              </li>
+              <li>
                 <Link href="/services" className="hover:text-white transition-colors">
-                  Engineering Services
+                  Engineering Services & Pricing
                 </Link>
               </li>
               <li>

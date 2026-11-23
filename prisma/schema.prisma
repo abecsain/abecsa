@@ -633,3 +633,127 @@ model ScratchGift {
   updatedAt        DateTime  @updatedAt
 }
 
+model CatalogProduct {
+  id                    String    @id @default(uuid())
+  code                  String    @unique // e.g. POS-BILLING, CRM-CORE
+  name                  String
+  category              String    // BUSINESS_MANAGEMENT, INDUSTRY_SPECIFIC, WEBSITE_DEV, APP_DEV, INFRASTRUCTURE
+  shortDescription      String
+  fullDescription       String?
+  icon                  String?   // Lucide icon name, e.g. "Receipt", "Layers", "Smartphone"
+  imageUrl              String?
+  basePrice             Float     @default(0) // 0 if Price on Request
+  recurringPrice        Float     @default(0)
+  recurringInterval     String?   @default("MONTHLY") // MONTHLY, ANNUALLY, ONE_TIME
+  isPriceOnRequest      Boolean   @default(false)
+  keyFeatures           String    // JSON array of strings
+  configurableAddons    String?   // JSON array of objects: { id, name, price, recurringPrice, sharedModuleId }
+  suitableFor           String?   // e.g. "Retail Shops, Distributors, Supermarkets"
+  recommendedDatabaseTier String? // e.g. "5 GB"
+  deploymentOptions     String?   // e.g. "Cloud SaaS, Hybrid, Self-Hosted On-Premise"
+  pricingModel          String    @default("ONE_TIME") // ONE_TIME, SUBSCRIPTION, HYBRID
+  sharedModuleIds       String?   // JSON array of shared module identifiers
+  compatibleProductIds  String?   // JSON array of compatible product codes
+  isFeatured            Boolean   @default(false)
+  isActive              Boolean   @default(true)
+  orderIndex            Int       @default(0)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+}
+
+model CatalogPackage {
+  id                    String    @id @default(uuid())
+  slug                  String    @unique // e.g. starter, retail-pro, business-complete, enterprise
+  name                  String
+  category              String    @default("SOFTWARE") // SOFTWARE, WEBSITE
+  tagline               String?
+  description           String?
+  badge                 String?   // "Most Popular", "Starter Choice", "Best Value"
+  basePrice             Float     @default(0)
+  recurringPrice        Float     @default(0)
+  recurringInterval     String    @default("ANNUALLY")
+  discountAmount        Float     @default(0) // Package bundle discount
+  includedProductCodes  String    // JSON array of CatalogProduct codes
+  includedFeatures      String    // JSON array of highlights
+  databaseTier          String?   // e.g. "5 GB"
+  userLimit             String?   // e.g. "Up to 5 Users"
+  productLimit          String?   // e.g. "1,000 Products"
+  supportTier           String?   // e.g. "Priority WhatsApp & Dedicated Delivery Manager"
+  isFeatured            Boolean   @default(false)
+  isActive              Boolean   @default(true)
+  orderIndex            Int       @default(0)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+}
+
+model DatabaseStoragePlan {
+  id                      String    @id @default(uuid())
+  sizeGb                  Float     @unique // 1, 2, 5, 10, 15, 25, 50, 100
+  label                   String    // e.g. "15 GB High-Speed NVMe Storage"
+  monthlyPrice            Float     @default(0)
+  annualPrice             Float     @default(0)
+  storageType             String    @default("Managed PostgreSQL / NVMe SSD")
+  recommendedBusinessSize String?   // e.g. "Mid-Size Retailer (10k-50k invoices/yr)"
+  backupInfo              String    @default("Automated Daily Cloud Backups + Point-in-Time Recovery")
+  isActive                Boolean   @default(true)
+  orderIndex              Int       @default(0)
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+}
+
+model StorageEstimatorRule {
+  id                      String    @id @default("default-rule")
+  avgImageSizeBytes       Int       @default(307200) // 300 KB
+  avgProductRecordBytes   Int       @default(4096)   // 4 KB
+  avgCustomerRecordBytes  Int       @default(2048)   // 2 KB
+  avgBillRecordBytes      Int       @default(3072)   // 3 KB
+  avgBillItemRecordBytes  Int       @default(512)    // 512 bytes
+  overheadAndIndexFactor  Float     @default(1.35)   // 35% index & WAL overhead
+  safetyBufferPercent     Float     @default(20.0)   // 20% safety headroom
+  externalStorageNotice   String    @default("Product images are stored securely on Cloud Object Storage (CDN), preserving primary database performance.")
+  updatedAt               DateTime  @updatedAt
+}
+
+model SoftwareQuotationRequest {
+  id                    String    @id @default(uuid())
+  requestNumber         String    @unique // e.g. "REQ-2026-101"
+  customerName          String
+  businessName          String?
+  email                 String
+  phone                 String
+  city                  String?
+  businessType          String?
+  preferredContact      String    @default("WHATSAPP") // WHATSAPP, EMAIL, PHONE
+  selectedProducts      String    // JSON array
+  selectedDatabaseTier  String?
+  websiteRequirements   String?   // JSON
+  oneTimeTotal          Float     @default(0)
+  recurringTotal        Float     @default(0)
+  recurringInterval     String?   @default("ANNUALLY")
+  discountTotal         Float     @default(0)
+  taxAmount             Float     @default(0)
+  grandTotal            Float     @default(0)
+  status                String    @default("NEW") // NEW, REVIEWING, CONTACTED, QUOTATION_SENT, NEGOTIATION, APPROVED, REJECTED, COMPLETED
+  internalNotes         String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+}
+
+model InteractiveDemo {
+  id                    String    @id @default(uuid())
+  title                 String
+  category              String
+  tagline               String
+  description           String
+  techStack             String    // JSON array of strings
+  keyFeatures           String    // JSON array of strings
+  previewUrl            String    // Live demo URL
+  imageUrl              String?   // Demo image shown in card
+  metrics               String?   // e.g. "98 Lighthouse Speed Score"
+  isActive              Boolean   @default(true)
+  orderIndex            Int       @default(0)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+}
+
+

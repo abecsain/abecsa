@@ -35,6 +35,7 @@ import {
   Users,
   Award,
   HelpCircle,
+  Package,
 } from "lucide-react";
 import PublicNavbar from "@/components/public/Navbar";
 import PublicFooter from "@/components/public/Footer";
@@ -411,14 +412,23 @@ export default function HomePage() {
             </p>
 
             {/* Direct 1-Tap CTAs (Optimized for Mobile Touch) */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5 sm:gap-3.5 pt-1 sm:pt-2 max-w-md sm:max-w-none mx-auto">
-              <a
-                href="#contact"
-                className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-slate-950 hover:bg-slate-800 shadow-md shadow-slate-950/10 transition-all active:scale-[0.98] cursor-pointer"
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5 sm:gap-3.5 pt-1 sm:pt-2 max-w-lg sm:max-w-none mx-auto">
+              <Link
+                href="/solutions"
+                className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-sky-600 hover:bg-sky-700 shadow-md shadow-sky-600/25 transition-all active:scale-[0.98] cursor-pointer"
               >
-                <span>Request Project Proposal</span>
+                <Sparkles className="w-4 h-4 text-sky-200" />
+                <span>Build Your Software Solution</span>
                 <ArrowRight className="w-4 h-4" />
-              </a>
+              </Link>
+
+              <Link
+                href="/solutions?tab=PACKAGES"
+                className="flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-xs sm:text-sm font-bold text-slate-800 bg-white hover:bg-slate-100 border border-slate-300 shadow-xs transition-all active:scale-[0.98]"
+              >
+                <Package className="w-4 h-4 text-sky-600" />
+                <span>Explore Ready-Made Packages</span>
+              </Link>
 
               <a
                 href="https://wa.me/919876543210?text=Hello%20ABECSA!%20I%20am%20interested%20in%20discussing%20a%20software%20project%20for%20my%20business."
@@ -427,16 +437,8 @@ export default function HomePage() {
                 className="flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-xs sm:text-sm font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300/80 transition-all active:scale-[0.98]"
               >
                 <MessageSquare className="w-4 h-4 text-emerald-600" />
-                <span>Chat on WhatsApp</span>
+                <span>WhatsApp</span>
               </a>
-
-              <Link
-                href="/login"
-                className="flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-xs sm:text-sm font-bold text-slate-800 bg-white hover:bg-slate-100 border border-slate-200 shadow-xs transition-all active:scale-[0.98]"
-              >
-                <ShieldCheck className="w-4 h-4 text-sky-600" />
-                <span>Client & Staff Login</span>
-              </Link>
             </div>
 
             {/* Direct Phone Assistance Bar */}

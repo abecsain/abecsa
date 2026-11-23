@@ -42,9 +42,12 @@ export default function PublicNavbar() {
           <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
             <Link
               href="/services"
-              className="text-xs xl:text-sm font-semibold text-slate-700 hover:text-sky-600 transition-colors"
+              className="text-xs xl:text-sm font-semibold text-slate-700 hover:text-sky-600 transition-colors flex items-center gap-1.5"
             >
-              Services
+              <span>Services & Pricing</span>
+              <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-sky-100 text-sky-700">
+                Dynamic
+              </span>
             </Link>
             <Link
               href="/demos"
@@ -144,10 +147,15 @@ export default function PublicNavbar() {
             <Link
               href="/services"
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center justify-between py-2.5 px-2 hover:bg-slate-50 rounded-lg"
+              className="flex items-center justify-between py-2.5 px-2 hover:bg-slate-50 rounded-lg text-slate-800"
             >
-              <span>Services</span>
-              <ChevronRight className="w-4 h-4 text-slate-400" />
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-sky-600" />
+                <span>Services & Dynamic Pricing</span>
+              </div>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 text-sky-700">
+                Calculator
+              </span>
             </Link>
             <Link
               href="/demos"

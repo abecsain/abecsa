@@ -27,6 +27,8 @@ import {
   Activity,
   ShoppingBag,
   Gift,
+  Layers,
+  Monitor,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -51,6 +53,8 @@ export default function DashboardSidebar({
           { href: "/admin/tasks", label: "Tasks & Sprint Backlog", icon: ListTodo },
           { href: "/admin/users", label: "User Management", icon: Users },
           { href: "/admin/crm", label: "CRM & Lead Pipeline", icon: Target },
+          { href: "/admin/solutions", label: "Catalog & Pricing Engine", icon: Layers, highlight: true },
+          { href: "/admin/demos", label: "Interactive Demos", icon: Monitor },
           { href: "/admin/quotations", label: "Quotations", icon: FileSpreadsheet },
           { href: "/admin/gifts", label: "Scratch Card Gifts", icon: Gift, highlight: true },
           { href: "/admin/invoices", label: "Invoices & Payments", icon: Receipt },
