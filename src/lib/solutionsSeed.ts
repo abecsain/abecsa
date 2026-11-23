@@ -582,7 +582,171 @@ export async function ensureSolutionsSeed(forceReset = false) {
       });
     }
 
-    console.log("Solutions seed initialized with simplified, realistic SMB pricing successfully!");
+    // 5. Seed Relevant Interactive Demos (Billing, E-Com, Inventory, School/College, CRM, HR/Payroll, Identity/Personal Websites)
+    const relevantDemos = [
+      {
+        id: "demo-pos-billing",
+        title: "QuickPOS & GST Invoicing Portal",
+        category: "Billing Software",
+        tagline: "2-Second Thermal Slip & GST Invoice Desk",
+        description:
+          "Fast counter billing demo featuring barcode scanning, UPI QR checkout, thermal slip print preview, customer credit passbook, and direct WhatsApp invoice dispatch.",
+        techStack: JSON.stringify(["Next.js App Router", "Tailwind CSS", "Thermal Print API", "WhatsApp Baileys"]),
+        keyFeatures: JSON.stringify([
+          "Sub-2s barcode scan and invoice generation",
+          "Accept Cash, UPI QR & Udhar Split payments",
+          "Automated WhatsApp e-invoice delivery to phone",
+          "2-inch & 3-inch thermal slip print simulation",
+        ]),
+        previewUrl: "/tools",
+        imageUrl: "https://images.unsplash.com/photo-1556742049-0a67c5574f73?auto=format&fit=crop&w=800&q=80",
+        metrics: "Sub-2s Checkout",
+        orderIndex: 1,
+      },
+      {
+        id: "demo-ecom-store",
+        title: "NovaStore Omnichannel E-Commerce Suite",
+        category: "E-Commerce",
+        tagline: "Digital Storefront with Mobile WhatsApp Orders",
+        description:
+          "Mobile-first e-commerce store demo with category filters, product image zoom, instant cart checkout, online UPI payment simulation, and direct WhatsApp order placement.",
+        techStack: JSON.stringify(["React 19", "Next.js", "PostgreSQL", "Razorpay / PhonePe"]),
+        keyFeatures: JSON.stringify([
+          "Mobile-optimized catalog & fast product search",
+          "1-Tap 'Order on WhatsApp' with cart pre-filled",
+          "Instant UPI QR & card payment gateway",
+          "Real-time stock sync with warehouse inventory",
+        ]),
+        previewUrl: "/shop",
+        imageUrl: "https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&w=800&q=80",
+        metrics: "3x Mobile Conversion",
+        orderIndex: 2,
+      },
+      {
+        id: "demo-inventory-mgmt",
+        title: "SmartStock Multi-Warehouse Inventory System",
+        category: "Inventory Management",
+        tagline: "Real-time Stock Control & Barcode Logistics",
+        description:
+          "Multi-location stock management demo with automated low-inventory alerts, barcode sticker generator, batch number expiry warnings, and vendor purchase orders.",
+        techStack: JSON.stringify(["TypeScript", "Prisma ORM", "Tailwind CSS", "Zod Validation"]),
+        keyFeatures: JSON.stringify([
+          "Automatic low-stock WhatsApp alert dispatch",
+          "Generate & print custom product barcode labels",
+          "Batch number & medicine/food expiry date warnings",
+          "Supplier purchase orders (PO) and delivery tracking",
+        ]),
+        previewUrl: "/services?tab=BUILDER",
+        imageUrl: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=800&q=80",
+        metrics: "Zero Stockouts",
+        orderIndex: 3,
+      },
+      {
+        id: "demo-school-college",
+        title: "EduCampus School & College Operating System",
+        category: "School & College",
+        tagline: "Student Admissions, Attendance & Digital Fees",
+        description:
+          "Complete academic ERP demo with student admission registers, fee collection receipts with PDF generation, teacher timetable rostering, exam report cards, and parent updates.",
+        techStack: JSON.stringify(["Next.js", "Prisma ORM", "jsPDF AutoTable", "PostgreSQL"]),
+        keyFeatures: JSON.stringify([
+          "Student digital admission register & document vault",
+          "Fee receipt generator with PDF download & WhatsApp sync",
+          "Daily teacher & student attendance registers",
+          "Exam marksheet calculation & report card export",
+        ]),
+        previewUrl: "/customer",
+        imageUrl: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80",
+        metrics: "5,000+ Students",
+        orderIndex: 4,
+      },
+      {
+        id: "demo-crm-sales",
+        title: "LeadPro Sales CRM & WhatsApp Marketing",
+        category: "CRM Software",
+        tagline: "Customer Directory & Multi-Channel Lead Funnel",
+        description:
+          "Interactive CRM dashboard demo tracking incoming website inquiries, visual sales deal pipelines, customer purchase history, and bulk WhatsApp promotional broadcasts.",
+        techStack: JSON.stringify(["Next.js App Router", "Server Actions", "PostgreSQL", "Lucide Icons"]),
+        keyFeatures: JSON.stringify([
+          "Kanban lead management (New, Contacted, Proposal, Won)",
+          "Customer directory with total spend & contact history",
+          "Bulk WhatsApp festival offers & discount broadcasts",
+          "One-click follow-up reminders and activity logs",
+        ]),
+        previewUrl: "/manager/crm",
+        imageUrl: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=800&q=80",
+        metrics: "+40% Lead Close Rate",
+        orderIndex: 5,
+      },
+      {
+        id: "demo-hr-payroll",
+        title: "TeamPulse HR Management & Biometric Payroll",
+        category: "Employee Management",
+        tagline: "Biometric Attendance, Leave Approval & Salary Slips",
+        description:
+          "Human resources workspace demo with staff daily attendance logs, leave approval workflows, biometric punch clock gateway, and automated salary slip PDF generation.",
+        techStack: JSON.stringify(["Next.js 16", "jsPDF AutoTable", "Tailwind CSS", "Prisma"]),
+        keyFeatures: JSON.stringify([
+          "Biometric machine punch gateway & shift tracking",
+          "1-Click monthly salary slip PDF calculation & dispatch",
+          "Staff leave request submission and approval workflow",
+          "Salary advances, deductions, PF & ESI compliance logs",
+        ]),
+        previewUrl: "/admin/hr",
+        imageUrl: "https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=800&q=80",
+        metrics: "100% On-Time Payroll",
+        orderIndex: 6,
+      },
+      {
+        id: "demo-identity-corporate",
+        title: "Apex Brand Corporate Identity & Web Presence",
+        category: "Identity Websites",
+        tagline: "High-Conversion Mobile Business Website",
+        description:
+          "Live preview of a high-converting corporate business website with modern hero animations, interactive service showcase, client testimonials, and WhatsApp lead funnels.",
+        techStack: JSON.stringify(["Next.js Turbopack", "Tailwind CSS", "Framer Motion", "Vercel Edge"]),
+        keyFeatures: JSON.stringify([
+          "100% Mobile responsiveness & thumb-friendly touch targets",
+          "Sub-1s page load speed with optimized WebP assets",
+          "Direct WhatsApp floating chat widget & instant contact alert",
+          "Google Maps & Local Search SEO architecture",
+        ]),
+        previewUrl: "/",
+        imageUrl: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80",
+        metrics: "99+ Lighthouse Score",
+        orderIndex: 7,
+      },
+      {
+        id: "demo-personal-portfolio",
+        title: "Persona: Doctor, Consultant & Executive Portfolio",
+        category: "Personal Websites",
+        tagline: "Personal Brand & Appointment Booking Website",
+        description:
+          "Clean, elegant personal identity website for doctors, lawyers, architects, and business consultants featuring appointment scheduling, credentials, and published work.",
+        techStack: JSON.stringify(["Next.js", "Tailwind CSS", "Lucide Icons", "Cloudflare DNS"]),
+        keyFeatures: JSON.stringify([
+          "Direct appointment booking & consultation scheduler",
+          "Verified credentials, degrees & project case studies",
+          "Client video reviews and published articles vault",
+          "1-Tap phone call and WhatsApp direct inquiry buttons",
+        ]),
+        previewUrl: "/about",
+        imageUrl: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80",
+        metrics: "10x Direct Inquiries",
+        orderIndex: 8,
+      },
+    ];
+
+    for (const demo of relevantDemos) {
+      await prisma.interactiveDemo.upsert({
+        where: { id: demo.id },
+        update: demo,
+        create: demo,
+      });
+    }
+
+    console.log("Solutions & Interactive Demos seed initialized successfully!");
   } catch (error) {
     console.error("Error seeding solutions data:", error);
   }

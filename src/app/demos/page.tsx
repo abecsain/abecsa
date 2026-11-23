@@ -275,6 +275,15 @@ export default function DemosPage() {
 
                   {/* Footer Action Buttons */}
                   <div className="p-5 sm:p-6 pt-0 flex items-center gap-2">
+                    <button
+                      onClick={() => setSelectedDemo(demo)}
+                      className="py-2.5 px-3 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold flex items-center justify-center transition-colors"
+                      title="Quick Preview"
+                    >
+                      <Monitor className="w-3.5 h-3.5 mr-1 text-sky-600" />
+                      <span>Details</span>
+                    </button>
+
                     <a
                       href={demo.previewUrl}
                       target={demo.previewUrl.startsWith("http") ? "_blank" : "_self"}
@@ -287,11 +296,10 @@ export default function DemosPage() {
 
                     <Link
                       href="/solutions"
-                      className="py-2.5 px-3 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold flex items-center justify-center transition-colors"
-                      title="Build custom package"
+                      className="py-2.5 px-3 rounded-xl bg-sky-50 border border-sky-200 hover:bg-sky-100 text-sky-700 text-xs font-bold flex items-center justify-center transition-colors"
+                      title="Configure Software Solution"
                     >
-                      <span>Configure</span>
-                      <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                      <span>Quote</span>
                     </Link>
                   </div>
                 </div>
@@ -300,6 +308,92 @@ export default function DemosPage() {
           </div>
         )}
       </section>
+
+      {/* Interactive Demo Details & Launch Dialog Modal */}
+      {selectedDemo && (
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-5 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-start justify-between">
+              <div>
+                <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-sky-100 text-sky-800 uppercase tracking-wider">
+                  {selectedDemo.category}
+                </span>
+                <h3 className="text-xl sm:text-2xl font-black text-slate-950 mt-2">
+                  {selectedDemo.title}
+                </h3>
+                <p className="text-xs font-semibold text-sky-700 mt-0.5">
+                  {selectedDemo.tagline}
+                </p>
+              </div>
+              <button
+                onClick={() => setSelectedDemo(null)}
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {selectedDemo.imageUrl && (
+              <div className="relative h-56 w-full rounded-2xl overflow-hidden bg-slate-900 border border-slate-200">
+                <Image
+                  src={selectedDemo.imageUrl}
+                  alt={selectedDemo.title}
+                  fill
+                  className="object-cover"
+                  unoptimized
+                />
+              </div>
+            )}
+
+            <p className="text-xs text-slate-600 leading-relaxed">
+              {selectedDemo.description}
+            </p>
+
+            {/* Key Features */}
+            <div className="space-y-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                Included Capabilities:
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700">
+                {parseJsonArray(selectedDemo.keyFeatures).map((f, i) => (
+                  <div key={i} className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span>{f}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="pt-3 border-t flex flex-col sm:flex-row items-center justify-end gap-2.5">
+              <button
+                onClick={() => setSelectedDemo(null)}
+                className="w-full sm:w-auto px-4 py-2.5 rounded-xl border text-xs font-bold text-slate-600 hover:bg-slate-100"
+              >
+                Close Preview
+              </button>
+
+              <Link
+                href="/solutions"
+                className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-sky-200 bg-sky-50 text-sky-800 text-xs font-bold text-center"
+              >
+                Customize Solution
+              </Link>
+
+              <a
+                href={selectedDemo.previewUrl}
+                target={selectedDemo.previewUrl.startsWith("http") ? "_blank" : "_self"}
+                rel="noreferrer"
+                className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-md shadow-sky-600/25"
+              >
+                <Play className="w-3.5 h-3.5 fill-current" />
+                <span>Launch Full Demo Sandbox</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Custom Demo Consultation CTA */}
       <section className="py-12 bg-slate-900 text-white border-t border-slate-800">
