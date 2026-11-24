@@ -18,7 +18,7 @@ export default async function SolutionsPage({
   const initialTab = resolvedParams?.tab?.toUpperCase() || "BUILDER";
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
+    <div className="min-h-screen flex flex-col bg-transparent">
       <PublicNavbar />
       <main className="flex-1">
         <Suspense

@@ -2,7 +2,7 @@
 
 @layer base {
   :root {
-    --background: #f8fafc;
+    --background: #ffffff;
     --foreground: #0f172a;
     --card: #ffffff;
     --card-foreground: #0f172a;
@@ -30,6 +30,17 @@ body {
   color: var(--foreground);
   font-feature-settings: "rlig" 1, "calt" 1;
   overflow-x: hidden;
+  position: relative;
+}
+
+/* Ethereal Luminous Ambient Mesh */
+.ambient-mesh-glow {
+  background-color: #ffffff;
+  background-image:
+    radial-gradient(ellipse 55% 45% at 0% 0%, rgba(56, 189, 248, 0.25) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 50% at 100% 0%, rgba(192, 132, 252, 0.25) 0%, transparent 65%),
+    radial-gradient(ellipse 55% 45% at 0% 100%, rgba(244, 114, 182, 0.22) 0%, transparent 65%),
+    radial-gradient(ellipse 45% 45% at 100% 100%, rgba(168, 85, 247, 0.16) 0%, transparent 65%);
 }
 
 /* Custom scrollbars */

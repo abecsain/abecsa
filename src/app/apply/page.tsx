@@ -46,7 +46,7 @@ export default function ApplyPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-sky-500 selection:text-white">
+    <div className="min-h-screen bg-transparent text-slate-900 flex flex-col selection:bg-sky-500 selection:text-white">
       <PublicNavbar />
 
       <main className="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 py-10 sm:py-16 space-y-10">

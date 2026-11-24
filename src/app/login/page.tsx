@@ -55,7 +55,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-slate-50 selection:bg-sky-500 selection:text-white">
+    <div className="min-h-screen flex flex-col justify-between bg-transparent selection:bg-sky-500 selection:text-white">
       {/* Top Banner */}
       <div className="px-6 py-4 border-b border-slate-200 bg-white flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3">

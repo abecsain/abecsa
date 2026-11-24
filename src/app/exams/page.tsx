@@ -129,7 +129,7 @@ export default function ExamsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-sky-500 selection:text-white">
+    <div className="min-h-screen bg-transparent text-slate-900 flex flex-col selection:bg-sky-500 selection:text-white">
       {!isAttempting && <PublicNavbar />}
 
       {isAttempting && activeExam ? (

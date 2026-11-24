@@ -49,7 +49,7 @@ export default function ProjectsPage() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
+    <div className="min-h-screen flex flex-col bg-transparent">
       <PublicNavbar />
 
       <section className="py-16 md:py-24 bg-white border-b border-slate-200">

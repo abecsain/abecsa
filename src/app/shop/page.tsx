@@ -145,7 +145,7 @@ export default function ShopPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 selection:bg-sky-500 selection:text-white">
+    <div className="min-h-screen flex flex-col bg-transparent selection:bg-sky-500 selection:text-white">
       <PublicNavbar />
 
       {/* Header Banner */}

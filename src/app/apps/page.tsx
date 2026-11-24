@@ -74,7 +74,7 @@ export default function AppsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-sky-500 selection:text-white">
+    <div className="min-h-screen bg-transparent text-slate-900 flex flex-col selection:bg-sky-500 selection:text-white">
       <PublicNavbar />
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-10">
