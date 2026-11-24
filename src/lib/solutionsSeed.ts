@@ -456,8 +456,8 @@ export async function ensureSolutionsSeed(forceReset = false) {
         basePrice: 14999,
         recurringPrice: 14999,
         recurringInterval: "ANNUALLY",
-        discountAmount: 6996, // Regular combined price is ₹21,995
-        includedProductCodes: JSON.stringify(["POS-BILLING", "INVENTORY-MGMT", "PRODUCT-SHOWCASE", "ACCOUNTING-UDHAR"]),
+        discountAmount: 3497,
+        includedProductCodes: JSON.stringify(["POS-BILLING", "INVENTORY-MGMT", "PRODUCT-SHOWCASE"]),
         includedFeatures: JSON.stringify([
           "Retail POS Counter Billing with 2-Second Thermal Printing",
           "Smart Stock & Inventory Control with Low-Stock WhatsApp Alerts",

@@ -702,7 +702,7 @@ export const MASTER_SOFTWARE_CATEGORIES: SoftwareCategoryInfo[] = [
     tagline: "Medicine salt substitute search, Schedule H registers & expiry alerts",
     icon: Stethoscope,
     productCode: "PHARMACY-CLINIC",
-    startingPrice: 6499,
+    startingPrice: 7999,
     highlightBadge: "Drug Compliance Ready",
     description: "Find alternate salt substitute brands in 2 seconds. Manage doctor prescriptions, Schedule H registers, and 60-day advance expiry alerts.",
   },
@@ -712,6 +712,38 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
   const [activeTab, setActiveTab] = useState<
     "CATALOG" | "BUILDER" | "DATABASE" | "PACKAGES" | "WEBSITE" | "COMPARISON" | "QUOTATION"
   >(initialTab as any || "BUILDER");
+
+  // Helper to scroll smoothly to top of category section
+  const scrollToCategoryTop = () => {
+    if (typeof window === "undefined") return;
+    setTimeout(() => {
+      const el = document.getElementById("builder-category-section");
+      if (el) {
+        const rect = el.getBoundingClientRect();
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const targetY = rect.top + scrollTop - 80;
+        window.scrollTo({ top: Math.max(0, targetY), behavior: "smooth" });
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    }, 60);
+  };
+
+  const handleOpenCategory = (categoryId: string, productCode: string) => {
+    setBuilderCategoryFilter(categoryId);
+    setExpandedProductCode(productCode);
+    scrollToCategoryTop();
+  };
+
+  const handleBackToAllCategories = () => {
+    setBuilderCategoryFilter("ALL");
+    scrollToCategoryTop();
+  };
+
+  const handleSwitchTab = (tabId: any) => {
+    setActiveTab(tabId);
+    scrollToCategoryTop();
+  };
 
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState<CatalogProduct[]>([]);
@@ -852,7 +884,7 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
       }
     }
     setActiveTab("BUILDER");
-    window.scrollTo({ top: 300, behavior: "smooth" });
+    scrollToCategoryTop();
   };
 
   // Dynamic Pricing Calculations (Affordable MSME Pricing: ₹14,999 with 15GB DB, 1/3/5 Year Tenure)
@@ -1214,7 +1246,7 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
           return (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
+              onClick={() => handleSwitchTab(tab.id as any)}
               className={`px-3.5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
                 isActive
                   ? "bg-slate-950 text-white shadow-xs"
@@ -1237,7 +1269,7 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
       {activeTab === "BUILDER" && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Left Column: Software Categories Flow (8 Cols) */}
-          <div className="lg:col-span-8 space-y-6">
+          <div id="builder-category-section" className="lg:col-span-8 space-y-6">
             {builderCategoryFilter === "ALL" ? (
               /* View 1: All 8 Software Categories Grid */
               <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-6">
@@ -1266,14 +1298,17 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
                   {MASTER_SOFTWARE_CATEGORIES.map((cat) => {
                     const Icon = cat.icon;
                     const isProductSelected = selectedProductCodes.includes(cat.productCode);
+                    const matchedProduct = products.find((p) => p.code === cat.productCode);
+                    const displayPrice = matchedProduct
+                      ? matchedProduct.code === "WEBSITE-PAGEWISE"
+                        ? calculatedWebsitePrice
+                        : matchedProduct.basePrice
+                      : cat.startingPrice;
 
                     return (
                       <div
                         key={cat.id}
-                        onClick={() => {
-                          setBuilderCategoryFilter(cat.id);
-                          setExpandedProductCode(cat.productCode);
-                        }}
+                        onClick={() => handleOpenCategory(cat.id, cat.productCode)}
                         className={`p-5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between space-y-4 group hover:border-sky-500 hover:shadow-md ${
                           isProductSelected
                             ? "border-sky-600 bg-sky-50/40 ring-1 ring-sky-500/20"
@@ -1317,7 +1352,7 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
                           <div>
                             <span className="text-[10px] text-slate-400 block">Starting From</span>
                             <span className="font-extrabold text-slate-900 text-sm">
-                              {formatCurrency(cat.startingPrice)}
+                              {formatCurrency(displayPrice)}
                             </span>
                           </div>
 
@@ -1421,7 +1456,7 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-200">
                   <button
                     type="button"
-                    onClick={() => setBuilderCategoryFilter("ALL")}
+                    onClick={handleBackToAllCategories}
                     className="px-3.5 py-1.5 rounded-xl bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 font-bold text-xs flex items-center gap-1.5 shrink-0 cursor-pointer shadow-2xs"
                   >
                     <ArrowRight className="w-3.5 h-3.5 rotate-180" />
@@ -1435,10 +1470,7 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
                         <button
                           key={c.id}
                           type="button"
-                          onClick={() => {
-                            setBuilderCategoryFilter(c.id);
-                            setExpandedProductCode(c.productCode);
-                          }}
+                          onClick={() => handleOpenCategory(c.id, c.productCode)}
                           className={`px-2.5 py-1 rounded-full text-[11px] font-bold whitespace-nowrap cursor-pointer transition-all ${
                             isCur
                               ? "bg-slate-950 text-white shadow-2xs"
@@ -1477,7 +1509,13 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
                         <div>
                           <span className="text-[10px] text-slate-400 block sm:text-right">Base License</span>
                           <span className="text-xl font-black text-slate-950">
-                            {activeExpandedProduct.isPriceOnRequest ? "On Request" : formatCurrency(activeExpandedProduct.basePrice)}
+                            {activeExpandedProduct.isPriceOnRequest
+                              ? "On Request"
+                              : formatCurrency(
+                                  activeExpandedProduct.code === "WEBSITE-PAGEWISE"
+                                    ? calculatedWebsitePrice
+                                    : activeExpandedProduct.basePrice
+                                )}
                           </span>
                         </div>
                         <button
@@ -1777,7 +1815,7 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
                       <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
                         <button
                           type="button"
-                          onClick={() => setBuilderCategoryFilter("ALL")}
+                          onClick={handleBackToAllCategories}
                           className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-slate-700 hover:bg-slate-800 text-slate-300 font-bold text-xs cursor-pointer text-center"
                         >
                           ← Explore Another Category
@@ -1816,7 +1854,7 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
                 {/* Reset */}
                 <button
                   onClick={() => {
-                    setSelectedProductCodes(["POS-BILLING", "GST-BILLING"]);
+                    setSelectedProductCodes(["POS-BILLING", "INVENTORY-MGMT", "PRODUCT-SHOWCASE"]);
                     setSelectedAddonIds([]);
                     setSelectedDatabaseGb(5);
                   }}
@@ -1834,31 +1872,34 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
                   Included Software ({pricingSummary.selectedProductsList.length}):
                 </span>
                 <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
-                  {pricingSummary.selectedProductsList.map((p) => (
-                    <div
-                      key={p.id}
-                      className="flex items-center justify-between p-2 rounded-xl bg-slate-800/80 border border-slate-700/60"
-                    >
-                      <div className="truncate pr-2">
-                        <span className="font-bold block truncate">{p.name}</span>
-                        <span className="text-[10px] text-slate-400">{p.code}</span>
+                  {pricingSummary.selectedProductsList.map((p) => {
+                    const itemPrice = p.code === "WEBSITE-PAGEWISE" ? calculatedWebsitePrice : p.basePrice;
+                    return (
+                      <div
+                        key={p.id}
+                        className="flex items-center justify-between p-2 rounded-xl bg-slate-800/80 border border-slate-700/60"
+                      >
+                        <div className="truncate pr-2">
+                          <span className="font-bold block truncate">{p.name}</span>
+                          <span className="text-[10px] text-slate-400">{p.code}</span>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <span className="font-mono font-bold text-sky-300">
+                            {p.isPriceOnRequest ? "On Request" : formatCurrency(itemPrice)}
+                          </span>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleProduct(p.code);
+                            }}
+                            className="ml-2 text-slate-400 hover:text-rose-400"
+                          >
+                            ×
+                          </button>
+                        </div>
                       </div>
-                      <div className="text-right shrink-0">
-                        <span className="font-mono font-bold text-sky-300">
-                          {p.isPriceOnRequest ? "On Request" : formatCurrency(p.basePrice)}
-                        </span>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleProduct(p.code);
-                          }}
-                          className="ml-2 text-slate-400 hover:text-rose-400"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
@@ -2169,7 +2210,9 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
                         <div>
                           <span className="text-[10px] text-slate-400 block">One-Time License</span>
                           <span className="font-extrabold text-slate-900 text-sm">
-                            {prod.isPriceOnRequest ? "Custom Quote" : formatCurrency(prod.basePrice)}
+                            {prod.isPriceOnRequest
+                              ? "Custom Quote"
+                              : formatCurrency(prod.code === "WEBSITE-PAGEWISE" ? calculatedWebsitePrice : prod.basePrice)}
                           </span>
                         </div>
                         {prod.recurringPrice > 0 && (
@@ -2191,8 +2234,13 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
                         if (!selectedProductCodes.includes(prod.code)) {
                           toggleProduct(prod.code);
                         }
+                        const detail = PRODUCT_PACK_DETAILS[prod.code];
+                        if (detail) {
+                          setBuilderCategoryFilter(detail.category);
+                        }
                         setExpandedProductCode(prod.code);
                         setActiveTab("BUILDER");
+                        scrollToCategoryTop();
                       }}
                       className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                         isSelected
