@@ -9,12 +9,13 @@ export const metadata = {
     "Explore ABECSA software catalog, configure custom business software bundles, estimate database capacities, compare packages, and calculate transparent dynamic pricing.",
 };
 
-export default function SolutionsPage({
+export default async function SolutionsPage({
   searchParams,
 }: {
-  searchParams?: { tab?: string; package?: string };
+  searchParams?: Promise<{ tab?: string; package?: string }>;
 }) {
-  const initialTab = searchParams?.tab?.toUpperCase() || "BUILDER";
+  const resolvedParams = searchParams ? await searchParams : undefined;
+  const initialTab = resolvedParams?.tab?.toUpperCase() || "BUILDER";
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">

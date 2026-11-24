@@ -119,14 +119,19 @@ export default function PublicFooter() {
               </li>
               <li className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-sky-400 shrink-0" />
-                <a href="mailto:contact@abecsa.in" className="hover:text-white">
-                  contact@abecsa.in
+                <a href="mailto:Abecsa.in@gmail.com" className="hover:text-white">
+                  Abecsa.in@gmail.com
                 </a>
               </li>
               <li className="flex items-center gap-2.5">
-                <Phone className="w-4 h-4 text-sky-400 shrink-0" />
-                <a href="tel:+919876543210" className="hover:text-white">
-                  +91 98765 43210
+                <Phone className="w-4 h-4 text-emerald-400 shrink-0" />
+                <a
+                  href="https://wa.me/919407899216?text=Hello%20ABECSA!%20I%20have%20an%20inquiry."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-emerald-400 font-medium"
+                >
+                  +91 94078 99216 (WhatsApp)
                 </a>
               </li>
               <li className="flex items-center gap-2.5">

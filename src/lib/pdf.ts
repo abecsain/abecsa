@@ -74,7 +74,7 @@ export function generateQuotationPdf(data: QuotationPdfData): jsPDF {
   doc.setFont("helvetica", "normal");
   doc.setTextColor(148, 163, 184); // slate-400
   doc.text("Enterprise Digital Solutions & Software Engineering | www.abecsa.in", 14, 25);
-  doc.text("GSTIN: 29AABCA1234F1Z8 | Email: contact@abecsa.in | Ph: +91 98765 43210", 14, 31);
+  doc.text("GSTIN: 29AABCA1234F1Z8 | Email: Abecsa.in@gmail.com | Ph: +91 94078 99216", 14, 31);
 
   // Document Title Pill
   doc.setFillColor(2, 132, 199); // primary sky-600
@@ -239,7 +239,7 @@ export function generateQuotationPdf(data: QuotationPdfData): jsPDF {
   doc.setFontSize(8);
   doc.setTextColor(148, 163, 184);
   doc.text("Authorized Signatory: ABECSA Software Solutions", 14, 275);
-  doc.text("Thank you for your business. For any queries, reach us at contact@abecsa.in", 14, 280);
+  doc.text("Thank you for your business. For any queries, reach us at Abecsa.in@gmail.com | +91 94078 99216", 14, 280);
 
   return doc;
 }

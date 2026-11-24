@@ -259,7 +259,7 @@ export default function PublicNavbar() {
           {/* Mobile Bottom CTA Buttons */}
           <div className="pt-2 space-y-2">
             <a
-              href="https://wa.me/919876543210?text=Hello%20ABECSA,%20I%20would%20like%20to%20inquire%20about%20your%20software%20services."
+              href="https://wa.me/919407899216?text=Hello%20ABECSA,%20I%20would%20like%20to%20inquire%20about%20your%20software%20services."
               target="_blank"
               rel="noopener noreferrer"
               className="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 flex items-center justify-center gap-2"

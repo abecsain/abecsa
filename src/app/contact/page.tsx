@@ -85,15 +85,24 @@ export default function ContactPage() {
                 <Mail className="w-5 h-5 text-sky-600 shrink-0" />
                 <div className="text-xs text-slate-700">
                   <p className="font-bold text-slate-900 mb-0.5">Email Inquiries</p>
-                  <p>contact@abecsa.in / billing@abecsa.in</p>
+                  <a href="mailto:Abecsa.in@gmail.com" className="hover:text-sky-600 font-medium">
+                    Abecsa.in@gmail.com
+                  </a>
                 </div>
               </div>
 
               <div className="flex items-center gap-3 p-4 rounded-xl bg-white border border-slate-200">
-                <Phone className="w-5 h-5 text-sky-600 shrink-0" />
+                <Phone className="w-5 h-5 text-emerald-600 shrink-0" />
                 <div className="text-xs text-slate-700">
                   <p className="font-bold text-slate-900 mb-0.5">Direct Line & WhatsApp</p>
-                  <p>+91 98765 43210 (Mon - Sat, 9:00 AM - 7:00 PM IST)</p>
+                  <a
+                    href="https://wa.me/919407899216?text=Hello%20ABECSA!%20I%20have%20an%20inquiry%20regarding%20software%20services."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-emerald-700 text-emerald-700 font-bold"
+                  >
+                    +91 94078 99216 (Click to Chat)
+                  </a>
                 </div>
               </div>
             </div>

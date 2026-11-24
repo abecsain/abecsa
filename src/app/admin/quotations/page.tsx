@@ -601,8 +601,8 @@ export default function AdminQuotationsPage() {
       date: officialForm.date.trim() || getTodayFormattedDate(),
       clientName: officialForm.clientName.trim() || "Client Organization",
       projectName: officialForm.projectName.trim() || "Business Website & Database System",
-      contactEmail: officialForm.contactEmail.trim() || "contact@abecsa.com",
-      contactPhone: officialForm.contactPhone.trim() || undefined,
+      contactEmail: officialForm.contactEmail.trim() || "Abecsa.in@gmail.com",
+      contactPhone: officialForm.contactPhone.trim() || "+91 94078 99216",
       title: officialForm.title.trim() || "WEBSITE, SERVER & DATABASE DEVELOPMENT QUOTATION",
       subtitle: officialForm.subtitle.trim() || "Complete Starter Package • UI/UX • Website • Server • Database",
       scopeBullets: officialForm.scopeBullets,
@@ -761,7 +761,7 @@ export default function AdminQuotationsPage() {
           name: officialForm.clientName.trim(),
           companyName: officialForm.clientName.trim(),
           email: officialForm.contactEmail.trim() || `client_${Date.now()}@abecsa.client`,
-          phone: officialForm.contactPhone.trim() || "+91 98765 43210",
+          phone: officialForm.contactPhone.trim() || "+91 94078 99216",
         },
       };
 
@@ -808,7 +808,7 @@ export default function AdminQuotationsPage() {
     const phone = (officialForm.contactPhone || "").replace(/\D/g, "");
     const totalFormatted = formatCurrency(computeOfficialGrandTotal());
     const message = encodeURIComponent(
-      `Hello ${officialForm.clientName || "Sir/Madam"},\n\nThank you for choosing *ABECSA Software Solutions*.\nWe have prepared your official quotation: *${officialForm.quotationNumber}*.\n\n*Project:* ${officialForm.projectName}\n*Total Investment:* ${totalFormatted} (${computeOfficialAmountWords()})\n*Includes:* High-Speed Software, NVMe Database & Cloud Server Deployment.\n\nPlease review and let us know if you have any questions.\n\nBest regards,\n*ABECSA Software Solutions*\n+91 84878 77508 • contact@abecsa.in`
+      `Hello ${officialForm.clientName || "Sir/Madam"},\n\nThank you for choosing *ABECSA Software Solutions*.\nWe have prepared your official quotation: *${officialForm.quotationNumber}*.\n\n*Project:* ${officialForm.projectName}\n*Total Investment:* ${totalFormatted} (${computeOfficialAmountWords()})\n*Includes:* High-Speed Software, NVMe Database & Cloud Server Deployment.\n\nPlease review and let us know if you have any questions.\n\nBest regards,\n*ABECSA Software Solutions*\n+91 94078 99216 • Abecsa.in@gmail.com`
     );
     window.open(`https://wa.me/${phone ? (phone.startsWith("91") ? phone : "91" + phone) : ""}?text=${message}`, "_blank");
   };

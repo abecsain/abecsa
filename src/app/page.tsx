@@ -431,7 +431,7 @@ export default function HomePage() {
               </Link>
 
               <a
-                href="https://wa.me/919876543210?text=Hello%20ABECSA!%20I%20am%20interested%20in%20discussing%20a%20software%20project%20for%20my%20business."
+                href="https://wa.me/919407899216?text=Hello%20ABECSA!%20I%20am%20interested%20in%20discussing%20a%20software%20project%20for%20my%20business."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-xs sm:text-sm font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300/80 transition-all active:scale-[0.98]"
@@ -442,11 +442,16 @@ export default function HomePage() {
             </div>
 
             {/* Direct Phone Assistance Bar */}
-            <div className="pt-1 flex items-center justify-center gap-1.5 text-xs text-slate-500 font-medium">
-              <Phone className="w-3.5 h-3.5 text-sky-600 shrink-0" />
-              <span>Need immediate consultation? Call us directly:</span>
-              <a href="tel:+919876543210" className="text-slate-900 font-bold underline hover:text-sky-600">
-                +91 98765 43210
+            <div className="pt-1 flex items-center justify-center gap-1.5 text-xs text-slate-500 font-medium flex-wrap">
+              <Phone className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <span>Need immediate consultation? Chat on WhatsApp:</span>
+              <a
+                href="https://wa.me/919407899216?text=Hello%20ABECSA!%20I%20need%20immediate%20consultation%20regarding%20software%20for%20my%20business."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-emerald-700 font-bold underline hover:text-emerald-800"
+              >
+                +91 94078 99216
               </a>
             </div>
 
@@ -454,10 +459,10 @@ export default function HomePage() {
             <div className="pt-6 sm:pt-8 grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 border-t border-slate-200/80 mt-6 text-left">
               <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200/70 shadow-xs">
                 <div className="flex items-center gap-2 text-emerald-600 font-black text-lg sm:text-2xl">
-                  <span>45+</span>
+                  <span>2-3 Days</span>
                 </div>
-                <div className="text-[11px] sm:text-xs font-semibold text-slate-700 mt-0.5">Systems Deployed</div>
-                <div className="text-[10px] text-slate-400">Production-ready releases</div>
+                <div className="text-[11px] sm:text-xs font-semibold text-slate-700 mt-0.5">Rapid Deployment</div>
+                <div className="text-[10px] text-slate-400">Fast business onboarding</div>
               </div>
 
               <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200/70 shadow-xs">
@@ -731,7 +736,7 @@ export default function HomePage() {
 
                     <div className="flex items-center gap-2">
                       <a
-                        href={`https://wa.me/919876543210?text=Hello%20ABECSA!%20I%20would%20like%20to%20consult%20about%20${encodeURIComponent(
+                        href={`https://wa.me/919407899216?text=Hello%20ABECSA!%20I%20would%20like%20to%20consult%20about%20${encodeURIComponent(
                           svc.title
                         )}.`}
                         target="_blank"
@@ -1134,7 +1139,7 @@ export default function HomePage() {
                     Send Another Inquiry
                   </button>
                   <a
-                    href="https://wa.me/919876543210?text=Hello%20ABECSA!%20I%20just%20submitted%20a%20project%20inquiry%20on%20your%20website."
+                    href="https://wa.me/919407899216?text=Hello%20ABECSA!%20I%20just%20submitted%20a%20project%20inquiry%20on%20your%20website."
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full sm:w-auto px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold flex items-center justify-center gap-1.5"
@@ -1189,7 +1194,7 @@ export default function HomePage() {
                     <input
                       type="text"
                       required
-                      placeholder="+91 98765 43210"
+                      placeholder="+91 94078 99216"
                       value={leadForm.phone}
                       onChange={(e) => setLeadForm({ ...leadForm, phone: e.target.value })}
                       className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono"
@@ -1238,7 +1243,7 @@ export default function HomePage() {
                   </button>
 
                   <a
-                    href="https://wa.me/919876543210?text=Hello%20ABECSA!%20I%20want%20to%20discuss%20a%20new%20software%20project%20directly."
+                    href="https://wa.me/919407899216?text=Hello%20ABECSA!%20I%20want%20to%20discuss%20a%20new%20software%20project%20directly."
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full sm:w-auto px-5 py-3 rounded-xl border border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10 text-xs font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
@@ -1266,7 +1271,7 @@ export default function HomePage() {
         </a>
 
         <a
-          href="https://wa.me/919876543210?text=Hello%20ABECSA!%20I%20would%20like%20to%20consult%20about%20a%20software%20project."
+          href="https://wa.me/919407899216?text=Hello%20ABECSA!%20I%20would%20like%20to%20consult%20about%20a%20software%20project."
           target="_blank"
           rel="noopener noreferrer"
           className="flex-1 py-2 px-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold text-center flex items-center justify-center gap-1 shadow-xs"
@@ -1276,11 +1281,13 @@ export default function HomePage() {
         </a>
 
         <a
-          href="tel:+919876543210"
+          href="https://wa.me/919407899216"
+          target="_blank"
+          rel="noopener noreferrer"
           className="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-bold text-center flex items-center justify-center gap-1 border border-slate-700"
         >
-          <Phone className="w-3.5 h-3.5 text-sky-400" />
-          <span>Call</span>
+          <Phone className="w-3.5 h-3.5 text-emerald-400" />
+          <span>Chat</span>
         </a>
       </div>
 

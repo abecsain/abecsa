@@ -9,12 +9,13 @@ export const metadata = {
     "Interactive software solutions configurator, custom package builder, real-time database capacity estimator, and dynamic milestone quotation engine.",
 };
 
-export default function ServicesPage({
+export default async function ServicesPage({
   searchParams,
 }: {
-  searchParams?: { tab?: string; package?: string };
+  searchParams?: Promise<{ tab?: string; package?: string }>;
 }) {
-  const initialTab = searchParams?.tab?.toUpperCase() || "BUILDER";
+  const resolvedParams = searchParams ? await searchParams : undefined;
+  const initialTab = resolvedParams?.tab?.toUpperCase() || "BUILDER";
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
