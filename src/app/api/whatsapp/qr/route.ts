@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getWhatsAppServiceStatus, initWhatsAppSocket } from "@/lib/whatsappServerService";
+import { getSessionUser } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
   try {
+    const sessionUser = await getSessionUser();
+    if (!sessionUser || !["ADMIN", "MANAGER"].includes(sessionUser.effectiveRole)) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    }
+
     let serviceStatus = getWhatsAppServiceStatus();
 
     // If socket is not running, spin it up to generate QR

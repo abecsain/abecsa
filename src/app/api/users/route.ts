@@ -189,7 +189,9 @@ export async function PATCH(req: NextRequest) {
       },
     });
 
-    return NextResponse.json({ success: true, user: updated });
+    const { passwordHash: _ph, visiblePassword: _vp, ...safeUser } = updated as any;
+
+    return NextResponse.json({ success: true, user: safeUser });
   } catch (error) {
     console.error("Update user error:", error);
     return NextResponse.json({ error: "Failed to update user" }, { status: 500 });

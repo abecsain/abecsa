@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { initWhatsAppSocket, getWhatsAppServiceStatus } from "@/lib/whatsappServerService";
+import { getSessionUser } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
+    const sessionUser = await getSessionUser();
+    if (!sessionUser || !["ADMIN", "MANAGER"].includes(sessionUser.effectiveRole)) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    }
+
     const { phone } = await req.json();
 
     if (!phone) {

@@ -4,9 +4,18 @@ import {
   formatPOSInvoiceMessage,
   formatPaymentReminderMessage,
 } from "@/lib/whatsappServerService";
+import { getSessionUser } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
+    const sessionUser = await getSessionUser();
+    if (!sessionUser || !["ADMIN", "MANAGER", "ENGINEER"].includes(sessionUser.effectiveRole)) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized: Staff credentials required to dispatch messages" },
+        { status: 401 }
+      );
+    }
+
     const body = await req.json();
     const {
       phone,

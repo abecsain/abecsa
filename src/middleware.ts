@@ -2,27 +2,66 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 const COOKIE_NAME = "abecsa_session";
+const JWT_SECRET = process.env.JWT_SECRET || "abecsa-enterprise-jwt-super-secret-key-2026";
 
-// Basic decoding for Edge middleware (payload extraction)
-function decodeJwtPayload(token: string) {
+function base64UrlToUint8Array(base64Url: string): Uint8Array {
+  const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+  const pad = base64.length % 4;
+  const padded = pad ? base64 + "=".repeat(4 - pad) : base64;
+  const binary = atob(padded);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+}
+
+// Cryptographically verifies HMAC-SHA256 signature using Edge-compatible Web Crypto API
+async function verifyAndDecodeToken(token: string) {
   try {
     const parts = token.split(".");
     if (parts.length !== 3) return null;
-    const base64Url = parts[1];
-    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const [headerB64, payloadB64, signatureB64] = parts;
+
+    const encoder = new TextEncoder();
+    const keyData = encoder.encode(JWT_SECRET);
+    const cryptoKey = await crypto.subtle.importKey(
+      "raw",
+      keyData,
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["verify"]
+    );
+
+    const sigBytes = base64UrlToUint8Array(signatureB64);
+    const dataToVerify = encoder.encode(`${headerB64}.${payloadB64}`);
+
+    const isValid = await crypto.subtle.verify("HMAC", cryptoKey, sigBytes as unknown as BufferSource, dataToVerify);
+    if (!isValid) return null;
+
+    const base64 = payloadB64.replace(/-/g, "+").replace(/_/g, "/");
+    const pad = base64.length % 4;
+    const padded = pad ? base64 + "=".repeat(4 - pad) : base64;
     const jsonPayload = decodeURIComponent(
-      atob(base64)
+      atob(padded)
         .split("")
         .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
         .join("")
     );
-    return JSON.parse(jsonPayload);
+    const payload = JSON.parse(jsonPayload);
+
+    // Reject expired tokens
+    if (payload.exp && Date.now() >= payload.exp * 1000) {
+      return null;
+    }
+
+    return payload;
   } catch {
     return null;
   }
 }
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Protect internal role workspaces
@@ -44,9 +83,11 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  const payload = decodeJwtPayload(token);
+  // Cryptographic signature and expiration check
+  const payload = await verifyAndDecodeToken(token);
   if (!payload || !payload.userId) {
     const loginUrl = new URL("/login", req.url);
+    loginUrl.searchParams.set("from", pathname);
     return NextResponse.redirect(loginUrl);
   }
 

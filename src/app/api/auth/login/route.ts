@@ -4,6 +4,54 @@ import { comparePassword, signToken, COOKIE_NAME } from "@/lib/auth";
 import { getSupabaseAdminClient } from "@/lib/supabase";
 import bcrypt from "bcryptjs";
 
+// In-memory sliding window rate limiter for brute-force protection
+interface RateLimitRecord {
+  attempts: number;
+  lockUntil: number;
+}
+const loginAttempts = new Map<string, RateLimitRecord>();
+
+function getClientIp(req: NextRequest): string {
+  const forwarded = req.headers.get("x-forwarded-for");
+  if (forwarded) {
+    return forwarded.split(",")[0].trim();
+  }
+  return "127.0.0.1";
+}
+
+function checkRateLimit(key: string): { blocked: boolean; remainingSecs: number } {
+  const now = Date.now();
+  const record = loginAttempts.get(key);
+  if (!record) return { blocked: false, remainingSecs: 0 };
+
+  if (record.lockUntil > now) {
+    const remainingSecs = Math.ceil((record.lockUntil - now) / 1000);
+    return { blocked: true, remainingSecs };
+  }
+
+  if (record.lockUntil > 0 && record.lockUntil <= now) {
+    loginAttempts.delete(key);
+  }
+
+  return { blocked: false, remainingSecs: 0 };
+}
+
+function recordFailedAttempt(key: string) {
+  const now = Date.now();
+  const record = loginAttempts.get(key) || { attempts: 0, lockUntil: 0 };
+  record.attempts += 1;
+
+  if (record.attempts >= 5) {
+    record.lockUntil = now + 5 * 60 * 1000; // 5-minute lockout
+  }
+
+  loginAttempts.set(key, record);
+}
+
+function clearRateLimit(key: string) {
+  loginAttempts.delete(key);
+}
+
 /**
  * Maps Supabase profile role to ABECSA internal system role
  */
@@ -17,6 +65,7 @@ function mapSupabaseRole(role?: string): "ADMIN" | "MANAGER" | "ENGINEER" | "CUS
 
 export async function POST(req: NextRequest) {
   try {
+    const clientIp = getClientIp(req);
     const body = await req.json();
     const email = body?.email ? String(body.email).toLowerCase().trim() : "";
     const password = body?.password ? String(body.password) : "";
@@ -25,6 +74,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: "Email and password are required" },
         { status: 400 }
+      );
+    }
+
+    // Rate limit check
+    const ipLimit = checkRateLimit(clientIp);
+    const emailLimit = checkRateLimit(`acc_${email}`);
+    if (ipLimit.blocked || emailLimit.blocked) {
+      const remaining = Math.max(ipLimit.remainingSecs, emailLimit.remainingSecs);
+      return NextResponse.json(
+        {
+          error: `Too many failed login attempts. Account/IP temporarily locked. Please try again in ${Math.ceil(
+            remaining / 60
+          )} minute(s).`,
+        },
+        { status: 429 }
       );
     }
 
@@ -88,6 +152,8 @@ export async function POST(req: NextRequest) {
 
     // 3. User must exist in the database
     if (!user) {
+      recordFailedAttempt(clientIp);
+      recordFailedAttempt(`acc_${email}`);
       return NextResponse.json(
         { error: "Invalid credentials. Please verify your email and password." },
         { status: 401 }
@@ -125,11 +191,17 @@ export async function POST(req: NextRequest) {
     }
 
     if (!isMatch) {
+      recordFailedAttempt(clientIp);
+      recordFailedAttempt(`acc_${email}`);
       return NextResponse.json(
         { error: "Invalid credentials. Please verify your email and password." },
         { status: 401 }
       );
     }
+
+    // Successful authentication: clear rate limits
+    clearRateLimit(clientIp);
+    clearRateLimit(`acc_${email}`);
 
     // 6. Generate signed JWT token
     const token = signToken({

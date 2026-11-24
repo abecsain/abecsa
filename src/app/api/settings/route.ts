@@ -14,13 +14,24 @@ export async function GET() {
         companyName: "ABECSA Software Solutions",
         tagline: "Enterprise Digital & Software Engineering",
         logoUrl: "/logo.png",
-        email: "contact@abecsa.in",
-        phone: "+91 98765 43210",
+        email: "Abecsa.in@gmail.com",
+        phone: "+91 94078 99216",
+        whatsappNumber: "+91 94078 99216",
         address: "Cyber City Tech Park, Tower B, Level 4, Bengaluru, Karnataka 560100",
         website: "https://abecsa.in",
-        gstNumber: "29AABCA1234F1Z8",
+        gstNumber: "",
         currency: "INR",
         defaultTaxRate: 18.0,
+      },
+    });
+  } else if (settings.email === "contact@abecsa.in" || settings.phone === "+91 98765 43210" || settings.gstNumber === "29AABCA1234F1Z8") {
+    settings = await prisma.companySettings.update({
+      where: { id: "abecsa-settings" },
+      data: {
+        email: "Abecsa.in@gmail.com",
+        phone: "+91 94078 99216",
+        whatsappNumber: "+91 94078 99216",
+        gstNumber: "",
       },
     });
   }

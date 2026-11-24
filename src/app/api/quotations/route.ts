@@ -31,6 +31,13 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Quotation proposal not found" }, { status: 404 });
     }
 
+    // IDOR protection: if user is CUSTOMER, ensure they own this quotation
+    if (sessionUser && sessionUser.effectiveRole === "CUSTOMER") {
+      if (!sessionUser.customerProfile || quotation.customerId !== sessionUser.customerProfile.id) {
+        return NextResponse.json({ error: "Access denied: Unauthorized quotation reference" }, { status: 403 });
+      }
+    }
+
     // Parse structured metadata in clientResponse if JSON
     let parsedMetadata: any = {};
     if (quotation.clientResponse) {
