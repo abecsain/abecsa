@@ -885,14 +885,26 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
       }
     });
 
-    // Addons & Shared Module Deduplication
+    // Addons & Shared Module Deduplication (Includes DB addons + Pack Modular Addons)
     const activeAddons: any[] = [];
     const sharedModulesCounted = new Set<string>();
     let sharedModuleDeduplicationDiscount = 0;
 
     selectedProductsList.forEach((p) => {
-      const addons = parseJsonArray(p.configurableAddons);
-      addons.forEach((addon: any) => {
+      const dbAddons = parseJsonArray(p.configurableAddons);
+      const packAddons = (PRODUCT_PACK_DETAILS[p.code]?.modularAddons || []).map((a) => ({
+        ...a,
+        recurringPrice: 0,
+      }));
+      const combinedAddons = [...dbAddons, ...packAddons];
+      const uniqueAddonsMap = new Map();
+      combinedAddons.forEach((a) => {
+        if (a && a.id && !uniqueAddonsMap.has(a.id)) {
+          uniqueAddonsMap.set(a.id, a);
+        }
+      });
+
+      Array.from(uniqueAddonsMap.values()).forEach((addon: any) => {
         if (selectedAddonIds.includes(addon.id)) {
           if (addon.sharedModuleId && sharedModulesCounted.has(addon.sharedModuleId)) {
             sharedModuleDeduplicationDiscount += addon.price;
@@ -1189,16 +1201,13 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
 
   return (
     <div className="space-y-8">
-      {/* Navigation Sub-Tabs Bar */}
+      {/* Navigation Sub-Tabs Bar: Clean 4 Tabs */}
       <div className="bg-white rounded-2xl border border-slate-200 p-2 shadow-xs flex items-center gap-1.5 overflow-x-auto">
         {[
-          { id: "BUILDER", label: "Software Package Builder", icon: Layers, highlight: true },
-          { id: "CATALOG", label: "Software Catalog", icon: Search },
-          { id: "PACKAGES", label: "Ready-Made Packages", icon: Package },
-          { id: "DATABASE", label: "DB Capacity Estimator", icon: Database },
-          { id: "WEBSITE", label: "Website Configurator", icon: Globe },
-          { id: "COMPARISON", label: "Package Comparison", icon: Sliders },
-          { id: "QUOTATION", label: "Get a Quotation", icon: FileSpreadsheet },
+          { id: "BUILDER", label: "Software Categories", icon: Layers, highlight: true },
+          { id: "DATABASE", label: "DB Storage", icon: Database },
+          { id: "WEBSITE", label: "Website Configure", icon: Globe },
+          { id: "QUOTATION", label: "Get Quotation", icon: FileSpreadsheet },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -1227,663 +1236,567 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
       ========================================================================= */}
       {activeTab === "BUILDER" && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Left Column: Configurator Steps (8 Cols) */}
+          {/* Left Column: Software Categories Flow (8 Cols) */}
           <div className="lg:col-span-8 space-y-6">
-            {/* Step 1: Select Software Category & Modules */}
-            <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-5">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-sky-600 block">
-                    STEP 1 OF 3 • SELECT SOFTWARE CATEGORY & MODULES
-                  </span>
-                  <h2 className="text-xl sm:text-2xl font-black text-slate-950 mt-1">
-                    {builderCategoryFilter === "ALL"
-                      ? "Choose Your Software Category"
-                      : "Configure Software Modules"}
-                  </h2>
-                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                    {builderCategoryFilter === "ALL"
-                      ? "Select any software category below to explore its out-of-the-box base services, features, and configuration."
-                      : "Inspect what is included in this category at ₹0 extra, customize features, or explore other categories."}
-                  </p>
-                </div>
-                <div className="text-right shrink-0">
-                  <span className="text-xs font-bold text-slate-700 block">In Solution:</span>
-                  <span className="text-lg font-black text-sky-600">
-                    {selectedProductCodes.length} Software
-                  </span>
-                </div>
-              </div>
-
-              {/* View Mode A: Category Cards Grid (Default View When ALL is selected) */}
-              {builderCategoryFilter === "ALL" ? (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between text-xs text-slate-500 border-b border-slate-100 pb-2">
-                    <span>Click any category to open its full feature breakdown & modules:</span>
-                    <span className="font-bold text-sky-600 font-mono">8 Categories</span>
+            {builderCategoryFilter === "ALL" ? (
+              /* View 1: All 8 Software Categories Grid */
+              <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-sky-600 block">
+                      BUSINESS SOFTWARE SUITES
+                    </span>
+                    <h2 className="text-xl sm:text-2xl font-black text-slate-950 mt-0.5">
+                      Select a Software Category
+                    </h2>
+                    <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                      Click any software category below to explore its included services (₹0 extra), customize features, choose database storage, and view exact pricing.
+                    </p>
                   </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                    {MASTER_SOFTWARE_CATEGORIES.map((cat) => {
-                      const Icon = cat.icon;
-                      const isProductSelected = selectedProductCodes.includes(cat.productCode);
-
-                      return (
-                        <div
-                          key={cat.id}
-                          onClick={() => {
-                            setBuilderCategoryFilter(cat.id);
-                            setExpandedProductCode(cat.productCode);
-                          }}
-                          className={`p-4 sm:p-5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between space-y-3 group hover:border-sky-500 hover:shadow-md ${
-                            isProductSelected
-                              ? "border-sky-600 bg-sky-50/40 ring-1 ring-sky-500/20"
-                              : "border-slate-200 bg-white"
-                          }`}
-                        >
-                          <div className="space-y-2.5">
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="flex items-center gap-2.5">
-                                <div className="h-10 w-10 rounded-xl bg-sky-50 text-sky-600 border border-sky-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                                  <Icon className="w-5 h-5" />
-                                </div>
-                                <div>
-                                  <h4 className="text-sm font-bold text-slate-900 group-hover:text-sky-600 transition-colors leading-snug">
-                                    {cat.name}
-                                  </h4>
-                                  <span className="text-[10px] text-slate-400 font-mono block">
-                                    {cat.productCode}
-                                  </span>
-                                </div>
-                              </div>
-
-                              {isProductSelected ? (
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1 shrink-0">
-                                  <Check className="w-3 h-3 stroke-[3]" />
-                                  <span>Added</span>
-                                </span>
-                              ) : (
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
-                                  {cat.highlightBadge}
-                                </span>
-                              )}
-                            </div>
-
-                            <p className="text-xs text-slate-600 leading-relaxed line-clamp-2">
-                              {cat.description}
-                            </p>
-                          </div>
-
-                          <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
-                            <div>
-                              <span className="text-[10px] text-slate-400 block">Starting From</span>
-                              <span className="font-extrabold text-slate-900">
-                                {formatCurrency(cat.startingPrice)}
-                              </span>
-                            </div>
-
-                            <span className="text-xs font-bold text-sky-600 group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
-                              <span>Open Category</span>
-                              <ArrowRight className="w-3.5 h-3.5" />
-                            </span>
-                          </div>
-                        </div>
-                      );
-                    })}
+                  <div className="sm:text-right shrink-0">
+                    <span className="text-[11px] font-bold text-slate-500 block">In Solution:</span>
+                    <span className="text-base font-black text-sky-600">
+                      {selectedProductCodes.length} Software Selected
+                    </span>
                   </div>
                 </div>
-              ) : (
-                /* View Mode B: Focused Category Details When a Category is Clicked */
-                <div className="space-y-5">
-                  {/* Category Navigation Bar */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-slate-50 p-2.5 sm:p-3 rounded-2xl border border-slate-200">
-                    <button
-                      type="button"
-                      onClick={() => setBuilderCategoryFilter("ALL")}
-                      className="px-3 py-1.5 rounded-xl bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 font-bold text-xs flex items-center gap-1.5 shrink-0 cursor-pointer shadow-2xs"
-                    >
-                      <ArrowRight className="w-3.5 h-3.5 rotate-180" />
-                      <span>← Back to All Categories</span>
-                    </button>
 
-                    {/* Quick Category Switcher Pills */}
-                    <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 no-scrollbar">
-                      {MASTER_SOFTWARE_CATEGORIES.map((c) => {
-                        const isCur = builderCategoryFilter === c.id;
-                        return (
-                          <button
-                            key={c.id}
-                            type="button"
-                            onClick={() => {
-                              setBuilderCategoryFilter(c.id);
-                              setExpandedProductCode(c.productCode);
-                            }}
-                            className={`px-2.5 py-1 rounded-full text-[11px] font-bold whitespace-nowrap cursor-pointer transition-all ${
-                              isCur
-                                ? "bg-slate-950 text-white shadow-2xs"
-                                : "bg-white text-slate-700 hover:bg-slate-200 border border-slate-200"
-                            }`}
-                          >
-                            {c.name.split(" ")[0]}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
+                {/* 8 Categories Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {MASTER_SOFTWARE_CATEGORIES.map((cat) => {
+                    const Icon = cat.icon;
+                    const isProductSelected = selectedProductCodes.includes(cat.productCode);
 
-                  {/* Software Module(s) in this Category */}
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
-                        Software Module in this Category:
-                      </span>
-                      <span className="text-[11px] text-slate-500">
-                        Toggle to include or remove from your solution
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-3">
-                      {builderFilteredProducts.map((prod) => {
-                        const isSelected = selectedProductCodes.includes(prod.code);
-                        const detail = PRODUCT_PACK_DETAILS[prod.code];
-                        const features = parseJsonArray(prod.keyFeatures);
-
-                        return (
-                          <div
-                            key={prod.id}
-                            className={`p-4 rounded-2xl border-2 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
-                              isSelected
-                                ? "border-sky-600 bg-sky-50/40 shadow-xs ring-1 ring-sky-500/20"
-                                : "border-slate-200 bg-white"
-                            }`}
-                          >
-                            <div className="space-y-1.5 flex-1">
-                              <div className="flex items-center gap-2">
-                                <span className="text-[10px] font-mono text-slate-500 font-bold uppercase bg-slate-100 px-2 py-0.5 rounded-md">
-                                  {prod.code}
-                                </span>
-                                {detail && (
-                                  <span className="text-[10px] font-bold text-sky-700 bg-sky-100/70 px-2 py-0.5 rounded-md">
-                                    {detail.categoryLabel}
-                                  </span>
-                                )}
+                    return (
+                      <div
+                        key={cat.id}
+                        onClick={() => {
+                          setBuilderCategoryFilter(cat.id);
+                          setExpandedProductCode(cat.productCode);
+                        }}
+                        className={`p-5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between space-y-4 group hover:border-sky-500 hover:shadow-md ${
+                          isProductSelected
+                            ? "border-sky-600 bg-sky-50/40 ring-1 ring-sky-500/20"
+                            : "border-slate-200 bg-white"
+                        }`}
+                      >
+                        <div className="space-y-2.5">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex items-center gap-3">
+                              <div className="h-11 w-11 rounded-xl bg-sky-50 text-sky-600 border border-sky-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                                <Icon className="w-5 h-5" />
                               </div>
-                              <h4 className="text-base font-bold text-slate-900">
-                                {prod.name}
-                              </h4>
-                              <p className="text-xs text-slate-600 leading-relaxed max-w-xl">
-                                {prod.shortDescription}
-                              </p>
-
-                              {/* Features Preview */}
-                              <div className="flex flex-wrap gap-2 pt-1">
-                                {features.slice(0, 3).map((f, i) => (
-                                  <span
-                                    key={i}
-                                    className="inline-flex items-center gap-1 text-[11px] text-slate-600 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-md"
-                                  >
-                                    <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
-                                    <span>{f}</span>
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-
-                            <div className="text-right flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-0 border-slate-100 gap-3">
                               <div>
-                                <span className="text-[10px] text-slate-400 block">Base License</span>
-                                <span className="text-lg font-black text-slate-900">
-                                  {prod.isPriceOnRequest ? "On Request" : formatCurrency(prod.basePrice)}
-                                </span>
-                              </div>
-
-                              <button
-                                type="button"
-                                onClick={() => toggleProduct(prod.code)}
-                                className={`py-2 px-4 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                                  isSelected
-                                    ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
-                                    : "bg-sky-600 hover:bg-sky-700 text-white shadow-xs"
-                                }`}
-                              >
-                                {isSelected ? (
-                                  <>
-                                    <Check className="w-3.5 h-3.5 stroke-[3]" />
-                                    <span>Added to Solution (Click to Remove)</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <Plus className="w-3.5 h-3.5" />
-                                    <span>+ Add to Solution</span>
-                                  </>
-                                )}
-                              </button>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Active Pack Breakdown: Base Inclusions & Synergies */}
-                  {activeExpandedProduct && activePackDetail && (
-                    <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-sky-950 text-white border border-sky-800/40 shadow-xl space-y-5">
-                      {/* Breakdown Header */}
-                      <div className="border-b border-slate-800 pb-3">
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30">
-                            {activePackDetail.categoryLabel}
-                          </span>
-                          <span className="text-xs text-slate-400 font-mono">
-                            {activeExpandedProduct.code}
-                          </span>
-                        </div>
-                        <h3 className="text-lg sm:text-xl font-black text-white mt-1">
-                          {activeExpandedProduct.name} — Out-of-the-Box Inclusions
-                        </h3>
-                        <p className="text-xs text-sky-200/80 mt-0.5">
-                          {activePackDetail.tagline}
-                        </p>
-                      </div>
-
-                      {/* Included Base Services (₹0 Extra) */}
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                            <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">
-                              Included In This Pack (Ready Out-of-the-Box • ₹0 Extra)
-                            </span>
-                          </div>
-                          <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800/60 px-2 py-0.5 rounded-full">
-                            6 Base Services Included
-                          </span>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                          {activePackDetail.includedServices.map((srv, idx) => (
-                            <div
-                              key={idx}
-                              className="p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60 flex items-start gap-2.5"
-                            >
-                              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                              <div>
-                                <span className="text-xs font-bold text-white block">
-                                  {srv.title}
-                                </span>
-                                <span className="text-[11px] text-slate-300/80 leading-relaxed block mt-0.5">
-                                  {srv.desc}
+                                <h3 className="text-sm font-bold text-slate-900 group-hover:text-sky-600 transition-colors leading-snug">
+                                  {cat.name}
+                                </h3>
+                                <span className="text-[10px] text-slate-400 font-mono block">
+                                  {cat.productCode}
                                 </span>
                               </div>
                             </div>
-                          ))}
-                        </div>
-                      </div>
 
-                      {/* Smart Cross-Pack Synergies */}
-                      <div className="space-y-3 pt-3 border-t border-slate-800">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <Sparkles className="w-4 h-4 text-sky-400" />
-                            <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">
-                              Smart Cross-Pack Synergies & Future Project Enhancements
-                            </span>
-                          </div>
-                          <span className="text-[10px] text-sky-300">
-                            Zero duplicate work
-                          </span>
-                        </div>
-
-                        <div className="space-y-2">
-                          {activePackDetail.smartSynergies.map((syn, idx) => {
-                            const isAlreadySelected = selectedProductCodes.includes(syn.linkedCode);
-                            return (
-                              <div
-                                key={idx}
-                                className="p-3 rounded-2xl bg-slate-800/50 border border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-                              >
-                                <div className="space-y-0.5">
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-xs font-bold text-sky-300">
-                                      {syn.reason}
-                                    </span>
-                                    <span className="text-[10px] text-slate-400 font-mono">
-                                      • with {syn.linkedName}
-                                    </span>
-                                  </div>
-                                  <p className="text-[11px] text-slate-300 leading-relaxed">
-                                    {syn.benefit}
-                                  </p>
-                                </div>
-
-                                <button
-                                  type="button"
-                                  onClick={() => toggleProduct(syn.linkedCode)}
-                                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
-                                    isAlreadySelected
-                                      ? "bg-slate-700 text-slate-300 hover:bg-slate-600"
-                                      : "bg-sky-500 hover:bg-sky-400 text-slate-950 shadow-xs"
-                                  }`}
-                                >
-                                  {isAlreadySelected ? "✓ Linked in Solution" : `+ Link ${syn.linkedCode}`}
-                                </button>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-
-                      {/* Bottom action to switch categories */}
-                      <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs">
-                        <button
-                          type="button"
-                          onClick={() => setBuilderCategoryFilter("ALL")}
-                          className="text-sky-300 hover:text-white font-bold flex items-center gap-1 cursor-pointer"
-                        >
-                          <span>← Explore Another Category</span>
-                        </button>
-                        <span className="text-slate-400 text-[11px]">
-                          Scroll down for Additional Options & Database selection ↓
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Step 2: Additional Features & Custom Requirements (Additional Add Option) */}
-            <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-5">
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-sky-600 block">
-                  STEP 2 OF 3 • ADDITIONAL ADD-ONS & CUSTOM FEATURES
-                </span>
-                <h3 className="text-xl sm:text-2xl font-black text-slate-950 mt-1">
-                  Additional Add Options & Custom Requirements
-                </h3>
-                <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                  Enhance your software pack with optional hardware connectors, specialized apps, or request a custom feature for your unique business logic.
-                </p>
-              </div>
-
-              {/* Modular Features Addons Grid */}
-              <div className="space-y-2.5">
-                <span className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
-                  Select Modular Add-on Features:
-                </span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  {pricingSummary.selectedProductsList.flatMap((p) => {
-                    const addons = parseJsonArray(p.configurableAddons);
-                    return addons.map((addon: any) => {
-                      const isChecked = selectedAddonIds.includes(addon.id);
-                      return (
-                        <div
-                          key={addon.id}
-                          onClick={() => toggleAddon(addon.id)}
-                          className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-start justify-between gap-3 ${
-                            isChecked
-                              ? "border-sky-500 bg-sky-50/40 ring-1 ring-sky-500/20"
-                              : "border-slate-200 hover:border-slate-300 bg-white"
-                          }`}
-                        >
-                          <div className="flex items-start gap-2.5">
-                            <input
-                              type="checkbox"
-                              checked={isChecked}
-                              onChange={() => {}}
-                              className="h-4 w-4 rounded text-sky-600 mt-0.5"
-                            />
-                            <div>
-                              <span className="text-xs font-bold text-slate-900 block leading-tight">
-                                {addon.name}
+                            {isProductSelected ? (
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1 shrink-0">
+                                <Check className="w-3 h-3 stroke-[3]" />
+                                <span>Added</span>
                               </span>
-                              <span className="text-[10px] text-slate-400 block mt-0.5">
-                                Module: {p.name}
-                              </span>
-                            </div>
-                          </div>
-
-                          <div className="text-right shrink-0">
-                            <span className="text-xs font-black text-slate-900 block">
-                              +{formatCurrency(addon.price)}
-                            </span>
-                            {addon.recurringPrice > 0 && (
-                              <span className="text-[10px] text-slate-400 block">
-                                +{formatCurrency(addon.recurringPrice)}/mo
+                            ) : (
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
+                                {cat.highlightBadge}
                               </span>
                             )}
                           </div>
+
+                          <p className="text-xs text-slate-600 leading-relaxed line-clamp-2">
+                            {cat.description}
+                          </p>
                         </div>
-                      );
-                    });
+
+                        <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                          <div>
+                            <span className="text-[10px] text-slate-400 block">Starting From</span>
+                            <span className="font-extrabold text-slate-900 text-sm">
+                              {formatCurrency(cat.startingPrice)}
+                            </span>
+                          </div>
+
+                          <span className="text-xs font-bold text-sky-600 group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
+                            <span>Open Category</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </span>
+                        </div>
+                      </div>
+                    );
                   })}
                 </div>
-              </div>
 
-              {/* Custom Feature Request Input Box */}
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-amber-500" />
-                  <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-                    Need a Custom Feature for Your Unique Workflow?
-                  </span>
-                </div>
-                <p className="text-[11px] text-slate-500">
-                  Type any custom business logic (e.g. Weighing scale serial link, Tally sync, Regional language invoice) to include it in your custom solution quotation.
-                </p>
-
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    placeholder="e.g. Add custom barcode scanner for weighed fruits, or link with our existing ERP..."
-                    value={customFeatureInput}
-                    onChange={(e) => setCustomFeatureInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && customFeatureInput.trim()) {
-                        e.preventDefault();
-                        setCustomFeatures((prev) => [
-                          ...prev,
-                          {
-                            id: `cf-${Date.now()}`,
-                            productCode: expandedProductCode || "GENERAL",
-                            text: customFeatureInput.trim(),
-                          },
-                        ]);
-                        setCustomFeatureInput("");
-                      }
-                    }}
-                    className="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (customFeatureInput.trim()) {
-                        setCustomFeatures((prev) => [
-                          ...prev,
-                          {
-                            id: `cf-${Date.now()}`,
-                            productCode: expandedProductCode || "GENERAL",
-                            text: customFeatureInput.trim(),
-                          },
-                        ]);
-                        setCustomFeatureInput("");
-                      }
-                    }}
-                    className="px-4 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-bold text-xs shrink-0 cursor-pointer shadow-xs"
-                  >
-                    + Add Custom Feature
-                  </button>
-                </div>
-
-                {/* Badges of added custom features */}
-                {customFeatures.length > 0 && (
-                  <div className="flex flex-wrap gap-2 pt-1">
-                    {customFeatures.map((cf) => (
-                      <span
-                        key={cf.id}
-                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-amber-300 text-amber-900 text-xs font-semibold shadow-2xs"
-                      >
-                        <span>✨ {cf.text}</span>
-                        <button
-                          type="button"
-                          onClick={() => setCustomFeatures((prev) => prev.filter((item) => item.id !== cf.id))}
-                          className="text-amber-500 hover:text-rose-600 font-bold ml-1 cursor-pointer"
-                        >
-                          ×
-                        </button>
+                {/* Database Storage Quick Selection Below Categories */}
+                <div className="pt-6 border-t border-slate-100 space-y-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-sky-600 block">
+                        CLOUD DATABASE ENGINE
                       </span>
-                    ))}
+                      <h3 className="text-lg font-black text-slate-950 mt-0.5">
+                        Database Storage (5 GB Selected by Default)
+                      </h3>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        High-speed NVMe cloud database with daily automated backups. 5 GB comfortably stores ~700 SKUs with images and 50 bills/day for over 30 years!
+                      </p>
+                    </div>
                   </div>
-                )}
-              </div>
-            </div>
 
-            {/* Step 3: Select Managed Database Capacity (DB Select) */}
-            <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-5">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-sky-600 block">
-                    STEP 3 OF 3 • SELECT MANAGED DATABASE CAPACITY
-                  </span>
-                  <h3 className="text-xl sm:text-2xl font-black text-slate-950 mt-1">
-                    Database Storage & High-Speed Cloud Engine
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                    Select the database plan matching your business transaction velocity. Automatic daily cloud backups included. (5 GB selected by default for major projects).
-                  </p>
-                </div>
-                <button
-                  onClick={() => setActiveTab("DATABASE")}
-                  className="px-3 py-1.5 rounded-xl border border-sky-200 bg-sky-50 hover:bg-sky-100 text-sky-800 text-[11px] font-bold flex items-center gap-1 shrink-0 cursor-pointer"
-                >
-                  <Sliders className="w-3 h-3 text-sky-600" />
-                  <span>Open Estimator</span>
-                </button>
-              </div>
-
-              {/* Database Tiers Buttons */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {databasePlans.map((plan) => {
-                  const isSelected = !isCustomDatabase && selectedDatabaseGb === plan.sizeGb;
-                  const isMajorDefault = plan.sizeGb === 5;
-                  return (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                    {databasePlans.map((plan) => {
+                      const isSelected = !isCustomDatabase && selectedDatabaseGb === plan.sizeGb;
+                      const isMajorDefault = plan.sizeGb === 5;
+                      return (
+                        <button
+                          key={plan.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedDatabaseGb(plan.sizeGb);
+                            setIsCustomDatabase(false);
+                          }}
+                          className={`p-3 rounded-2xl border-2 text-left transition-all cursor-pointer relative ${
+                            isSelected
+                              ? "border-sky-600 bg-sky-50/60 shadow-xs ring-1 ring-sky-500/20"
+                              : "border-slate-200 bg-white hover:border-slate-300"
+                          }`}
+                        >
+                          {isMajorDefault && (
+                            <span className="absolute -top-2 left-2 text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 shadow-xs">
+                              ★ Recommended
+                            </span>
+                          )}
+                          <div className="flex items-center justify-between mb-0.5 mt-0.5">
+                            <span className="text-xs font-black text-slate-900 font-mono">
+                              {plan.sizeGb === 0 ? "Own DB" : `${plan.sizeGb} GB`}
+                            </span>
+                            {isSelected && (
+                              <span className="h-3.5 w-3.5 rounded-full bg-sky-600 text-white flex items-center justify-center text-[9px]">
+                                ✓
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-[10px] font-bold text-sky-700">
+                            {plan.sizeGb === 0
+                              ? "₹0/yr (Self-Hosted)"
+                              : `${formatCurrency(selectedTenure === "MONTHLY" ? plan.monthlyPrice : plan.annualPrice)}/${selectedTenure === "MONTHLY" ? "mo" : "yr"}`}
+                          </div>
+                        </button>
+                      );
+                    })}
                     <button
-                      key={plan.id}
                       type="button"
-                      onClick={() => {
-                        setSelectedDatabaseGb(plan.sizeGb);
-                        setIsCustomDatabase(false);
-                      }}
-                      className={`p-3.5 rounded-2xl border-2 text-left transition-all cursor-pointer relative ${
-                        isSelected
-                          ? "border-sky-600 bg-sky-50/50 shadow-xs ring-1 ring-sky-500/20"
+                      onClick={() => setIsCustomDatabase(true)}
+                      className={`p-3 rounded-2xl border-2 text-left transition-all cursor-pointer ${
+                        isCustomDatabase
+                          ? "border-sky-600 bg-sky-50/60 shadow-xs ring-1 ring-sky-500/20"
                           : "border-slate-200 bg-white hover:border-slate-300"
                       }`}
                     >
-                      {isMajorDefault && (
-                        <span className="absolute -top-2.5 left-2.5 text-[9px] font-bold px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 shadow-xs">
-                          ★ Default (Major Projects)
+                      <div className="flex items-center justify-between mb-0.5">
+                        <span className="text-xs font-black text-slate-900 font-mono">
+                          Custom
                         </span>
-                      )}
-                      <div className="flex items-center justify-between mb-1 mt-1">
-                        <span className="text-sm sm:text-base font-black text-slate-900 font-mono">
-                          {plan.sizeGb === 0 ? "Own Server / DB" : `${plan.sizeGb} GB`}
-                        </span>
-                        {isSelected && (
-                          <span className="h-4 w-4 rounded-full bg-sky-600 text-white flex items-center justify-center text-[10px]">
+                        {isCustomDatabase && (
+                          <span className="h-3.5 w-3.5 rounded-full bg-sky-600 text-white flex items-center justify-center text-[9px]">
                             ✓
                           </span>
                         )}
                       </div>
-                      <div className="text-[11px] font-bold text-sky-700">
-                        {plan.sizeGb === 0
-                          ? "₹0 (Self-Hosted)"
-                          : `${formatCurrency(selectedTenure === "MONTHLY" ? plan.monthlyPrice : plan.annualPrice)}/${selectedTenure === "MONTHLY" ? "mo" : "yr"}`}
+                      <div className="text-[10px] font-bold text-sky-700">
+                        ₹299/GB/yr
                       </div>
-                      <span className="text-[10px] text-slate-400 line-clamp-1 mt-1 block">
-                        {plan.sizeGb === 0 ? "Bring your own DB" : plan.recommendedBusinessSize || "Cloud NVMe"}
-                      </span>
                     </button>
-                  );
-                })}
-
-                {/* Custom Storage Option */}
-                <button
-                  type="button"
-                  onClick={() => setIsCustomDatabase(true)}
-                  className={`p-3.5 rounded-2xl border-2 text-left transition-all cursor-pointer ${
-                    isCustomDatabase
-                      ? "border-sky-600 bg-sky-50/50 shadow-xs ring-1 ring-sky-500/20"
-                      : "border-slate-200 bg-white hover:border-slate-300"
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm sm:text-base font-black text-slate-900 font-mono">
-                      + Custom GB
-                    </span>
-                    {isCustomDatabase && (
-                      <span className="h-4 w-4 rounded-full bg-sky-600 text-white flex items-center justify-center text-[10px]">
-                        ✓
-                      </span>
-                    )}
                   </div>
-                  <div className="text-[11px] font-bold text-sky-700">
-                    ₹299/GB/yr
-                  </div>
-                  <span className="text-[10px] text-slate-400 line-clamp-1 mt-1 block">
-                    Tailored Enterprise Size
-                  </span>
-                </button>
-              </div>
-
-              {/* Custom GB Input if toggled */}
-              {isCustomDatabase && (
-                <div className="p-3.5 rounded-2xl bg-sky-50 border border-sky-200 flex items-center justify-between gap-4 text-xs">
-                  <div>
-                    <span className="font-bold text-sky-950 block">Enter Custom Database Storage Size:</span>
-                    <span className="text-[10px] text-sky-700">Calculated at ₹299 per GB / year</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      min="5"
-                      max="1000"
-                      step="5"
-                      value={customDatabaseGb}
-                      onChange={(e) => setCustomDatabaseGb(Math.max(1, Number(e.target.value)))}
-                      className="w-24 px-3 py-1.5 rounded-xl border border-sky-300 bg-white font-mono font-bold text-center text-sm"
-                    />
-                    <span className="font-bold text-sky-900">GB</span>
-                  </div>
-                </div>
-              )}
-
-              {/* Dynamic Capacity Visual Indicator Widget */}
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5">
-                <div className="flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-1.5 font-bold text-slate-800">
-                    <Database className="w-4 h-4 text-sky-600" />
-                    <span>Estimated Capacity Status:</span>
-                  </div>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${capacityEstimates.statusBorder}`}>
-                    {capacityEstimates.statusBadge} ({capacityEstimates.usagePercent}% Allocated)
-                  </span>
-                </div>
-
-                {/* Progress Bar */}
-                <div className="h-2.5 w-full bg-slate-200 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full ${capacityEstimates.statusColor} transition-all duration-500`}
-                    style={{ width: `${Math.min(100, capacityEstimates.usagePercent)}%` }}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between text-[11px] text-slate-500">
-                  <span>Est. DB Space: ~{capacityEstimates.totalDbGb} GB / {selectedDatabaseGb} GB</span>
-                  <span>Est. Annual Bills: ~{capacityEstimates.estimatedBillsPerYear.toLocaleString("en-IN")}</span>
                 </div>
               </div>
-            </div>
+            ) : (
+              /* View 2: Focused Opened Category View */
+              <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-6">
+                {/* Back to All & Quick Category Switcher */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                  <button
+                    type="button"
+                    onClick={() => setBuilderCategoryFilter("ALL")}
+                    className="px-3.5 py-1.5 rounded-xl bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 font-bold text-xs flex items-center gap-1.5 shrink-0 cursor-pointer shadow-2xs"
+                  >
+                    <ArrowRight className="w-3.5 h-3.5 rotate-180" />
+                    <span>← Back to All Categories</span>
+                  </button>
+
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 no-scrollbar">
+                    {MASTER_SOFTWARE_CATEGORIES.map((c) => {
+                      const isCur = builderCategoryFilter === c.id;
+                      return (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onClick={() => {
+                            setBuilderCategoryFilter(c.id);
+                            setExpandedProductCode(c.productCode);
+                          }}
+                          className={`px-2.5 py-1 rounded-full text-[11px] font-bold whitespace-nowrap cursor-pointer transition-all ${
+                            isCur
+                              ? "bg-slate-950 text-white shadow-2xs"
+                              : "bg-white text-slate-700 hover:bg-slate-200 border border-slate-200"
+                          }`}
+                        >
+                          {c.name.split(" ")[0]}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Category Header & Base Software Toggle */}
+                {activeExpandedProduct && activePackDetail && (
+                  <>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-sky-50/50 border border-sky-100">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-sky-100 text-sky-800 font-mono">
+                            {activeExpandedProduct.code}
+                          </span>
+                          <span className="text-xs font-semibold text-slate-500">
+                            {activePackDetail.categoryLabel}
+                          </span>
+                        </div>
+                        <h2 className="text-xl sm:text-2xl font-black text-slate-950">
+                          {activeExpandedProduct.name}
+                        </h2>
+                        <p className="text-xs text-slate-600 max-w-xl">
+                          {activePackDetail.tagline}
+                        </p>
+                      </div>
+
+                      <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-0 border-sky-100">
+                        <div>
+                          <span className="text-[10px] text-slate-400 block sm:text-right">Base License</span>
+                          <span className="text-xl font-black text-slate-950">
+                            {activeExpandedProduct.isPriceOnRequest ? "On Request" : formatCurrency(activeExpandedProduct.basePrice)}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => toggleProduct(activeExpandedProduct.code)}
+                          className={`py-2 px-4 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                            selectedProductCodes.includes(activeExpandedProduct.code)
+                              ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
+                              : "bg-sky-600 hover:bg-sky-700 text-white shadow-xs"
+                          }`}
+                        >
+                          {selectedProductCodes.includes(activeExpandedProduct.code) ? (
+                            <>
+                              <Check className="w-3.5 h-3.5 stroke-[3]" />
+                              <span>✓ In Solution (Click to Remove)</span>
+                            </>
+                          ) : (
+                            <>
+                              <Plus className="w-3.5 h-3.5" />
+                              <span>+ Add Software to Solution</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Section 1: What's Included at ₹0 Extra */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                        <div className="flex items-center gap-2">
+                          <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                          <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                            What's Included in This Pack (Out-of-the-Box • ₹0 Extra)
+                          </h4>
+                        </div>
+                        <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                          6 Base Services Ready
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        {activePackDetail.includedServices.map((srv, idx) => (
+                          <div
+                            key={idx}
+                            className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-start gap-2.5"
+                          >
+                            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                            <div>
+                              <span className="text-xs font-bold text-slate-900 block leading-tight">
+                                {srv.title}
+                              </span>
+                              <span className="text-[11px] text-slate-500 leading-relaxed block mt-0.5">
+                                {srv.desc}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Section 2: List-Type Option to Add Other Features */}
+                    <div className="space-y-3 pt-2">
+                      <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                        <div className="flex items-center gap-2">
+                          <Sparkles className="w-4 h-4 text-sky-600" />
+                          <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                            Add Optional Features to this Pack
+                          </h4>
+                        </div>
+                        <span className="text-[11px] text-slate-400">
+                          Check to include in quotation
+                        </span>
+                      </div>
+
+                      {/* Modular Addon Checkboxes */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        {activePackDetail.modularAddons.map((addon) => {
+                          const isChecked = selectedAddonIds.includes(addon.id);
+                          return (
+                            <div
+                              key={addon.id}
+                              onClick={() => toggleAddon(addon.id)}
+                              className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-start justify-between gap-3 ${
+                                isChecked
+                                  ? "border-sky-500 bg-sky-50/50 ring-1 ring-sky-500/20"
+                                  : "border-slate-200 hover:border-slate-300 bg-white"
+                              }`}
+                            >
+                              <div className="flex items-start gap-2.5">
+                                <input
+                                  type="checkbox"
+                                  checked={isChecked}
+                                  onChange={() => {}}
+                                  className="h-4 w-4 rounded text-sky-600 mt-0.5"
+                                />
+                                <div>
+                                  <span className="text-xs font-bold text-slate-900 block leading-tight">
+                                    {addon.name}
+                                  </span>
+                                  <span className="text-[11px] text-slate-500 block mt-0.5 leading-snug">
+                                    {addon.desc}
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="text-right shrink-0">
+                                <span className="text-xs font-black text-sky-700 block">
+                                  +{formatCurrency(addon.price)}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Custom Feature Text Input */}
+                      <div className="p-4 rounded-2xl bg-amber-50/50 border border-amber-200/80 space-y-2.5 mt-2">
+                        <div className="flex items-center gap-2">
+                          <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                          <span className="text-xs font-bold text-amber-950">
+                            Need a Custom Feature for Your Business?
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-amber-900/80">
+                          Type any custom workflow or integration requirement (e.g. Weighing scale serial link, Tally sync, Regional language invoice) to include in your quotation.
+                        </p>
+
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            placeholder="e.g. Add barcode scanner sync for weighed fruits..."
+                            value={customFeatureInput}
+                            onChange={(e) => setCustomFeatureInput(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" && customFeatureInput.trim()) {
+                                e.preventDefault();
+                                setCustomFeatures((prev) => [
+                                  ...prev,
+                                  {
+                                    id: `cf-${Date.now()}`,
+                                    productCode: expandedProductCode || "GENERAL",
+                                    text: customFeatureInput.trim(),
+                                  },
+                                ]);
+                                setCustomFeatureInput("");
+                              }
+                            }}
+                            className="flex-1 px-3.5 py-2 rounded-xl border border-amber-300 bg-white text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (customFeatureInput.trim()) {
+                                setCustomFeatures((prev) => [
+                                  ...prev,
+                                  {
+                                    id: `cf-${Date.now()}`,
+                                    productCode: expandedProductCode || "GENERAL",
+                                    text: customFeatureInput.trim(),
+                                  },
+                                ]);
+                                setCustomFeatureInput("");
+                              }
+                            }}
+                            className="px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shrink-0 cursor-pointer shadow-xs"
+                          >
+                            + Add Feature
+                          </button>
+                        </div>
+
+                        {customFeatures.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 pt-1">
+                            {customFeatures.map((cf) => (
+                              <span
+                                key={cf.id}
+                                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white border border-amber-300 text-amber-900 text-[11px] font-semibold"
+                              >
+                                <span>✨ {cf.text}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => setCustomFeatures((prev) => prev.filter((item) => item.id !== cf.id))}
+                                  className="text-amber-500 hover:text-rose-600 font-bold ml-1 cursor-pointer"
+                                >
+                                  ×
+                                </button>
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Section 3: Select Database Storage */}
+                    <div className="space-y-3 pt-2">
+                      <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                        <div className="flex items-center gap-2">
+                          <Database className="w-4 h-4 text-sky-600" />
+                          <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                            Select Database Storage
+                          </h4>
+                        </div>
+                        <span className="text-[10px] font-bold text-sky-700 bg-sky-50 border border-sky-200 px-2 py-0.5 rounded-full">
+                          5 GB NVMe Default Selected
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                        {databasePlans.map((plan) => {
+                          const isSelected = !isCustomDatabase && selectedDatabaseGb === plan.sizeGb;
+                          const isMajorDefault = plan.sizeGb === 5;
+                          return (
+                            <button
+                              key={plan.id}
+                              type="button"
+                              onClick={() => {
+                                setSelectedDatabaseGb(plan.sizeGb);
+                                setIsCustomDatabase(false);
+                              }}
+                              className={`p-3 rounded-2xl border-2 text-left transition-all cursor-pointer relative ${
+                                isSelected
+                                  ? "border-sky-600 bg-sky-50/60 shadow-xs ring-1 ring-sky-500/20"
+                                  : "border-slate-200 bg-white hover:border-slate-300"
+                              }`}
+                            >
+                              {isMajorDefault && (
+                                <span className="absolute -top-2 left-2 text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 shadow-xs">
+                                  ★ Default (Major)
+                                </span>
+                              )}
+                              <div className="flex items-center justify-between mb-0.5 mt-0.5">
+                                <span className="text-xs font-black text-slate-900 font-mono">
+                                  {plan.sizeGb === 0 ? "Own DB" : `${plan.sizeGb} GB`}
+                                </span>
+                                {isSelected && (
+                                  <span className="h-3.5 w-3.5 rounded-full bg-sky-600 text-white flex items-center justify-center text-[9px]">
+                                    ✓
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-[10px] font-bold text-sky-700">
+                                {plan.sizeGb === 0
+                                  ? "₹0/yr (Self-Hosted)"
+                                  : `${formatCurrency(selectedTenure === "MONTHLY" ? plan.monthlyPrice : plan.annualPrice)}/${selectedTenure === "MONTHLY" ? "mo" : "yr"}`}
+                              </div>
+                            </button>
+                          );
+                        })}
+                        <button
+                          type="button"
+                          onClick={() => setIsCustomDatabase(true)}
+                          className={`p-3 rounded-2xl border-2 text-left transition-all cursor-pointer ${
+                            isCustomDatabase
+                              ? "border-sky-600 bg-sky-50/60 shadow-xs ring-1 ring-sky-500/20"
+                              : "border-slate-200 bg-white hover:border-slate-300"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-0.5">
+                            <span className="text-xs font-black text-slate-900 font-mono">
+                              Custom
+                            </span>
+                            {isCustomDatabase && (
+                              <span className="h-3.5 w-3.5 rounded-full bg-sky-600 text-white flex items-center justify-center text-[9px]">
+                                ✓
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-[10px] font-bold text-sky-700">
+                            ₹299/GB/yr
+                          </div>
+                        </button>
+                      </div>
+
+                      <p className="text-[11px] text-slate-500 leading-relaxed">
+                        💡 <strong>Capacity Note:</strong> A 5 GB Cloud NVMe database holds up to 700 SKUs with product photos and 50 bills/day for over 30 years without slowdown.
+                      </p>
+                    </div>
+
+                    {/* Section 4: Show Price & Action Buttons */}
+                    <div className="p-5 rounded-2xl bg-slate-900 text-white border border-slate-800 space-y-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                        <div>
+                          <span className="text-[10px] uppercase font-bold text-sky-400 block tracking-wider">
+                            Package Configuration Investment
+                          </span>
+                          <div className="text-sm font-semibold text-slate-300">
+                            {activeExpandedProduct.name} + Selected Features & Database
+                          </div>
+                        </div>
+                        <div className="sm:text-right">
+                          <span className="text-xs text-slate-400 block">Total Estimated Price</span>
+                          <span className="text-2xl font-black text-sky-400 font-mono">
+                            {pricingSummary.hasCustomPrice ? "Custom Quote" : formatCurrency(pricingSummary.grandTotal)}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => setBuilderCategoryFilter("ALL")}
+                          className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-slate-700 hover:bg-slate-800 text-slate-300 font-bold text-xs cursor-pointer text-center"
+                        >
+                          ← Explore Another Category
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setActiveTab("QUOTATION")}
+                          className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-sky-500/20"
+                        >
+                          <span>Submit for Official Quotation</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Right Column: Live Sticky Configuration Summary (4 Cols) */}
