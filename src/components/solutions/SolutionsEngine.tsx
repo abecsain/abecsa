@@ -756,13 +756,9 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
   const [categoryFilter, setCategoryFilter] = useState("ALL");
   const [builderCategoryFilter, setBuilderCategoryFilter] = useState("ALL");
 
-  // Selected Software in Configuration Builder (Default: POS, Inventory & Showcasing with 5 GB DB)
-  const [selectedProductCodes, setSelectedProductCodes] = useState<string[]>([
-    "POS-BILLING",
-    "INVENTORY-MGMT",
-    "PRODUCT-SHOWCASE",
-  ]);
-  const [expandedProductCode, setExpandedProductCode] = useState<string | null>("PRODUCT-SHOWCASE");
+  // Selected Software in Configuration Builder (Default: clean slate, user selects what they need)
+  const [selectedProductCodes, setSelectedProductCodes] = useState<string[]>([]);
+  const [expandedProductCode, setExpandedProductCode] = useState<string | null>(null);
   const [selectedAddonIds, setSelectedAddonIds] = useState<string[]>([]);
   const [selectedDatabaseGb, setSelectedDatabaseGb] = useState<number>(5);
   const [isCustomDatabase, setIsCustomDatabase] = useState(false);
@@ -953,30 +949,32 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
       });
     });
 
-    // Database Tier Cost (0 GB = Customer's Own Server = ₹0)
+    // Database Tier Cost (0 GB = Customer's Own Server = ₹0; Only applied when software is selected)
     const effectiveGb = isCustomDatabase ? customDatabaseGb : selectedDatabaseGb;
     const selectedDbPlan = databasePlans.find((p) => p.sizeGb === effectiveGb);
     let dbMonthly = 0;
     let dbAnnual = 0;
 
-    if (effectiveGb === 0) {
-      dbMonthly = 0;
-      dbAnnual = 0;
-    } else if (selectedDbPlan) {
-      dbMonthly = selectedDbPlan.monthlyPrice;
-      dbAnnual = selectedDbPlan.annualPrice;
-    } else {
-      // Custom GB rate: ₹299 per GB per year
-      dbAnnual = Math.round(effectiveGb * 299);
-      dbMonthly = Math.round(dbAnnual / 12);
-    }
+    if (selectedProductsList.length > 0) {
+      if (effectiveGb === 0) {
+        dbMonthly = 0;
+        dbAnnual = 0;
+      } else if (selectedDbPlan) {
+        dbMonthly = selectedDbPlan.monthlyPrice;
+        dbAnnual = selectedDbPlan.annualPrice;
+      } else {
+        // Custom GB rate: ₹299 per GB per year
+        dbAnnual = Math.round(effectiveGb * 299);
+        dbMonthly = Math.round(dbAnnual / 12);
+      }
 
-    if (selectedTenure === "MONTHLY") {
-      recurringMonthlySubtotal += dbMonthly;
-      recurringAnnualSubtotal += dbMonthly * 12;
-    } else {
-      recurringAnnualSubtotal += dbAnnual;
-      recurringMonthlySubtotal += Math.round(dbAnnual / 12);
+      if (selectedTenure === "MONTHLY") {
+        recurringMonthlySubtotal += dbMonthly;
+        recurringAnnualSubtotal += dbMonthly * 12;
+      } else {
+        recurringAnnualSubtotal += dbAnnual;
+        recurringMonthlySubtotal += Math.round(dbAnnual / 12);
+      }
     }
 
     // Multi-Product Bundle Discount: 10% for 2 products, 25% for 3+ products
@@ -1019,8 +1017,8 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
     }
 
     // GST Tax (18%)
-    const taxAmount = Math.round((netOneTime + chosenRecurring) * 0.18);
-    const grandTotal = netOneTime + chosenRecurring + taxAmount;
+    const taxAmount = selectedProductsList.length === 0 ? 0 : Math.round((netOneTime + chosenRecurring) * 0.18);
+    const grandTotal = selectedProductsList.length === 0 ? 0 : (netOneTime + chosenRecurring + taxAmount);
 
     return {
       selectedProductsList,
@@ -1854,8 +1852,10 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
                 {/* Reset */}
                 <button
                   onClick={() => {
-                    setSelectedProductCodes(["POS-BILLING", "INVENTORY-MGMT", "PRODUCT-SHOWCASE"]);
+                    setSelectedProductCodes([]);
+                    setExpandedProductCode(null);
                     setSelectedAddonIds([]);
+                    setCustomFeatures([]);
                     setSelectedDatabaseGb(5);
                   }}
                   className="text-slate-400 hover:text-white text-xs flex items-center gap-1 cursor-pointer"
@@ -1871,36 +1871,45 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
                   Included Software ({pricingSummary.selectedProductsList.length}):
                 </span>
-                <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
-                  {pricingSummary.selectedProductsList.map((p) => {
-                    const itemPrice = p.code === "WEBSITE-PAGEWISE" ? calculatedWebsitePrice : p.basePrice;
-                    return (
-                      <div
-                        key={p.id}
-                        className="flex items-center justify-between p-2 rounded-xl bg-slate-800/80 border border-slate-700/60"
-                      >
-                        <div className="truncate pr-2">
-                          <span className="font-bold block truncate">{p.name}</span>
-                          <span className="text-[10px] text-slate-400">{p.code}</span>
+                {pricingSummary.selectedProductsList.length === 0 ? (
+                  <div className="p-3.5 rounded-xl bg-slate-800/40 border border-dashed border-slate-700/80 text-center space-y-1">
+                    <p className="text-xs font-semibold text-slate-300">No software selected yet</p>
+                    <p className="text-[10px] text-slate-400 leading-relaxed">
+                      Click any category on the left to explore features and add software to your solution.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                    {pricingSummary.selectedProductsList.map((p) => {
+                      const itemPrice = p.code === "WEBSITE-PAGEWISE" ? calculatedWebsitePrice : p.basePrice;
+                      return (
+                        <div
+                          key={p.id}
+                          className="flex items-center justify-between p-2 rounded-xl bg-slate-800/80 border border-slate-700/60"
+                        >
+                          <div className="truncate pr-2">
+                            <span className="font-bold block truncate">{p.name}</span>
+                            <span className="text-[10px] text-slate-400">{p.code}</span>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <span className="font-mono font-bold text-sky-300">
+                              {p.isPriceOnRequest ? "On Request" : formatCurrency(itemPrice)}
+                            </span>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleProduct(p.code);
+                              }}
+                              className="ml-2 text-slate-400 hover:text-rose-400"
+                            >
+                              ×
+                            </button>
+                          </div>
                         </div>
-                        <div className="text-right shrink-0">
-                          <span className="font-mono font-bold text-sky-300">
-                            {p.isPriceOnRequest ? "On Request" : formatCurrency(itemPrice)}
-                          </span>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleProduct(p.code);
-                            }}
-                            className="ml-2 text-slate-400 hover:text-rose-400"
-                          >
-                            ×
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               {/* Custom Business Features Added */}
@@ -2095,7 +2104,7 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
                 </button>
 
                 <a
-                  href={`https://wa.me/919876543210?text=Hello%20ABECSA!%20I%20configured%20a%20solution%20package%20(${pricingSummary.selectedProductsList
+                  href={`https://wa.me/919407899216?text=Hello%20ABECSA!%20I%20configured%20a%20solution%20package%20(${pricingSummary.selectedProductsList
                     .map((p) => p.name)
                     .join(", ")}%20+%20${selectedDatabaseGb}GB%20DB)%20on%20your%20website.%20Please%20share%20the%20official%20quote.`}
                   target="_blank"
@@ -2880,7 +2889,7 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
 
               <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
                 <a
-                  href={`https://wa.me/919876543210?text=Hello%20ABECSA!%20I%20just%20submitted%20package%20quotation%20request%20%23${submittedQuoteNumber}.%20Please%20verify%20with%20me.`}
+                  href={`https://wa.me/919407899216?text=Hello%20ABECSA!%20I%20just%20submitted%20package%20quotation%20request%20%23${submittedQuoteNumber}.%20Please%20verify%20with%20me.`}
                   target="_blank"
                   rel="noreferrer"
                   className="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-2 shadow-md"
