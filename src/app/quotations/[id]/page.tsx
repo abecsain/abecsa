@@ -376,8 +376,8 @@ export default function QuotationPresentationPage({
                 Cyber City Tech Park, Tower B, Level 4, Bengaluru, Karnataka 560100
               </p>
               <div className="pt-1 text-[10px] text-slate-500 space-y-0.5">
-                <p>GSTIN: 29AABCA1234F1Z8</p>
-                <p>Email: contact@abecsa.in</p>
+                <p>Email: Abecsa.in@gmail.com</p>
+                <p>Phone: +91 94078 99216</p>
               </div>
             </div>
 
@@ -395,7 +395,6 @@ export default function QuotationPresentationPage({
               <div className="pt-1 text-[10px] text-slate-500 space-y-0.5">
                 <p>Email: {quotation.customer?.user?.email}</p>
                 {quotation.customer?.user?.phone && <p>Phone: {quotation.customer?.user?.phone}</p>}
-                {quotation.customer?.gstNumber && <p>GSTIN: {quotation.customer.gstNumber}</p>}
               </div>
             </div>
 

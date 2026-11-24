@@ -65,7 +65,7 @@ export default function AboutPage() {
           <div className="space-y-2">
             <h4 className="text-lg font-bold text-slate-900">Headquartered in Bengaluru Tech Corridor</h4>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Operating out of Cyber City Tech Park, Tower B, Level 4, Bengaluru, Karnataka 560100. Registered under the Companies Act with GSTIN 29AABCA1234F1Z8. Our senior engineering leads bring experience across FinTech, Supply Chain, Healthcare, and Cloud Infrastructure.
+              Operating out of Cyber City Tech Park, Tower B, Level 4, Bengaluru, Karnataka 560100. Registered under the Companies Act. Our senior engineering leads bring experience across FinTech, Supply Chain, Healthcare, and Cloud Infrastructure.
             </p>
           </div>
         </div>

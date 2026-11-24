@@ -26,9 +26,7 @@ import {
   UtensilsCrossed,
   ShoppingBag,
   GraduationCap,
-  Receipt,
   Bot,
-  Laptop,
   Check,
   Lock,
   FileText,
@@ -930,127 +928,6 @@ export default function HomePage() {
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* =========================================================================
-          SECTION 7: THE ABECSA ADVANTAGE (CLIENT PORTAL TRANSPARENCY)
-      ========================================================================= */}
-      <section className="py-12 sm:py-20 bg-slate-50 border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            
-            <div className="lg:col-span-6 space-y-5">
-              <span className="text-xs font-black uppercase tracking-widest text-sky-600 block">
-                COMPLETE TRANSPARENCY
-              </span>
-              <h2 className="text-2xl sm:text-4xl font-black text-slate-950 tracking-tight leading-tight">
-                Track Every Sprint & Milestone in Your Private Client Portal
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Unlike traditional agencies where development is a black box, ABECSA provides every client with an authenticated portal (`/customer`). You have real-time visibility from day one.
-              </p>
-
-              <div className="space-y-3 pt-2 text-xs text-slate-700">
-                <div className="flex items-start gap-2.5">
-                  <div className="h-6 w-6 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
-                    <Check className="w-3.5 h-3.5" />
-                  </div>
-                  <div>
-                    <span className="font-bold text-slate-900 block">Live Sprint Progress & Deliverable Links:</span>
-                    <span className="text-slate-500 text-[11px]">Inspect real-time developer commits, test sandbox preview URLs, and approve milestones.</span>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-2.5">
-                  <div className="h-6 w-6 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center shrink-0 mt-0.5">
-                    <Receipt className="w-3.5 h-3.5" />
-                  </div>
-                  <div>
-                    <span className="font-bold text-slate-900 block">Instant Invoicing & Quotation Signoffs:</span>
-                    <span className="text-slate-500 text-[11px]">Review itemized quotes, download GST-compliant tax invoice PDFs, and verify payment receipts.</span>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-2.5">
-                  <div className="h-6 w-6 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 mt-0.5">
-                    <Lock className="w-3.5 h-3.5" />
-                  </div>
-                  <div>
-                    <span className="font-bold text-slate-900 block">Confidential Shared Vault:</span>
-                    <span className="text-slate-500 text-[11px]">Secure file storage with granular privacy toggles (`Confidential`, `Visible to Everyone`, `Assigned Customer Only`).</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-2">
-                <Link
-                  href="/customer"
-                  className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-slate-950 text-white hover:bg-slate-800 text-xs font-bold transition-all shadow-xs"
-                >
-                  <span>Explore Client Portal Experience</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-            </div>
-
-            {/* Portal Architecture Illustration Card */}
-            <div className="lg:col-span-6 bg-slate-900 text-white rounded-3xl p-5 sm:p-8 shadow-2xl border border-slate-800 space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <span className="text-xs font-bold text-sky-400">ABECSA Operating System Architecture</span>
-                <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-800">
-                  Live RBAC Active
-                </span>
-              </div>
-
-              <div className="space-y-2.5 text-xs">
-                <div className="p-3 rounded-xl bg-slate-800/90 border border-slate-700 flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <Building2 className="w-4 h-4 text-sky-400 shrink-0" />
-                    <div>
-                      <span className="font-bold text-white block">Central Executive Admin</span>
-                      <span className="text-[10px] text-slate-400">Total company control, invoices, HR & CRM audits</span>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-mono font-bold text-slate-300 bg-slate-700/60 px-2 py-0.5 rounded">/admin</span>
-                </div>
-
-                <div className="p-3 rounded-xl bg-slate-800/90 border border-slate-700 flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <Layers className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <div>
-                      <span className="font-bold text-white block">Project Delivery Manager</span>
-                      <span className="text-[10px] text-slate-400">Client coordination, sprint allocation, WhatsApp Web gateway</span>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-mono font-bold text-slate-300 bg-slate-700/60 px-2 py-0.5 rounded">/manager</span>
-                </div>
-
-                <div className="p-3 rounded-xl bg-slate-800/90 border border-slate-700 flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <Code2 className="w-4 h-4 text-amber-400 shrink-0" />
-                    <div>
-                      <span className="font-bold text-white block">Software Engineer Workspace</span>
-                      <span className="text-[10px] text-slate-400">Sprint Kanban, code reviews, staging URLs & work logs</span>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-mono font-bold text-slate-300 bg-slate-700/60 px-2 py-0.5 rounded">/engineer</span>
-                </div>
-
-                <div className="p-3 rounded-xl bg-slate-800/90 border border-slate-700 flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <Laptop className="w-4 h-4 text-indigo-400 shrink-0" />
-                    <div>
-                      <span className="font-bold text-white block">Enterprise Customer Portal</span>
-                      <span className="text-[10px] text-slate-400">Milestone progress %, invoice settlement, private vault</span>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-mono font-bold text-slate-300 bg-slate-700/60 px-2 py-0.5 rounded">/customer</span>
-                </div>
-              </div>
-            </div>
-
           </div>
         </div>
       </section>

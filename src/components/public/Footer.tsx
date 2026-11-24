@@ -25,7 +25,7 @@ export default function PublicFooter() {
             <div className="space-y-1 text-xs text-slate-400">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>GSTIN: 29AABCA1234F1Z8 • Ministry of Corporate Affairs Registered</span>
+                <span>Ministry of Corporate Affairs Registered Enterprise</span>
               </div>
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-sky-400 shrink-0" />

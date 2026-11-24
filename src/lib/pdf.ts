@@ -74,7 +74,7 @@ export function generateQuotationPdf(data: QuotationPdfData): jsPDF {
   doc.setFont("helvetica", "normal");
   doc.setTextColor(148, 163, 184); // slate-400
   doc.text("Enterprise Digital Solutions & Software Engineering | www.abecsa.in", 14, 25);
-  doc.text("GSTIN: 29AABCA1234F1Z8 | Email: Abecsa.in@gmail.com | Ph: +91 94078 99216", 14, 31);
+  doc.text("Email: Abecsa.in@gmail.com | Ph: +91 94078 99216", 14, 31);
 
   // Document Title Pill
   doc.setFillColor(2, 132, 199); // primary sky-600
@@ -261,7 +261,7 @@ export function generateInvoicePdf(data: InvoicePdfData): jsPDF {
   doc.setFont("helvetica", "normal");
   doc.setTextColor(148, 163, 184);
   doc.text("Enterprise Digital Solutions & Software Engineering | www.abecsa.in", 14, 25);
-  doc.text("GSTIN: 29AABCA1234F1Z8 | Email: billing@abecsa.in | Ph: +91 98765 43210", 14, 31);
+  doc.text("Email: Abecsa.in@gmail.com | Ph: +91 94078 99216", 14, 31);
 
   // Invoice Pill
   doc.setFillColor(16, 185, 129); // emerald-500
