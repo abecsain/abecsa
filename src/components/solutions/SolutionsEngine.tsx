@@ -515,7 +515,7 @@ const PRODUCT_PACK_DETAILS: Record<string, PackDetailMeta> = {
     ],
   },
   "RESTAURANT-CAFE": {
-    category: "INDUSTRY",
+    category: "RESTAURANT",
     categoryLabel: "Restaurant & Cafe POS",
     tagline: "Kitchen Order Tickets (KOT), table management & tabletop QR menus",
     includedServices: [
@@ -564,7 +564,7 @@ const PRODUCT_PACK_DETAILS: Record<string, PackDetailMeta> = {
     ],
   },
   "PHARMACY-CLINIC": {
-    category: "INDUSTRY",
+    category: "PHARMACY",
     categoryLabel: "Pharmacy & Clinic Management",
     tagline: "Medicine salt alternative search, Schedule H register & expiry alerts",
     includedServices: [
@@ -613,6 +613,100 @@ const PRODUCT_PACK_DETAILS: Record<string, PackDetailMeta> = {
     ],
   },
 };
+
+export interface SoftwareCategoryInfo {
+  id: string;
+  name: string;
+  tagline: string;
+  icon: any;
+  productCode: string;
+  startingPrice: number;
+  highlightBadge: string;
+  description: string;
+}
+
+export const MASTER_SOFTWARE_CATEGORIES: SoftwareCategoryInfo[] = [
+  {
+    id: "SHOWCASE",
+    name: "Digital Showcase & WhatsApp Shop",
+    tagline: "Online product catalog with 1-tap WhatsApp ordering & counter QR standee",
+    icon: ShoppingBag,
+    productCode: "PRODUCT-SHOWCASE",
+    startingPrice: 3999,
+    highlightBadge: "High Customer Conversion",
+    description: "Mobile web link & counter QR standee for customers to browse photos, check prices & send orders directly to your WhatsApp.",
+  },
+  {
+    id: "RETAIL",
+    name: "Retail POS & GST Counter Billing",
+    tagline: "Ultra-fast thermal slip printing, barcode scanning & WhatsApp invoices",
+    icon: Receipt,
+    productCode: "POS-BILLING",
+    startingPrice: 4999,
+    highlightBadge: "Essential for Stores",
+    description: "Generate bills in 2 seconds. Supports barcode scanners, 2-inch & 3-inch thermal printers, UPI payment QR, and offline billing.",
+  },
+  {
+    id: "INVENTORY",
+    name: "Smart Inventory & Stock Control",
+    tagline: "Real-time stock depletion, low-stock WhatsApp alerts & barcode stickers",
+    icon: Package,
+    productCode: "INVENTORY-MGMT",
+    startingPrice: 4999,
+    highlightBadge: "Prevent Stockouts",
+    description: "Track warehouse stock, print custom barcode stickers, receive WhatsApp low-stock alerts, and manage supplier purchase orders.",
+  },
+  {
+    id: "ACCOUNTS",
+    name: "Udhar Khata & Accounting Ledger",
+    tagline: "Digital customer Udhar passbook, automated WhatsApp reminders & P&L",
+    icon: FileSpreadsheet,
+    productCode: "ACCOUNTING-UDHAR",
+    startingPrice: 3499,
+    highlightBadge: "Faster Debt Recovery",
+    description: "Replace paper khata books with digital passbooks. Send polite automated WhatsApp payment reminders with UPI QR codes.",
+  },
+  {
+    id: "CRM",
+    name: "Customer CRM & WhatsApp Marketing",
+    tagline: "Customer contact directory, purchase history & bulk festival broadcasts",
+    icon: MessageSquare,
+    productCode: "CRM-WHATSAPP",
+    startingPrice: 2999,
+    highlightBadge: "Repeat Sales Booster",
+    description: "Save customer phones from bills, broadcast festive promotions directly on WhatsApp, and send automated birthday wishes.",
+  },
+  {
+    id: "WEBSITES",
+    name: "Custom Business Websites & Portals",
+    tagline: "Page-by-page custom website with Google SEO & WhatsApp inquiry button",
+    icon: Globe,
+    productCode: "WEBSITE-PAGEWISE",
+    startingPrice: 2999,
+    highlightBadge: "100% Mobile Responsive",
+    description: "Professional corporate presence. Transparent page-wise pricing (base ₹2,999 for 3 pages), high-speed cloud NVMe hosting & free SSL.",
+  },
+  {
+    id: "RESTAURANT",
+    name: "Restaurant POS, Table KOT & QR Menu",
+    tagline: "Kitchen Order Tickets (KOT), floor table status & tabletop QR menus",
+    icon: UtensilsCrossed,
+    productCode: "RESTAURANT-CAFE",
+    startingPrice: 6999,
+    highlightBadge: "Cafes & Dining Outlets",
+    description: "Built for dining & takeaway. Instant KOT dispatch to kitchen printer, table management (Vacant/Running/Billed), and tabletop digital menus.",
+  },
+  {
+    id: "PHARMACY",
+    name: "Pharmacy & Clinic Management",
+    tagline: "Medicine salt substitute search, Schedule H registers & expiry alerts",
+    icon: Stethoscope,
+    productCode: "PHARMACY-CLINIC",
+    startingPrice: 6499,
+    highlightBadge: "Drug Compliance Ready",
+    description: "Find alternate salt substitute brands in 2 seconds. Manage doctor prescriptions, Schedule H registers, and 60-day advance expiry alerts.",
+  },
+];
 
 export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab?: string }) {
   const [activeTab, setActiveTab] = useState<
@@ -1135,439 +1229,532 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Left Column: Configurator Steps (8 Cols) */}
           <div className="lg:col-span-8 space-y-6">
-            {/* Step 1: Select Software Products */}
+            {/* Step 1: Select Software Category & Modules */}
             <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-5">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <span className="text-[10px] font-bold uppercase tracking-widest text-sky-600 block">
-                    STEP 1 OF 3 • SELECT CORE SOFTWARE MODULES
+                    STEP 1 OF 3 • SELECT SOFTWARE CATEGORY & MODULES
                   </span>
                   <h2 className="text-xl sm:text-2xl font-black text-slate-950 mt-1">
-                    Select Your Business Software Applications
+                    {builderCategoryFilter === "ALL"
+                      ? "Choose Your Software Category"
+                      : "Configure Software Modules"}
                   </h2>
                   <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                    Combine multiple compatible software products into one integrated system. Filter by category, view out-of-the-box inclusions, and add custom features.
+                    {builderCategoryFilter === "ALL"
+                      ? "Select any software category below to explore its out-of-the-box base services, features, and configuration."
+                      : "Inspect what is included in this category at ₹0 extra, customize features, or explore other categories."}
                   </p>
                 </div>
                 <div className="text-right shrink-0">
-                  <span className="text-xs font-bold text-slate-700 block">Selected:</span>
+                  <span className="text-xs font-bold text-slate-700 block">In Solution:</span>
                   <span className="text-lg font-black text-sky-600">
                     {selectedProductCodes.length} Software
                   </span>
                 </div>
               </div>
 
-              {/* Software Category Filter Tabs for Builder */}
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-1 no-scrollbar">
-                {[
-                  { id: "ALL", label: "All Modules" },
-                  { id: "SHOWCASE", label: "Showcase & WhatsApp Shop" },
-                  { id: "RETAIL", label: "Retail & POS Billing" },
-                  { id: "INVENTORY", label: "Inventory & Stock" },
-                  { id: "ACCOUNTS", label: "Udhar & Accounts" },
-                  { id: "CRM", label: "Customer CRM" },
-                  { id: "WEBSITES", label: "Custom Websites" },
-                  { id: "INDUSTRY", label: "Industry Solutions" },
-                ].map((c) => {
-                  const isActive = builderCategoryFilter === c.id;
-                  return (
-                    <button
-                      key={c.id}
-                      type="button"
-                      onClick={() => setBuilderCategoryFilter(c.id)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap cursor-pointer transition-all ${
-                        isActive
-                          ? "bg-sky-600 text-white shadow-xs"
-                          : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                      }`}
-                    >
-                      {c.label}
-                    </button>
-                  );
-                })}
-              </div>
+              {/* View Mode A: Category Cards Grid (Default View When ALL is selected) */}
+              {builderCategoryFilter === "ALL" ? (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between text-xs text-slate-500 border-b border-slate-100 pb-2">
+                    <span>Click any category to open its full feature breakdown & modules:</span>
+                    <span className="font-bold text-sky-600 font-mono">8 Categories</span>
+                  </div>
 
-              {/* Compact Software Products Selection Grid (Mobile & Laptop Optimized) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {builderFilteredProducts.map((prod) => {
-                  const isSelected = selectedProductCodes.includes(prod.code);
-                  const isExpanded = expandedProductCode === prod.code;
-                  const detail = PRODUCT_PACK_DETAILS[prod.code];
-                  const features = parseJsonArray(prod.keyFeatures);
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    {MASTER_SOFTWARE_CATEGORIES.map((cat) => {
+                      const Icon = cat.icon;
+                      const isProductSelected = selectedProductCodes.includes(cat.productCode);
 
-                  return (
-                    <div
-                      key={prod.id}
-                      className={`p-3.5 sm:p-4 rounded-2xl border-2 transition-all flex flex-col justify-between space-y-2.5 ${
-                        isSelected
-                          ? "border-sky-600 bg-sky-50/40 shadow-xs ring-1 ring-sky-500/20"
-                          : "border-slate-200 bg-white hover:border-slate-300"
-                      }`}
-                    >
-                      <div className="space-y-1.5">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-[10px] font-mono text-slate-500 font-bold uppercase bg-slate-100 px-2 py-0.5 rounded-md">
-                              {prod.code}
-                            </span>
-                            {detail && (
-                              <span className="text-[10px] font-bold text-sky-700 bg-sky-100/70 px-2 py-0.5 rounded-md truncate max-w-[150px]">
-                                {detail.categoryLabel}
-                              </span>
-                            )}
+                      return (
+                        <div
+                          key={cat.id}
+                          onClick={() => {
+                            setBuilderCategoryFilter(cat.id);
+                            setExpandedProductCode(cat.productCode);
+                          }}
+                          className={`p-4 sm:p-5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between space-y-3 group hover:border-sky-500 hover:shadow-md ${
+                            isProductSelected
+                              ? "border-sky-600 bg-sky-50/40 ring-1 ring-sky-500/20"
+                              : "border-slate-200 bg-white"
+                          }`}
+                        >
+                          <div className="space-y-2.5">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex items-center gap-2.5">
+                                <div className="h-10 w-10 rounded-xl bg-sky-50 text-sky-600 border border-sky-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                                  <Icon className="w-5 h-5" />
+                                </div>
+                                <div>
+                                  <h4 className="text-sm font-bold text-slate-900 group-hover:text-sky-600 transition-colors leading-snug">
+                                    {cat.name}
+                                  </h4>
+                                  <span className="text-[10px] text-slate-400 font-mono block">
+                                    {cat.productCode}
+                                  </span>
+                                </div>
+                              </div>
+
+                              {isProductSelected ? (
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1 shrink-0">
+                                  <Check className="w-3 h-3 stroke-[3]" />
+                                  <span>Added</span>
+                                </span>
+                              ) : (
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
+                                  {cat.highlightBadge}
+                                </span>
+                              )}
+                            </div>
+
+                            <p className="text-xs text-slate-600 leading-relaxed line-clamp-2">
+                              {cat.description}
+                            </p>
                           </div>
 
-                          {/* Toggle selection checkbox */}
-                          <button
-                            type="button"
-                            onClick={() => toggleProduct(prod.code)}
-                            className={`h-5 w-5 rounded-full flex items-center justify-center border transition-all cursor-pointer ${
-                              isSelected
-                                ? "bg-sky-600 border-sky-600 text-white"
-                                : "border-slate-300 bg-white hover:border-sky-400"
-                            }`}
-                            title={isSelected ? "Remove from solution" : "Add to solution"}
-                          >
-                            {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
-                          </button>
-                        </div>
-
-                        <div>
-                          <h4 className="text-sm font-bold text-slate-900 leading-snug">
-                            {prod.name}
-                          </h4>
-                          <p className="text-[11px] text-slate-500 mt-0.5 line-clamp-2 leading-relaxed">
-                            {prod.shortDescription}
-                          </p>
-                        </div>
-
-                        {/* Top Features bullets */}
-                        <div className="space-y-1 pt-1 text-[11px] text-slate-600">
-                          {features.slice(0, 2).map((f, i) => (
-                            <div key={i} className="flex items-center gap-1.5 truncate">
-                              <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
-                              <span className="truncate">{f}</span>
+                          <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
+                            <div>
+                              <span className="text-[10px] text-slate-400 block">Starting From</span>
+                              <span className="font-extrabold text-slate-900">
+                                {formatCurrency(cat.startingPrice)}
+                              </span>
                             </div>
-                          ))}
+
+                            <span className="text-xs font-bold text-sky-600 group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
+                              <span>Open Category</span>
+                              <ArrowRight className="w-3.5 h-3.5" />
+                            </span>
+                          </div>
                         </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                /* View Mode B: Focused Category Details When a Category is Clicked */
+                <div className="space-y-5">
+                  {/* Category Navigation Bar */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-slate-50 p-2.5 sm:p-3 rounded-2xl border border-slate-200">
+                    <button
+                      type="button"
+                      onClick={() => setBuilderCategoryFilter("ALL")}
+                      className="px-3 py-1.5 rounded-xl bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 font-bold text-xs flex items-center gap-1.5 shrink-0 cursor-pointer shadow-2xs"
+                    >
+                      <ArrowRight className="w-3.5 h-3.5 rotate-180" />
+                      <span>← Back to All Categories</span>
+                    </button>
+
+                    {/* Quick Category Switcher Pills */}
+                    <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 no-scrollbar">
+                      {MASTER_SOFTWARE_CATEGORIES.map((c) => {
+                        const isCur = builderCategoryFilter === c.id;
+                        return (
+                          <button
+                            key={c.id}
+                            type="button"
+                            onClick={() => {
+                              setBuilderCategoryFilter(c.id);
+                              setExpandedProductCode(c.productCode);
+                            }}
+                            className={`px-2.5 py-1 rounded-full text-[11px] font-bold whitespace-nowrap cursor-pointer transition-all ${
+                              isCur
+                                ? "bg-slate-950 text-white shadow-2xs"
+                                : "bg-white text-slate-700 hover:bg-slate-200 border border-slate-200"
+                            }`}
+                          >
+                            {c.name.split(" ")[0]}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Software Module(s) in this Category */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
+                        Software Module in this Category:
+                      </span>
+                      <span className="text-[11px] text-slate-500">
+                        Toggle to include or remove from your solution
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-3">
+                      {builderFilteredProducts.map((prod) => {
+                        const isSelected = selectedProductCodes.includes(prod.code);
+                        const detail = PRODUCT_PACK_DETAILS[prod.code];
+                        const features = parseJsonArray(prod.keyFeatures);
+
+                        return (
+                          <div
+                            key={prod.id}
+                            className={`p-4 rounded-2xl border-2 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
+                              isSelected
+                                ? "border-sky-600 bg-sky-50/40 shadow-xs ring-1 ring-sky-500/20"
+                                : "border-slate-200 bg-white"
+                            }`}
+                          >
+                            <div className="space-y-1.5 flex-1">
+                              <div className="flex items-center gap-2">
+                                <span className="text-[10px] font-mono text-slate-500 font-bold uppercase bg-slate-100 px-2 py-0.5 rounded-md">
+                                  {prod.code}
+                                </span>
+                                {detail && (
+                                  <span className="text-[10px] font-bold text-sky-700 bg-sky-100/70 px-2 py-0.5 rounded-md">
+                                    {detail.categoryLabel}
+                                  </span>
+                                )}
+                              </div>
+                              <h4 className="text-base font-bold text-slate-900">
+                                {prod.name}
+                              </h4>
+                              <p className="text-xs text-slate-600 leading-relaxed max-w-xl">
+                                {prod.shortDescription}
+                              </p>
+
+                              {/* Features Preview */}
+                              <div className="flex flex-wrap gap-2 pt-1">
+                                {features.slice(0, 3).map((f, i) => (
+                                  <span
+                                    key={i}
+                                    className="inline-flex items-center gap-1 text-[11px] text-slate-600 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-md"
+                                  >
+                                    <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                                    <span>{f}</span>
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+
+                            <div className="text-right flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-0 border-slate-100 gap-3">
+                              <div>
+                                <span className="text-[10px] text-slate-400 block">Base License</span>
+                                <span className="text-lg font-black text-slate-900">
+                                  {prod.isPriceOnRequest ? "On Request" : formatCurrency(prod.basePrice)}
+                                </span>
+                              </div>
+
+                              <button
+                                type="button"
+                                onClick={() => toggleProduct(prod.code)}
+                                className={`py-2 px-4 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                                  isSelected
+                                    ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
+                                    : "bg-sky-600 hover:bg-sky-700 text-white shadow-xs"
+                                }`}
+                              >
+                                {isSelected ? (
+                                  <>
+                                    <Check className="w-3.5 h-3.5 stroke-[3]" />
+                                    <span>Added to Solution (Click to Remove)</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Plus className="w-3.5 h-3.5" />
+                                    <span>+ Add to Solution</span>
+                                  </>
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Active Pack Breakdown: Base Inclusions & Synergies */}
+                  {activeExpandedProduct && activePackDetail && (
+                    <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-sky-950 text-white border border-sky-800/40 shadow-xl space-y-5">
+                      {/* Breakdown Header */}
+                      <div className="border-b border-slate-800 pb-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30">
+                            {activePackDetail.categoryLabel}
+                          </span>
+                          <span className="text-xs text-slate-400 font-mono">
+                            {activeExpandedProduct.code}
+                          </span>
+                        </div>
+                        <h3 className="text-lg sm:text-xl font-black text-white mt-1">
+                          {activeExpandedProduct.name} — Out-of-the-Box Inclusions
+                        </h3>
+                        <p className="text-xs text-sky-200/80 mt-0.5">
+                          {activePackDetail.tagline}
+                        </p>
                       </div>
 
-                      {/* Footer: Price + Pack Breakdown Inspector Toggle */}
-                      <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2 text-xs">
-                        <div>
-                          <span className="text-[10px] text-slate-400 block">Base License</span>
-                          <span className="font-extrabold text-slate-900">
-                            {prod.isPriceOnRequest ? "On Request" : formatCurrency(prod.basePrice)}
+                      {/* Included Base Services (₹0 Extra) */}
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                            <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">
+                              Included In This Pack (Ready Out-of-the-Box • ₹0 Extra)
+                            </span>
+                          </div>
+                          <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800/60 px-2 py-0.5 rounded-full">
+                            6 Base Services Included
                           </span>
                         </div>
 
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (!isSelected) toggleProduct(prod.code);
-                            setExpandedProductCode(isExpanded ? null : prod.code);
-                          }}
-                          className={`px-2.5 py-1.5 rounded-xl font-bold text-[11px] flex items-center gap-1 transition-all cursor-pointer ${
-                            isExpanded
-                              ? "bg-slate-900 text-white shadow-xs"
-                              : "bg-sky-50 text-sky-700 hover:bg-sky-100 border border-sky-200"
-                          }`}
-                        >
-                          <span>{isExpanded ? "Hide Details" : "Pack Breakdown"}</span>
-                          {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Active Pack Breakdown & Customizer Card */}
-              {activeExpandedProduct && activePackDetail && (
-                <div className="mt-4 p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-sky-950 text-white border border-sky-800/40 shadow-xl space-y-5 animate-in fade-in duration-300">
-                  {/* Header */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30">
-                          {activePackDetail.categoryLabel}
-                        </span>
-                        <span className="text-xs text-slate-400 font-mono">
-                          {activeExpandedProduct.code}
-                        </span>
-                      </div>
-                      <h3 className="text-lg sm:text-xl font-black text-white mt-1">
-                        {activeExpandedProduct.name} — Pack Specifications
-                      </h3>
-                      <p className="text-xs text-sky-200/80 mt-0.5">
-                        {activePackDetail.tagline}
-                      </p>
-                    </div>
-
-                    <div className="flex items-center gap-2 shrink-0">
-                      <button
-                        type="button"
-                        onClick={() => toggleProduct(activeExpandedProduct.code)}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                          selectedProductCodes.includes(activeExpandedProduct.code)
-                            ? "bg-emerald-500 text-slate-950 hover:bg-emerald-400"
-                            : "bg-sky-600 text-white hover:bg-sky-500"
-                        }`}
-                      >
-                        {selectedProductCodes.includes(activeExpandedProduct.code)
-                          ? "✓ Included in Solution"
-                          : "+ Add to Configuration"}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setExpandedProductCode(null)}
-                        className="p-1.5 rounded-xl bg-slate-800 text-slate-400 hover:text-white cursor-pointer"
-                        title="Close breakdown"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Section A: What's Already Provided in this Pack Out-of-the-Box (₹0 Extra) */}
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                        <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">
-                          Provided In This Pack (Included Out-of-the-Box • ₹0 Extra)
-                        </span>
-                      </div>
-                      <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800/60 px-2 py-0.5 rounded-full">
-                        6 Base Services Ready
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                      {activePackDetail.includedServices.map((srv, idx) => (
-                        <div
-                          key={idx}
-                          className="p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60 flex items-start gap-2.5"
-                        >
-                          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                          <div>
-                            <span className="text-xs font-bold text-white block">
-                              {srv.title}
-                            </span>
-                            <span className="text-[11px] text-slate-300/80 leading-relaxed block mt-0.5">
-                              {srv.desc}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Section B: Additional Modular Features (Optional Add-ons) */}
-                  <div className="space-y-3 pt-3 border-t border-slate-800">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Zap className="w-4 h-4 text-amber-400" />
-                        <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">
-                          Select Additional Features for this Pack
-                        </span>
-                      </div>
-                      <span className="text-[10px] text-slate-400">
-                        Modular extensions
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {activePackDetail.modularAddons.map((addon) => {
-                        const isChecked = selectedAddonIds.includes(addon.id);
-                        return (
-                          <div
-                            key={addon.id}
-                            onClick={() => toggleAddon(addon.id)}
-                            className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-start justify-between gap-3 ${
-                              isChecked
-                                ? "bg-sky-950/60 border-sky-400 ring-1 ring-sky-400/30"
-                                : "bg-slate-800/40 border-slate-700/60 hover:border-slate-600"
-                            }`}
-                          >
-                            <div className="flex items-start gap-2.5">
-                              <input
-                                type="checkbox"
-                                checked={isChecked}
-                                onChange={() => {}}
-                                className="h-4 w-4 rounded text-sky-500 mt-0.5"
-                              />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                          {activePackDetail.includedServices.map((srv, idx) => (
+                            <div
+                              key={idx}
+                              className="p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60 flex items-start gap-2.5"
+                            >
+                              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                               <div>
                                 <span className="text-xs font-bold text-white block">
-                                  {addon.name}
+                                  {srv.title}
                                 </span>
-                                <span className="text-[10px] text-slate-400 leading-tight block mt-0.5">
-                                  {addon.desc}
+                                <span className="text-[11px] text-slate-300/80 leading-relaxed block mt-0.5">
+                                  {srv.desc}
                                 </span>
                               </div>
                             </div>
-                            <span className="text-xs font-mono font-bold text-amber-300 shrink-0">
-                              +{formatCurrency(addon.price)}
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Smart Cross-Pack Synergies */}
+                      <div className="space-y-3 pt-3 border-t border-slate-800">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Sparkles className="w-4 h-4 text-sky-400" />
+                            <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">
+                              Smart Cross-Pack Synergies & Future Project Enhancements
                             </span>
                           </div>
-                        );
-                      })}
-                    </div>
-                  </div>
+                          <span className="text-[10px] text-sky-300">
+                            Zero duplicate work
+                          </span>
+                        </div>
 
-                  {/* Section C: Smart Cross-Pack Synergies & Future Work */}
-                  <div className="space-y-3 pt-3 border-t border-slate-800">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 text-sky-400" />
-                        <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">
-                          Smart Cross-Pack Synergies & Future Project Enhancements
+                        <div className="space-y-2">
+                          {activePackDetail.smartSynergies.map((syn, idx) => {
+                            const isAlreadySelected = selectedProductCodes.includes(syn.linkedCode);
+                            return (
+                              <div
+                                key={idx}
+                                className="p-3 rounded-2xl bg-slate-800/50 border border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                              >
+                                <div className="space-y-0.5">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs font-bold text-sky-300">
+                                      {syn.reason}
+                                    </span>
+                                    <span className="text-[10px] text-slate-400 font-mono">
+                                      • with {syn.linkedName}
+                                    </span>
+                                  </div>
+                                  <p className="text-[11px] text-slate-300 leading-relaxed">
+                                    {syn.benefit}
+                                  </p>
+                                </div>
+
+                                <button
+                                  type="button"
+                                  onClick={() => toggleProduct(syn.linkedCode)}
+                                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
+                                    isAlreadySelected
+                                      ? "bg-slate-700 text-slate-300 hover:bg-slate-600"
+                                      : "bg-sky-500 hover:bg-sky-400 text-slate-950 shadow-xs"
+                                  }`}
+                                >
+                                  {isAlreadySelected ? "✓ Linked in Solution" : `+ Link ${syn.linkedCode}`}
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Bottom action to switch categories */}
+                      <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs">
+                        <button
+                          type="button"
+                          onClick={() => setBuilderCategoryFilter("ALL")}
+                          className="text-sky-300 hover:text-white font-bold flex items-center gap-1 cursor-pointer"
+                        >
+                          <span>← Explore Another Category</span>
+                        </button>
+                        <span className="text-slate-400 text-[11px]">
+                          Scroll down for Additional Options & Database selection ↓
                         </span>
                       </div>
-                      <span className="text-[10px] text-sky-300">
-                        Zero duplicate work
-                      </span>
                     </div>
-
-                    <div className="space-y-2">
-                      {activePackDetail.smartSynergies.map((syn, idx) => {
-                        const isAlreadySelected = selectedProductCodes.includes(syn.linkedCode);
-                        return (
-                          <div
-                            key={idx}
-                            className="p-3 rounded-2xl bg-slate-800/50 border border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-                          >
-                            <div className="space-y-0.5">
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs font-bold text-sky-300">
-                                  {syn.reason}
-                                </span>
-                                <span className="text-[10px] text-slate-400 font-mono">
-                                  • with {syn.linkedName}
-                                </span>
-                              </div>
-                              <p className="text-[11px] text-slate-300 leading-relaxed">
-                                {syn.benefit}
-                              </p>
-                            </div>
-
-                            <button
-                              type="button"
-                              onClick={() => toggleProduct(syn.linkedCode)}
-                              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
-                                isAlreadySelected
-                                  ? "bg-slate-700 text-slate-300 hover:bg-slate-600"
-                                  : "bg-sky-500 hover:bg-sky-400 text-slate-950 shadow-xs"
-                              }`}
-                            >
-                              {isAlreadySelected ? "✓ Linked in Pack" : `+ Link ${syn.linkedCode}`}
-                            </button>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Section D: Add Custom Feature to this Pack */}
-                  <div className="space-y-3 pt-3 border-t border-slate-800">
-                    <div>
-                      <span className="text-xs font-bold text-slate-200 uppercase tracking-wider block">
-                        Need a Custom Feature for Your Business?
-                      </span>
-                      <p className="text-[11px] text-slate-400 mt-0.5">
-                        Type any custom workflow or requirement (e.g. Weighing scale, Tally sync, Regional language invoice) to include it in your custom solution.
-                      </p>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="text"
-                        placeholder="e.g. Add custom barcode scanner for weighed vegetables, or integrate with Tally ERP..."
-                        value={customFeatureInput}
-                        onChange={(e) => setCustomFeatureInput(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" && customFeatureInput.trim()) {
-                            e.preventDefault();
-                            setCustomFeatures((prev) => [
-                              ...prev,
-                              {
-                                id: `cf-${Date.now()}`,
-                                productCode: activeExpandedProduct.code,
-                                text: customFeatureInput.trim(),
-                              },
-                            ]);
-                            setCustomFeatureInput("");
-                          }
-                        }}
-                        className="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-700 bg-slate-950 text-white text-xs placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (customFeatureInput.trim()) {
-                            setCustomFeatures((prev) => [
-                              ...prev,
-                              {
-                                id: `cf-${Date.now()}`,
-                                productCode: activeExpandedProduct.code,
-                                text: customFeatureInput.trim(),
-                              },
-                            ]);
-                            setCustomFeatureInput("");
-                          }
-                        }}
-                        className="px-4 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs shrink-0 cursor-pointer"
-                      >
-                        + Add Custom Feature
-                      </button>
-                    </div>
-
-                    {/* Active custom features tags for this product */}
-                    {customFeatures.filter((cf) => cf.productCode === activeExpandedProduct.code).length > 0 && (
-                      <div className="flex flex-wrap gap-2 pt-1">
-                        {customFeatures
-                          .filter((cf) => cf.productCode === activeExpandedProduct.code)
-                          .map((cf) => (
-                            <span
-                              key={cf.id}
-                              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-950 border border-sky-500/50 text-sky-200 text-xs font-medium"
-                            >
-                              <span>✨ {cf.text}</span>
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setCustomFeatures((prev) => prev.filter((item) => item.id !== cf.id))
-                                }
-                                className="text-sky-400 hover:text-white cursor-pointer ml-1"
-                              >
-                                ×
-                              </button>
-                            </span>
-                          ))}
-                      </div>
-                    )}
-                  </div>
+                  )}
                 </div>
               )}
             </div>
 
-            {/* Step 2: Database Capacity & Tier Selection */}
+            {/* Step 2: Additional Features & Custom Requirements (Additional Add Option) */}
+            <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-5">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-sky-600 block">
+                  STEP 2 OF 3 • ADDITIONAL ADD-ONS & CUSTOM FEATURES
+                </span>
+                <h3 className="text-xl sm:text-2xl font-black text-slate-950 mt-1">
+                  Additional Add Options & Custom Requirements
+                </h3>
+                <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                  Enhance your software pack with optional hardware connectors, specialized apps, or request a custom feature for your unique business logic.
+                </p>
+              </div>
+
+              {/* Modular Features Addons Grid */}
+              <div className="space-y-2.5">
+                <span className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
+                  Select Modular Add-on Features:
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {pricingSummary.selectedProductsList.flatMap((p) => {
+                    const addons = parseJsonArray(p.configurableAddons);
+                    return addons.map((addon: any) => {
+                      const isChecked = selectedAddonIds.includes(addon.id);
+                      return (
+                        <div
+                          key={addon.id}
+                          onClick={() => toggleAddon(addon.id)}
+                          className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-start justify-between gap-3 ${
+                            isChecked
+                              ? "border-sky-500 bg-sky-50/40 ring-1 ring-sky-500/20"
+                              : "border-slate-200 hover:border-slate-300 bg-white"
+                          }`}
+                        >
+                          <div className="flex items-start gap-2.5">
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={() => {}}
+                              className="h-4 w-4 rounded text-sky-600 mt-0.5"
+                            />
+                            <div>
+                              <span className="text-xs font-bold text-slate-900 block leading-tight">
+                                {addon.name}
+                              </span>
+                              <span className="text-[10px] text-slate-400 block mt-0.5">
+                                Module: {p.name}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="text-right shrink-0">
+                            <span className="text-xs font-black text-slate-900 block">
+                              +{formatCurrency(addon.price)}
+                            </span>
+                            {addon.recurringPrice > 0 && (
+                              <span className="text-[10px] text-slate-400 block">
+                                +{formatCurrency(addon.recurringPrice)}/mo
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    });
+                  })}
+                </div>
+              </div>
+
+              {/* Custom Feature Request Input Box */}
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-amber-500" />
+                  <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                    Need a Custom Feature for Your Unique Workflow?
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500">
+                  Type any custom business logic (e.g. Weighing scale serial link, Tally sync, Regional language invoice) to include it in your custom solution quotation.
+                </p>
+
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    placeholder="e.g. Add custom barcode scanner for weighed fruits, or link with our existing ERP..."
+                    value={customFeatureInput}
+                    onChange={(e) => setCustomFeatureInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && customFeatureInput.trim()) {
+                        e.preventDefault();
+                        setCustomFeatures((prev) => [
+                          ...prev,
+                          {
+                            id: `cf-${Date.now()}`,
+                            productCode: expandedProductCode || "GENERAL",
+                            text: customFeatureInput.trim(),
+                          },
+                        ]);
+                        setCustomFeatureInput("");
+                      }
+                    }}
+                    className="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (customFeatureInput.trim()) {
+                        setCustomFeatures((prev) => [
+                          ...prev,
+                          {
+                            id: `cf-${Date.now()}`,
+                            productCode: expandedProductCode || "GENERAL",
+                            text: customFeatureInput.trim(),
+                          },
+                        ]);
+                        setCustomFeatureInput("");
+                      }
+                    }}
+                    className="px-4 py-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-bold text-xs shrink-0 cursor-pointer shadow-xs"
+                  >
+                    + Add Custom Feature
+                  </button>
+                </div>
+
+                {/* Badges of added custom features */}
+                {customFeatures.length > 0 && (
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {customFeatures.map((cf) => (
+                      <span
+                        key={cf.id}
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-amber-300 text-amber-900 text-xs font-semibold shadow-2xs"
+                      >
+                        <span>✨ {cf.text}</span>
+                        <button
+                          type="button"
+                          onClick={() => setCustomFeatures((prev) => prev.filter((item) => item.id !== cf.id))}
+                          className="text-amber-500 hover:text-rose-600 font-bold ml-1 cursor-pointer"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Step 3: Select Managed Database Capacity (DB Select) */}
             <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-5">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <span className="text-[10px] font-bold uppercase tracking-widest text-sky-600 block">
-                    STEP 2 OF 3 • SELECT MANAGED DATABASE CAPACITY
+                    STEP 3 OF 3 • SELECT MANAGED DATABASE CAPACITY
                   </span>
                   <h3 className="text-xl sm:text-2xl font-black text-slate-950 mt-1">
                     Database Storage & High-Speed Cloud Engine
                   </h3>
                   <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                    Select the database plan matching your business transaction velocity. Automatic daily cloud backups included.
+                    Select the database plan matching your business transaction velocity. Automatic daily cloud backups included. (5 GB selected by default for major projects).
                   </p>
                 </div>
                 <button
                   onClick={() => setActiveTab("DATABASE")}
-                  className="px-3 py-1.5 rounded-xl border border-sky-200 bg-sky-50 hover:bg-sky-100 text-sky-800 text-[11px] font-bold flex items-center gap-1 shrink-0"
+                  className="px-3 py-1.5 rounded-xl border border-sky-200 bg-sky-50 hover:bg-sky-100 text-sky-800 text-[11px] font-bold flex items-center gap-1 shrink-0 cursor-pointer"
                 >
                   <Sliders className="w-3 h-3 text-sky-600" />
                   <span>Open Estimator</span>
@@ -1695,69 +1882,6 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
                   <span>Est. DB Space: ~{capacityEstimates.totalDbGb} GB / {selectedDatabaseGb} GB</span>
                   <span>Est. Annual Bills: ~{capacityEstimates.estimatedBillsPerYear.toLocaleString("en-IN")}</span>
                 </div>
-              </div>
-            </div>
-
-            {/* Step 3: Optional Features & Add-ons */}
-            <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-4">
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-sky-600 block">
-                  STEP 3 OF 3 • OPTIONAL EXTENSIONS & HARDWARE PLUGINS
-                </span>
-                <h3 className="text-xl sm:text-2xl font-black text-slate-950 mt-1">
-                  Enhance with Optional Features
-                </h3>
-                <p className="text-xs text-slate-500 mt-1">
-                  Add specialized hardware connectors, automated WhatsApp sync, or mobile apps.
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                {pricingSummary.selectedProductsList.flatMap((p) => {
-                  const addons = parseJsonArray(p.configurableAddons);
-                  return addons.map((addon: any) => {
-                    const isChecked = selectedAddonIds.includes(addon.id);
-                    return (
-                      <div
-                        key={addon.id}
-                        onClick={() => toggleAddon(addon.id)}
-                        className={`p-3.5 rounded-xl border flex items-center justify-between gap-3 transition-all cursor-pointer ${
-                          isChecked
-                            ? "border-sky-500 bg-sky-50/30"
-                            : "border-slate-200 hover:border-slate-300 bg-white"
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <input
-                            type="checkbox"
-                            checked={isChecked}
-                            onChange={() => {}}
-                            className="h-4 w-4 rounded text-sky-600"
-                          />
-                          <div>
-                            <span className="text-xs font-bold text-slate-900 block">
-                              {addon.name}
-                            </span>
-                            <span className="text-[10px] text-slate-400">
-                              Linked with {p.name}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="text-right">
-                          <span className="text-xs font-black text-slate-900 block">
-                            +{formatCurrency(addon.price)}
-                          </span>
-                          {addon.recurringPrice > 0 && (
-                            <span className="text-[10px] text-slate-400">
-                              +{formatCurrency(addon.recurringPrice)}/mo
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  });
-                })}
               </div>
             </div>
           </div>
