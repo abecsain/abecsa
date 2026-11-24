@@ -29,6 +29,10 @@ import {
   Gift,
   Layers,
   Monitor,
+  Smartphone,
+  GraduationCap,
+  Globe,
+  FileText,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -59,6 +63,10 @@ export default function DashboardSidebar({
           { href: "/admin/gifts", label: "Scratch Card Gifts", icon: Gift, highlight: true },
           { href: "/admin/invoices", label: "Invoices & Payments", icon: Receipt },
           { href: "/admin/vault", label: "Asset Vault & Files", icon: FolderLock },
+          { href: "/admin/apps", label: "Apps & APK Center", icon: Smartphone },
+          { href: "/admin/applications", label: "Talent & Courses", icon: GraduationCap },
+          { href: "/admin/websites", label: "Client Websites", icon: Globe },
+          { href: "/admin/exams", label: "Online Assessments", icon: FileText },
           { href: "/admin/shop", label: "Software Store Admin", icon: ShoppingBag },
           { href: "/admin/whatsapp", label: "Official WhatsApp Web", icon: MessageSquare, badge: "Connected" },
           { href: "/admin/hr", label: "HR & Team Attendance", icon: UserCheck },

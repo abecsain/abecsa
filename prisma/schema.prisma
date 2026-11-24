@@ -47,6 +47,20 @@ model User {
   taskComments      TaskComment[]
   visitorSessions   VisitorSession[]
   scratchGifts      ScratchGift[]
+
+  // Supabase Legacy & Extended User Attributes
+  managerId         String?
+  isLocked          Boolean             @default(false)
+  visiblePassword   String?
+
+  userAssets        UserAsset[]
+  websitesOwned     Website[]           @relation("OwnedWebsites")
+  websitesManaged   Website[]           @relation("ManagedWebsites")
+  visitorLogs       VisitorLog[]
+  examsCreated      Exam[]              @relation("CreatedExams")
+  examAttempts      ExamAttempt[]
+  siteAnalytics     SiteAnalytic[]
+  chatMessages      ChatMessage[]
 }
 
 model CustomerProfile {
@@ -755,5 +769,121 @@ model InteractiveDemo {
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
 }
+
+// =========================================================================
+// SUPABASE UNIFIED SUITE: APPS, WEBSITES, EXAMS, COURSES, ASSETS & ANALYTICS
+// =========================================================================
+
+model App {
+  id            String    @id @default(uuid())
+  name          String
+  description   String?
+  version       String    @default("1.0")
+  category      String    @default("General")
+  iconUrl       String?
+  apkUrl        String
+  apkFilename   String?
+  downloadCount Int       @default(0)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model CourseApplication {
+  id          Int       @id @default(autoincrement())
+  name        String
+  email       String
+  phone       String
+  courseName  String
+  branch      String?
+  message     String?
+  status      String    @default("Pending") // Pending, Reviewed, Approved, Rejected
+  type        String    @default("Course")  // Course, Internship, Student Ambassador
+  createdAt   DateTime  @default(now())
+}
+
+model ChatMessage {
+  id             Int       @id @default(autoincrement())
+  senderId       String
+  sender         User      @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  conversationId String?
+  content        String
+  createdAt      DateTime  @default(now())
+}
+
+model Website {
+  id          String    @id @default(uuid())
+  userId      String?
+  user        User?     @relation("OwnedWebsites", fields: [userId], references: [id], onDelete: SetNull)
+  managerId   String?
+  manager     User?     @relation("ManagedWebsites", fields: [managerId], references: [id], onDelete: SetNull)
+  name        String
+  url         String
+  description String?
+  category    String    @default("General")
+  iconUrl     String?
+  status      String    @default("Active") // Active, Pending, Maintenance, Suspended
+  plan        String?   @default("Standard Cloud NVMe")
+  expiryDate  DateTime?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model UserAsset {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  type      String   // License, Certificate, Image, Key, Document
+  value     String
+  createdAt DateTime @default(now())
+}
+
+model VisitorLog {
+  id        String   @id @default(uuid())
+  imageUrl  String
+  visitorId String?
+  visitor   User?    @relation(fields: [visitorId], references: [id], onDelete: SetNull)
+  metadata  String?  @default("{}") // JSON string
+  createdAt DateTime @default(now())
+}
+
+model Exam {
+  id              String        @id @default(uuid())
+  name            String
+  googleFormUrl   String
+  startTime       DateTime
+  durationMinutes Int
+  createdBy       String?
+  creator         User?         @relation("CreatedExams", fields: [createdBy], references: [id], onDelete: SetNull)
+  createdAt       DateTime      @default(now())
+  attempts        ExamAttempt[]
+}
+
+model ExamAttempt {
+  id              String    @id @default(uuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  examId          String
+  exam            Exam      @relation(fields: [examId], references: [id], onDelete: Cascade)
+  status          String    @default("started") // started, completed, flagged
+  violationReason String?
+  startedAt       DateTime  @default(now())
+  completedAt     DateTime?
+
+  @@unique([userId, examId])
+}
+
+model SiteAnalytic {
+  id        String   @id @default(uuid())
+  pagePath  String
+  visitorId String?
+  visitor   User?    @relation(fields: [visitorId], references: [id], onDelete: SetNull)
+  sessionId String?
+  metadata  String?  @default("{}") // JSON string
+  createdAt DateTime @default(now())
+}
+
 
 

@@ -15,6 +15,10 @@ import {
   UserCheck,
   Globe,
   Lock,
+  Key,
+  Award,
+  Copy,
+  Check,
 } from "lucide-react";
 import { formatFileSize, formatDate } from "@/lib/utils";
 
@@ -25,6 +29,9 @@ export default function CustomerVaultPage() {
   const [search, setSearch] = useState("");
   const [previewFile, setPreviewFile] = useState<any | null>(null);
 
+  const [userAssets, setUserAssets] = useState<any[]>([]);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
   useEffect(() => {
     fetch("/api/vault")
       .then((res) => res.json())
@@ -33,6 +40,13 @@ export default function CustomerVaultPage() {
         if (data.files) setFiles(data.files);
       })
       .finally(() => setLoading(false));
+
+    fetch("/api/vault/assets")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.assets) setUserAssets(data.assets);
+      })
+      .catch(() => {});
   }, []);
 
   const filteredFiles = files.filter(
@@ -94,6 +108,62 @@ export default function CustomerVaultPage() {
                     Shared Asset
                   </span>
                 )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Verified User Assets (Licenses & Certificates) */}
+      {userAssets.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              Verified Digital Assets & Licenses ({userAssets.length})
+            </h3>
+            <span className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
+              <Lock className="w-3 h-3" />
+              <span>Cryptographically Secured</span>
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            {userAssets.map((asset) => (
+              <div
+                key={asset.id}
+                className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between space-y-3 hover:border-sky-300 transition-colors"
+              >
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200">
+                      {asset.type}
+                    </span>
+                    <span className="text-[10px] text-slate-400">
+                      {new Date(asset.createdAt).toLocaleDateString("en-IN", { month: "short", year: "numeric" })}
+                    </span>
+                  </div>
+                  <h4 className="text-xs font-bold text-slate-900 pt-1">{asset.name}</h4>
+                </div>
+
+                <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200/80 flex items-center justify-between gap-2">
+                  <span className="font-mono text-xs text-slate-700 truncate select-all">{asset.value}</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(asset.value);
+                      setCopiedId(asset.id);
+                      setTimeout(() => setCopiedId(null), 2000);
+                    }}
+                    className="p-1 rounded-lg hover:bg-slate-200 text-slate-500 shrink-0 cursor-pointer"
+                    title="Copy to clipboard"
+                  >
+                    {copiedId === asset.id ? (
+                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                    ) : (
+                      <Copy className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+                </div>
               </div>
             ))}
           </div>

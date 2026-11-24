@@ -15,6 +15,8 @@ import {
   Activity,
   MessageSquare,
   ChevronRight,
+  Smartphone,
+  GraduationCap,
 } from "lucide-react";
 
 export default function PublicNavbar() {
@@ -39,7 +41,7 @@ export default function PublicNavbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-3 lg:gap-4 xl:gap-6 2xl:gap-7 shrink-0">
+          <nav className="hidden lg:flex items-center gap-3 lg:gap-4 xl:gap-5 2xl:gap-6 shrink-0">
             <Link
               href="/services"
               className="text-xs xl:text-sm font-semibold text-slate-700 hover:text-sky-600 transition-colors whitespace-nowrap shrink-0"
@@ -53,10 +55,22 @@ export default function PublicNavbar() {
               Live Demos
             </Link>
             <Link
+              href="/apps"
+              className="text-xs xl:text-sm font-semibold text-slate-700 hover:text-sky-600 transition-colors whitespace-nowrap shrink-0"
+            >
+              Apps & APKs
+            </Link>
+            <Link
               href="/shop"
               className="text-xs xl:text-sm font-semibold text-slate-700 hover:text-sky-600 transition-colors whitespace-nowrap shrink-0"
             >
               Software Shop
+            </Link>
+            <Link
+              href="/apply"
+              className="text-xs xl:text-sm font-semibold text-slate-700 hover:text-sky-600 transition-colors whitespace-nowrap shrink-0"
+            >
+              Academy & Careers
             </Link>
             <Link
               href="/domains"
@@ -162,6 +176,19 @@ export default function PublicNavbar() {
               </span>
             </Link>
             <Link
+              href="/apps"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center justify-between py-2.5 px-2 hover:bg-slate-50 rounded-lg text-sky-700"
+            >
+              <div className="flex items-center gap-2">
+                <Smartphone className="w-4 h-4" />
+                <span>Enterprise Apps & APKs</span>
+              </div>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 text-sky-700">
+                Downloads
+              </span>
+            </Link>
+            <Link
               href="/shop"
               onClick={() => setMobileMenuOpen(false)}
               className="flex items-center justify-between py-2.5 px-2 hover:bg-slate-50 rounded-lg text-emerald-700"
@@ -172,6 +199,19 @@ export default function PublicNavbar() {
               </div>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
                 Buy Code
+              </span>
+            </Link>
+            <Link
+              href="/apply"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center justify-between py-2.5 px-2 hover:bg-slate-50 rounded-lg text-purple-700"
+            >
+              <div className="flex items-center gap-2">
+                <GraduationCap className="w-4 h-4" />
+                <span>Academy & Careers</span>
+              </div>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">
+                Apply
               </span>
             </Link>
             <Link
