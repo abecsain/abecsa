@@ -283,9 +283,12 @@ export async function POST(req: NextRequest) {
     const taxAmt = Math.round((taxable * Number(taxRate)) / 100);
     const grandTotal = taxable + taxAmt;
 
-    // Generate Quotation Number
+    // Generate Quotation Number (or use custom quotation number if provided)
     const count = await prisma.quotation.count();
-    const quotationNumber = `QT-2026-${String(count + 1).padStart(3, "0")}`;
+    const quotationNumber =
+      data.quotationNumber && data.quotationNumber.trim() !== ""
+        ? data.quotationNumber.trim()
+        : `QT-2026-${String(count + 1).padStart(3, "0")}`;
 
     // Package initial metadata bundle
     const initialMetadata = {

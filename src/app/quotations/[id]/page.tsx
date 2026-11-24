@@ -23,6 +23,9 @@ import {
 } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { generateQuotationPdf } from "@/lib/pdf";
+import { downloadQuotationDocx, OfficialQuotationData } from "@/lib/docx";
+import { downloadQuotationPdf } from "@/lib/quotationPdfGenerator";
+import { numberToWordsRupees } from "@/lib/numberToWords";
 import ESignaturePad from "@/components/common/ESignaturePad";
 
 export default function QuotationPresentationPage({
@@ -92,6 +95,83 @@ export default function QuotationPresentationPage({
     });
 
     doc.save(`${quotation.quotationNumber}_Agreement_ABECSA.pdf`);
+  };
+
+  const getOfficialQuotationPayload = (): OfficialQuotationData => {
+    return {
+      quotationNumber: quotation.quotationNumber,
+      date: formatDate(quotation.createdAt),
+      clientName: quotation.customer?.companyName || quotation.customer?.user?.name || "Client Organization",
+      projectName: quotation.title || "Website, Server & Database Solutions",
+      contactEmail: quotation.customer?.user?.email || "contact@abecsa.com",
+      contactPhone: quotation.customer?.user?.phone || undefined,
+      title: quotation.title || "WEBSITE, SERVER & DATABASE DEVELOPMENT QUOTATION",
+      subtitle: "Complete Starter Package • UI/UX • Website • Server • High-Performance Database",
+      scopeBullets: [
+        "Custom UI/UX design tailored specifically for business branding and customer trust.",
+        "Responsive multi-page website/application with optimized cross-device viewport compatibility.",
+        "Integration of client-provided digital assets, catalog media, product photos, and content.",
+        "Basic SEO setup, metadata tags, and mobile-friendly speed optimization.",
+        "Dedicated High-Speed Database allocation with optimized transactional queries.",
+        "Cloud server deployment with automatic SSL certificate encryption and 99.9% uptime SLA.",
+        "Basic end-to-end testing, quality assurance verification, deployment, and handover.",
+      ],
+      items:
+        quotation.items && quotation.items.length > 0
+          ? quotation.items.map((it: any) => ({
+              service: it.description,
+              includedWork: it.description,
+              price: it.amount || (it.unitPrice * (it.quantity || 1)),
+            }))
+          : [
+              {
+                service: "Core Software & Cloud Setup",
+                includedWork: "Full system development & deployment",
+                price: quotation.subtotal,
+              },
+            ],
+      subtotal: quotation.subtotal,
+      discount: quotation.discount || 0,
+      taxAmount: quotation.taxAmount || 0,
+      totalAmount: quotation.totalAmount,
+      amountInWords: numberToWordsRupees(quotation.totalAmount),
+      paymentMilestones: [
+        { milestone: "Kickoff & Project Initiation", percentage: 40, amount: Math.round(quotation.totalAmount * 0.4) },
+        { milestone: "UI/UX Approval & Core Demo", percentage: 40, amount: Math.round(quotation.totalAmount * 0.4) },
+        { milestone: "Final Deployment, Handover & Launch", percentage: 20, amount: Math.round(quotation.totalAmount * 0.2) },
+      ],
+      paymentScheduleNote:
+        "Development commences upon receipt of the initial 40% advance payment. Milestone payments must be cleared before progression to subsequent project phases.",
+      hostingConditions: [
+        "Hosting server and database operations are provided under standard infrastructure tiers configured for optimal uptime and performance.",
+        "Client agrees to operate within allocated disk, bandwidth, and database capacities. Storage expansion is available upon request at standard add-on rates.",
+        "Third-party external subscriptions (e.g., custom domain name registration, third-party SMS/WhatsApp gateway credits, paid external API licenses) remain the direct billing responsibility of the client unless explicitly bundled.",
+      ],
+      revisionsSupport: [
+        "Includes up to two (2) consolidated rounds of feedback and minor revisions during the UI/UX and feature staging phases.",
+        "Comprehensive seven (7) calendar days of post-handover technical support is provided to address bugs, operational questions, or configuration adjustments at no additional charge.",
+      ],
+      clientResponsibilities: [
+        "Client agrees to furnish necessary branding assets, product listings, textual content, credentials, and approvals in a prompt manner to maintain development schedules.",
+        "Timely review and milestone feedback are required to ensure target launch schedules are met.",
+      ],
+      acceptanceValidity: [
+        "This quotation is valid for fifteen (15) calendar days from the date of issue.",
+        "To proceed, please authorize this proposal via formal signature, email confirmation, or purchase order.",
+      ],
+    };
+  };
+
+  const handleDownloadWord = async () => {
+    if (!quotation) return;
+    const payload = getOfficialQuotationPayload();
+    await downloadQuotationDocx(payload, `${quotation.quotationNumber}_Quotation_ABECSA.docx`);
+  };
+
+  const handleDownloadOfficialPdf = () => {
+    if (!quotation) return;
+    const payload = getOfficialQuotationPayload();
+    downloadQuotationPdf(payload, `${quotation.quotationNumber}_Quotation_ABECSA.pdf`);
   };
 
   const handleSaveSignature = async (sigData: {
@@ -188,13 +268,23 @@ export default function QuotationPresentationPage({
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2">
             <button
-              onClick={handleDownloadPdf}
-              className="px-4 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-bold text-slate-700 flex items-center gap-1.5 cursor-pointer shadow-xs transition-all"
+              onClick={handleDownloadWord}
+              className="px-3.5 py-2 rounded-xl border border-blue-200 bg-blue-50/60 hover:bg-blue-100 text-xs font-bold text-blue-700 flex items-center gap-1.5 cursor-pointer shadow-xs transition-all"
+              title="Download editable Microsoft Word document (.docx)"
             >
               <Download className="w-3.5 h-3.5" />
-              <span>Download Signed PDF</span>
+              <span>Download Word (.docx)</span>
+            </button>
+
+            <button
+              onClick={handleDownloadOfficialPdf}
+              className="px-3.5 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-bold text-slate-700 flex items-center gap-1.5 cursor-pointer shadow-xs transition-all"
+              title="Download printable official PDF"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Download PDF (.pdf)</span>
             </button>
 
             {!isSigned && (
@@ -427,13 +517,21 @@ export default function QuotationPresentationPage({
               </p>
             </div>
 
-            <div className="flex items-center gap-3 w-full sm:w-auto">
+            <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
               <button
-                onClick={handleDownloadPdf}
-                className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-bold text-slate-700 flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                onClick={handleDownloadWord}
+                className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-blue-200 bg-blue-50/60 hover:bg-blue-100 text-xs font-bold text-blue-700 flex items-center justify-center gap-1.5 cursor-pointer shadow-xs transition-all"
               >
                 <Download className="w-3.5 h-3.5" />
-                <span>Download PDF</span>
+                <span>Download Word (.docx)</span>
+              </button>
+
+              <button
+                onClick={handleDownloadOfficialPdf}
+                className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-bold text-slate-700 flex items-center justify-center gap-1.5 cursor-pointer shadow-xs transition-all"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Download PDF (.pdf)</span>
               </button>
 
               {!isSigned && (
