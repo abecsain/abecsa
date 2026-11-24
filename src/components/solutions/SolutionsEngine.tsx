@@ -109,6 +109,511 @@ interface EstimatorRule {
   externalStorageNotice: string;
 }
 
+// Comprehensive Pack Knowledge: Out-of-the-Box Inclusions, Modular Add-ons, Synergies & Custom Features
+interface PackDetailMeta {
+  category: string;
+  categoryLabel: string;
+  tagline: string;
+  includedServices: { title: string; desc: string }[];
+  modularAddons: { id: string; name: string; price: number; desc: string }[];
+  smartSynergies: { linkedCode: string; linkedName: string; reason: string; benefit: string }[];
+}
+
+const PRODUCT_PACK_DETAILS: Record<string, PackDetailMeta> = {
+  "PRODUCT-SHOWCASE": {
+    category: "SHOWCASE",
+    categoryLabel: "Showcase & WhatsApp Shop",
+    tagline: "Turn smartphone browsing into instant WhatsApp orders & counter walk-ins",
+    includedServices: [
+      {
+        title: "Digital Online Product Showcase & Catalog",
+        desc: "Interactive photo gallery, categories, zoomable images, and live search for your customers.",
+      },
+      {
+        title: "1-Tap 'Order on WhatsApp' Smart Cart",
+        desc: "Customers select items, choose quantities, and click to send a neatly formatted cart order directly to your WhatsApp.",
+      },
+      {
+        title: "Counter QR Standee Web Link",
+        desc: "High-resolution printable QR code for your shop counter so walk-in customers can browse your entire catalog on their own phones.",
+      },
+      {
+        title: "Live Stock Availability Sync",
+        desc: "Automatically syncs with shop inventory to show real-time 'In Stock' or 'Limited Stock' badges.",
+      },
+      {
+        title: "Festival Offers & Discount Banner Carousel",
+        desc: "Highlight seasonal discounts, festive promotions, and newly arrived stock on top of your catalog.",
+      },
+      {
+        title: "Mobile-First Zero-Install PWA",
+        desc: "Opens instantly on 4G/5G mobile browsers without requiring customers to download any app from the Play Store.",
+      },
+    ],
+    modularAddons: [
+      {
+        id: "showcase-domain",
+        name: "Custom .in / .com Domain Connection",
+        price: 899,
+        desc: "Run your showcase on your own branded web address (e.g. yourshopname.in).",
+      },
+      {
+        id: "showcase-upi-pay",
+        name: "Direct UPI & QR Online Payment Gateway",
+        price: 1499,
+        desc: "Let customers pay advance tokens or full amount via Google Pay, PhonePe & Paytm.",
+      },
+      {
+        id: "showcase-filter",
+        name: "Advanced Multi-Variant Filtering (Size / Color / Price)",
+        price: 999,
+        desc: "Enables multi-attribute filters for apparel, jewellery, footwear, and electronics.",
+      },
+      {
+        id: "showcase-multilingual",
+        name: "Multi-Language Showcase (Hindi, Marathi, Gujarati)",
+        price: 799,
+        desc: "Display product details and WhatsApp cart messages in regional languages.",
+      },
+    ],
+    smartSynergies: [
+      {
+        linkedCode: "POS-BILLING",
+        linkedName: "Retail POS & GST Counter Billing",
+        reason: "Instant WhatsApp Order to Thermal Slip Printing",
+        benefit: "Orders received from the online showcase can be printed directly as counter slips or kitchen tokens in 2 seconds.",
+      },
+      {
+        linkedCode: "INVENTORY-MGMT",
+        linkedName: "Smart Inventory & Stock Control",
+        reason: "Auto-Hide Sold Out Items in Real Time",
+        benefit: "When an item is sold out in your physical store, it is instantly hidden or marked 'Out of Stock' on your showcase.",
+      },
+      {
+        linkedCode: "CRM-WHATSAPP",
+        linkedName: "Customer Management & WhatsApp Marketing",
+        reason: "Broadcast Showcase Links to VIP Customers",
+        benefit: "Send 1-click links of newly arrived showcase items to your entire WhatsApp customer list during festivals.",
+      },
+    ],
+  },
+  "POS-BILLING": {
+    category: "RETAIL",
+    categoryLabel: "Retail & Counter POS",
+    tagline: "Ultra-fast thermal receipt billing with WhatsApp invoices & barcode scan",
+    includedServices: [
+      {
+        title: "2-Second Ultra-Fast Thermal Slip Printing",
+        desc: "Supports 2-inch, 3-inch thermal printers and standard A4/A5 laser invoices with your shop logo and GSTIN.",
+      },
+      {
+        title: "USB Barcode Scanner & Mobile Camera Scan",
+        desc: "Scan barcodes instantly using standard USB handheld scanners or a mobile phone camera.",
+      },
+      {
+        title: "Dynamic UPI Payment QR on Bill Slips",
+        desc: "Prints an instant dynamic UPI QR code on the thermal receipt for exact bill amount payment.",
+      },
+      {
+        title: "Automated WhatsApp E-Invoice Delivery",
+        desc: "Dispatches PDF/text invoice slip directly to customer WhatsApp number upon bill save.",
+      },
+      {
+        title: "Daily Shift Register & Cash Drawer Tally",
+        desc: "Audits cash drawer balances, shift handovers, and daily sales summary per counter operator.",
+      },
+      {
+        title: "Offline Resilient Billing Mode",
+        desc: "Bills continue printing without delay even if internet drops; auto-syncs when reconnected.",
+      },
+    ],
+    modularAddons: [
+      {
+        id: "pos-weighscale",
+        name: "Electronic Weighing Scale Serial Hardware Sync",
+        price: 1499,
+        desc: "Pulls exact weight automatically from digital scales for sweets, dry fruits, grocery & meat.",
+      },
+      {
+        id: "pos-multicounter",
+        name: "Additional Billing Counter Terminal License",
+        price: 1999,
+        desc: "Connect an extra billing counter PC or tablet sharing the same shop database.",
+      },
+      {
+        id: "pos-touchscreen",
+        name: "Touchscreen Quick-Tap POS Interface",
+        price: 999,
+        desc: "Large photo buttons for rapid cashier checkout without touching a keyboard.",
+      },
+      {
+        id: "pos-dualdisplay",
+        name: "Customer-Facing Dual Screen Billing Display",
+        price: 1299,
+        desc: "Shows items and promotional banners to the customer while cashier scans products.",
+      },
+    ],
+    smartSynergies: [
+      {
+        linkedCode: "PRODUCT-SHOWCASE",
+        linkedName: "Digital Product Catalog & Showcasing",
+        reason: "Counter QR Standee & WhatsApp Bill Links",
+        benefit: "Print your digital showcase link at the bottom of every receipt so customers re-order from home.",
+      },
+      {
+        linkedCode: "ACCOUNTING-UDHAR",
+        linkedName: "Udhar Khata & Accounting Ledger",
+        reason: "Direct Udhar Ledger Posting at Checkout",
+        benefit: "Select 'Udhar Credit' during billing to immediately update the customer's khata without manual ledger books.",
+      },
+      {
+        linkedCode: "INVENTORY-MGMT",
+        linkedName: "Smart Inventory & Stock Control",
+        reason: "Automatic Stock Depletion per Bill",
+        benefit: "Each item scanned instantly reduces warehouse stock and warns if items hit re-order levels.",
+      },
+    ],
+  },
+  "INVENTORY-MGMT": {
+    category: "INVENTORY",
+    categoryLabel: "Stock & Inventory Control",
+    tagline: "Total stock control, low-stock WhatsApp alerts & custom barcode printing",
+    includedServices: [
+      {
+        title: "Low-Stock Automatic WhatsApp Warning Alerts",
+        desc: "Receives WhatsApp alert the moment an item drops below your safety re-order threshold.",
+      },
+      {
+        title: "Custom Barcode Generator & Label Printing",
+        desc: "Generate and print custom barcode stickers with SKU, shop name, MRP, and sale price.",
+      },
+      {
+        title: "Supplier Purchase Orders (PO) & Delivery Logs",
+        desc: "Create professional vendor purchase orders and record goods received notes (GRN).",
+      },
+      {
+        title: "Batch Number & Expiry Date Safeguard",
+        desc: "Tracks batch numbers and triggers 30/60/90 days advance warning before expiry.",
+      },
+      {
+        title: "Stock Wastage, Returns & Discrepancy Audit",
+        desc: "Record damaged, expired, or returned stock with mandatory cashier notes and logs.",
+      },
+      {
+        title: "Multi-Godown & Inter-Branch Stock Transfers",
+        desc: "Move stock between warehouse and retail counters with digital transfer delivery challans.",
+      },
+    ],
+    modularAddons: [
+      {
+        id: "inv-mobile-scanner",
+        name: "Android Mobile Barcode Stock Audit App",
+        price: 1499,
+        desc: "Scan warehouse shelves using your phone camera for fast physical stock verification.",
+      },
+      {
+        id: "inv-autoreorder",
+        name: "1-Click Vendor WhatsApp Re-Order Generator",
+        price: 999,
+        desc: "Compiles all low-stock items into a vendor WhatsApp order message in 1 click.",
+      },
+      {
+        id: "inv-shelf-mgmt",
+        name: "Warehouse Rack & Shelf Location Manager",
+        price: 1199,
+        desc: "Assign exact rack numbers and aisles to speed up item retrieval in large godowns.",
+      },
+    ],
+    smartSynergies: [
+      {
+        linkedCode: "POS-BILLING",
+        linkedName: "Retail POS & GST Counter Billing",
+        reason: "Live Counter Deduction Prevents Stockouts",
+        benefit: "Cashier is immediately notified if an item being billed is the last unit in stock.",
+      },
+      {
+        linkedCode: "PRODUCT-SHOWCASE",
+        linkedName: "Digital Product Catalog & Showcasing",
+        reason: "1-Click Showcase of Newly Arrived Stock",
+        benefit: "New products added to inventory can be instantly published to your online showcase with 1 toggle.",
+      },
+    ],
+  },
+  "ACCOUNTING-UDHAR": {
+    category: "ACCOUNTS",
+    categoryLabel: "Udhar & Accounts Ledger",
+    tagline: "Replace paper khata books with digital Udhar passbook & polite WhatsApp reminders",
+    includedServices: [
+      {
+        title: "Digital Customer Udhar Credit Passbook",
+        desc: "Maintains clear ledger for each customer with credit balance limits and transaction timestamps.",
+      },
+      {
+        title: "Automated Polite WhatsApp Reminders (तकादा)",
+        desc: "Dispatches polite scheduled payment reminders with a direct UPI payment link.",
+      },
+      {
+        title: "Supplier & Vendor Balance Tracker",
+        desc: "Never miss vendor payments; logs invoices, paid amounts, and upcoming due dates.",
+      },
+      {
+        title: "Daily Shop Income, Expenses & Petty Cash",
+        desc: "Record tea, electricity, shop rent, staff advances, and transport expenses on mobile.",
+      },
+      {
+        title: "Monthly Profit & Loss Statement & GST Summary",
+        desc: "Automatic business health reports showing net profit, gross margin, and tax liabilities.",
+      },
+      {
+        title: "1-Click PDF / Excel Customer Statements",
+        desc: "Download or WhatsApp full customer statements showing debit, credit, and running balance.",
+      },
+    ],
+    modularAddons: [
+      {
+        id: "acc-bank-sync",
+        name: "Bank Statement Excel Import & Reconciliation Tool",
+        price: 999,
+        desc: "Import bank statements to automatically match UPI customer receipts.",
+      },
+      {
+        id: "acc-ca-portal",
+        name: "Chartered Accountant (CA) Read-Only Audit Portal",
+        price: 1499,
+        desc: "Gives your CA secure read-only access to download GST sales and purchase registers.",
+      },
+      {
+        id: "acc-auto-receipt",
+        name: "Instant WhatsApp Payment Receipt Confirmation",
+        price: 699,
+        desc: "Sends instant 'Payment Received with Thanks' WhatsApp voucher upon debt clearance.",
+      },
+    ],
+    smartSynergies: [
+      {
+        linkedCode: "POS-BILLING",
+        linkedName: "Retail POS & GST Counter Billing",
+        reason: "Fast Counter Credit Billing",
+        benefit: "Cashier can view existing customer Udhar balance right on the billing screen before giving credit.",
+      },
+      {
+        linkedCode: "CRM-WHATSAPP",
+        linkedName: "Customer Management & WhatsApp Marketing",
+        reason: "Targeted Customer Settlement Offers",
+        benefit: "Combine festive discount vouchers with clear Udhar balance statements.",
+      },
+    ],
+  },
+  "CRM-WHATSAPP": {
+    category: "CRM",
+    categoryLabel: "Customer CRM & WhatsApp",
+    tagline: "Customer directory, repeat sales tracking & WhatsApp festival broadcasts",
+    includedServices: [
+      {
+        title: "Customer Contact Directory & Lifetime Spend",
+        desc: "Stores customer mobile numbers, addresses, birthdays, and total spend history in one dashboard.",
+      },
+      {
+        title: "Bulk WhatsApp Festival Offer Broadcast Engine",
+        desc: "Broadcast Diwali, Eid, New Year, and weekend offers to your customer list with photos and prices.",
+      },
+      {
+        title: "Automated Birthday & Anniversary Greetings",
+        desc: "System automatically dispatches personalized greetings with a discount coupon on customer birthdays.",
+      },
+      {
+        title: "Inactive Customer Radar",
+        desc: "Flags customers who haven't visited in the last 30/60 days so you can send win-back offers.",
+      },
+      {
+        title: "Zero Recurring Per-Message API Fees",
+        desc: "Uses your connected business phone number without requiring costly per-message third-party gateways.",
+      },
+    ],
+    modularAddons: [
+      {
+        id: "crm-loyalty-points",
+        name: "Customer Loyalty Cashback Points Engine",
+        price: 999,
+        desc: "Reward customers with redeemable points per ₹100 spent to drive repeat visits.",
+      },
+      {
+        id: "crm-feedback-survey",
+        name: "Automated WhatsApp Post-Purchase Star Rating",
+        price: 799,
+        desc: "Asks customers for a 5-star Google review or feedback 2 hours after their purchase.",
+      },
+    ],
+    smartSynergies: [
+      {
+        linkedCode: "PRODUCT-SHOWCASE",
+        linkedName: "Digital Product Catalog & Showcasing",
+        reason: "Include Showcase Link in Bulk Broadcasts",
+        benefit: "Paste your digital catalog link into WhatsApp broadcasts so customers order directly from home.",
+      },
+      {
+        linkedCode: "POS-BILLING",
+        linkedName: "Retail POS & GST Counter Billing",
+        reason: "Auto-Capture Customer Mobile at Counter",
+        benefit: "Every customer phone entered during billing is automatically saved into your CRM directory.",
+      },
+    ],
+  },
+  "WEBSITE-PAGEWISE": {
+    category: "WEBSITES",
+    categoryLabel: "Custom Websites & Portals",
+    tagline: "Transparent page-wise business website with Google SEO & WhatsApp widget",
+    includedServices: [
+      {
+        title: "100% Mobile, Tablet & Laptop Responsive Design",
+        desc: "Modern, ultra-fast website that looks stunning on every device screen size.",
+      },
+      {
+        title: "Direct WhatsApp Chat Widget & Lead Form",
+        desc: "Floating WhatsApp button and contact inquiry form with instant email alerts.",
+      },
+      {
+        title: "Google Maps Business Profile & Local Search SEO",
+        desc: "Optimized so local customers searching for your products find your shop on Google.",
+      },
+      {
+        title: "High-Speed NVMe Cloud Hosting with SSL",
+        desc: "Blazing fast cloud server hosting with green padlock SSL certificate included.",
+      },
+      {
+        title: "Custom Domain Integration (.in / .com)",
+        desc: "Connect your official domain with professional business emails.",
+      },
+    ],
+    modularAddons: [
+      {
+        id: "web-seo-pro",
+        name: "Google 1st Page Local SEO Growth Pack",
+        price: 1499,
+        desc: "Keyword research, meta tags, schema markup, and Google Search Console indexing.",
+      },
+      {
+        id: "web-cms-admin",
+        name: "Admin Panel to Update Photos & Text Yourself",
+        price: 1999,
+        desc: "Simple visual dashboard to change prices, upload photos, and edit text anytime.",
+      },
+      {
+        id: "web-domain-in",
+        name: "1-Year .in Domain Registration & DNS Setup",
+        price: 799,
+        desc: "Official .in domain registered in your company name with full DNS routing.",
+      },
+    ],
+    smartSynergies: [
+      {
+        linkedCode: "PRODUCT-SHOWCASE",
+        linkedName: "Digital Product Catalog & Showcasing",
+        reason: "Embed Live Product Catalog in Website",
+        benefit: "Showcase all your items with 1-tap WhatsApp buy buttons directly on your main company website.",
+      },
+    ],
+  },
+  "RESTAURANT-CAFE": {
+    category: "INDUSTRY",
+    categoryLabel: "Restaurant & Cafe POS",
+    tagline: "Kitchen Order Tickets (KOT), table management & tabletop QR menus",
+    includedServices: [
+      {
+        title: "Kitchen Order Ticket (KOT) Direct Printing",
+        desc: "Dispatches food orders instantly to the kitchen thermal printer or chef display screen.",
+      },
+      {
+        title: "Interactive Table Floor Map",
+        desc: "Real-time visual table statuses: Vacant (Green), Running (Blue), and Billed (Amber).",
+      },
+      {
+        title: "Tabletop QR Menu for Contactless Ordering",
+        desc: "Diners scan tabletop QR standee to view photos, prices, chef specials, and order from phone.",
+      },
+      {
+        title: "Takeaway & Parcel Counter Token Slip",
+        desc: "Rapid billing for parcel counters with sequential kitchen tokens and customer pickup slips.",
+      },
+      {
+        title: "Daily Raw Ingredient Consumption & Food Costing",
+        desc: "Tracks milk, chicken, vegetables, and flour consumption automatically per dish served.",
+      },
+    ],
+    modularAddons: [
+      {
+        id: "rest-captain-app",
+        name: "Waiter Mobile App for Table Order Taking",
+        price: 1999,
+        desc: "Waiters punch orders on their Android phone right at the customer's table.",
+      },
+      {
+        id: "rest-swiggy-sync",
+        name: "Swiggy & Zomato Order Notification Consolidation",
+        price: 2499,
+        desc: "View and accept online delivery orders in the same central restaurant screen.",
+      },
+    ],
+    smartSynergies: [
+      {
+        linkedCode: "INVENTORY-MGMT",
+        linkedName: "Smart Inventory & Stock Control",
+        reason: "Recipe Ingredient Deduction",
+        benefit: "Automatically deducts cheese, butter, and coffee powder from inventory as dishes are billed.",
+      },
+    ],
+  },
+  "PHARMACY-CLINIC": {
+    category: "INDUSTRY",
+    categoryLabel: "Pharmacy & Clinic Management",
+    tagline: "Medicine salt alternative search, Schedule H register & expiry alerts",
+    includedServices: [
+      {
+        title: "Medicine Generic Salt & Substitute Search Engine",
+        desc: "Find substitute brands with identical chemical salt composition in under 2 seconds.",
+      },
+      {
+        title: "Schedule H & H1 Drug Dispensing Register",
+        desc: "Complies with drug authority regulations; logs doctor name, patient name, and batch number.",
+      },
+      {
+        title: "Batch Expiry Early Warning Radar",
+        desc: "Alerts you 60 and 90 days before medicines expire so you can return them to wholesalers.",
+      },
+      {
+        title: "Patient Medical & Prescription Profiles",
+        desc: "Maintains repeat chronic patient medicine lists for rapid 1-click refill billing.",
+      },
+      {
+        title: "Wholesale Medicine Inward Invoice Matching",
+        desc: "Matches purchase invoices against received strips and calculates retail profit margin.",
+      },
+    ],
+    modularAddons: [
+      {
+        id: "pharm-sms-refill",
+        name: "Chronic Patient Monthly Refill WhatsApp Alerts",
+        price: 1199,
+        desc: "Automatically reminds diabetic and BP patients 3 days before their medicine strip finishes.",
+      },
+      {
+        id: "pharm-wholesaler-edi",
+        name: "Wholesaler Inward Purchase Excel Import",
+        price: 1499,
+        desc: "Upload distributor Excel/CSV invoices to instantly inward 100+ medicine batches.",
+      },
+    ],
+    smartSynergies: [
+      {
+        linkedCode: "ACCOUNTING-UDHAR",
+        linkedName: "Udhar Khata & Accounting Ledger",
+        reason: "Monthly Medicine Family Khata",
+        benefit: "Track running credit accounts for regular families who settle medical bills monthly.",
+      },
+    ],
+  },
+};
+
 export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab?: string }) {
   const [activeTab, setActiveTab] = useState<
     "CATALOG" | "BUILDER" | "DATABASE" | "PACKAGES" | "WEBSITE" | "COMPARISON" | "QUOTATION"
@@ -123,18 +628,24 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
   // Search & Filters
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("ALL");
+  const [builderCategoryFilter, setBuilderCategoryFilter] = useState("ALL");
 
-  // Selected Software in Configuration Builder (Default: POS, Inventory & Showcasing with 15 GB DB)
+  // Selected Software in Configuration Builder (Default: POS, Inventory & Showcasing with 5 GB DB)
   const [selectedProductCodes, setSelectedProductCodes] = useState<string[]>([
     "POS-BILLING",
     "INVENTORY-MGMT",
     "PRODUCT-SHOWCASE",
   ]);
+  const [expandedProductCode, setExpandedProductCode] = useState<string | null>("PRODUCT-SHOWCASE");
   const [selectedAddonIds, setSelectedAddonIds] = useState<string[]>([]);
-  const [selectedDatabaseGb, setSelectedDatabaseGb] = useState<number>(15);
+  const [selectedDatabaseGb, setSelectedDatabaseGb] = useState<number>(5);
   const [isCustomDatabase, setIsCustomDatabase] = useState(false);
   const [customDatabaseGb, setCustomDatabaseGb] = useState<number>(30);
   const [selectedTenure, setSelectedTenure] = useState<"1_YEAR" | "3_YEARS" | "5_YEARS" | "MONTHLY">("1_YEAR");
+
+  // Custom User Features Added to the Solution
+  const [customFeatures, setCustomFeatures] = useState<{ id: string; productCode: string; text: string }[]>([]);
+  const [customFeatureInput, setCustomFeatureInput] = useState("");
 
   // Mobile Bottom Drawer State
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
@@ -525,6 +1036,10 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
         discountTotal: pricingSummary.bundleDiscount,
         taxAmount: pricingSummary.taxAmount,
         grandTotal: pricingSummary.grandTotal,
+        customFeatures: customFeatures.map((f) => ({
+          productCode: f.productCode,
+          feature: f.text,
+        })),
       };
 
       const res = await fetch("/api/solutions/quotations", {
@@ -546,6 +1061,27 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
       setSubmittingQuote(false);
     }
   };
+
+  // Filtered Products for Software Builder Categories
+  const builderFilteredProducts = useMemo(() => {
+    return products.filter((prod) => {
+      if (builderCategoryFilter === "ALL") return true;
+      const detail = PRODUCT_PACK_DETAILS[prod.code];
+      if (!detail) return true;
+      return detail.category === builderCategoryFilter;
+    });
+  }, [products, builderCategoryFilter]);
+
+  // Active expanded product for pack specification breakdown
+  const activeExpandedProduct = useMemo(() => {
+    if (!expandedProductCode) return null;
+    return products.find((p) => p.code === expandedProductCode) || null;
+  }, [products, expandedProductCode]);
+
+  const activePackDetail = useMemo(() => {
+    if (!expandedProductCode) return null;
+    return PRODUCT_PACK_DETAILS[expandedProductCode] || null;
+  }, [expandedProductCode]);
 
   // Filtered Products for Catalog
   const filteredProducts = products.filter((p) => {
@@ -610,7 +1146,7 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
                     Select Your Business Software Applications
                   </h2>
                   <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                    Combine multiple compatible software products into one integrated system. Shared modules are automatically deduplicated.
+                    Combine multiple compatible software products into one integrated system. Filter by category, view out-of-the-box inclusions, and add custom features.
                   </p>
                 </div>
                 <div className="text-right shrink-0">
@@ -621,43 +1157,86 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
                 </div>
               </div>
 
-              {/* Products Selection Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                {products.map((prod) => {
+              {/* Software Category Filter Tabs for Builder */}
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-1 no-scrollbar">
+                {[
+                  { id: "ALL", label: "All Modules" },
+                  { id: "SHOWCASE", label: "Showcase & WhatsApp Shop" },
+                  { id: "RETAIL", label: "Retail & POS Billing" },
+                  { id: "INVENTORY", label: "Inventory & Stock" },
+                  { id: "ACCOUNTS", label: "Udhar & Accounts" },
+                  { id: "CRM", label: "Customer CRM" },
+                  { id: "WEBSITES", label: "Custom Websites" },
+                  { id: "INDUSTRY", label: "Industry Solutions" },
+                ].map((c) => {
+                  const isActive = builderCategoryFilter === c.id;
+                  return (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => setBuilderCategoryFilter(c.id)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap cursor-pointer transition-all ${
+                        isActive
+                          ? "bg-sky-600 text-white shadow-xs"
+                          : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                      }`}
+                    >
+                      {c.label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Compact Software Products Selection Grid (Mobile & Laptop Optimized) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {builderFilteredProducts.map((prod) => {
                   const isSelected = selectedProductCodes.includes(prod.code);
+                  const isExpanded = expandedProductCode === prod.code;
+                  const detail = PRODUCT_PACK_DETAILS[prod.code];
                   const features = parseJsonArray(prod.keyFeatures);
 
                   return (
                     <div
                       key={prod.id}
-                      onClick={() => toggleProduct(prod.code)}
-                      className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between space-y-3 ${
+                      className={`p-3.5 sm:p-4 rounded-2xl border-2 transition-all flex flex-col justify-between space-y-2.5 ${
                         isSelected
-                          ? "border-sky-600 bg-sky-50/40 shadow-sm ring-1 ring-sky-500/20"
+                          ? "border-sky-600 bg-sky-50/40 shadow-xs ring-1 ring-sky-500/20"
                           : "border-slate-200 bg-white hover:border-slate-300"
                       }`}
                     >
-                      <div className="space-y-2">
+                      <div className="space-y-1.5">
                         <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-mono text-slate-400 font-bold uppercase">
-                            {prod.code}
-                          </span>
-                          <div
-                            className={`h-5 w-5 rounded-full flex items-center justify-center border transition-all ${
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] font-mono text-slate-500 font-bold uppercase bg-slate-100 px-2 py-0.5 rounded-md">
+                              {prod.code}
+                            </span>
+                            {detail && (
+                              <span className="text-[10px] font-bold text-sky-700 bg-sky-100/70 px-2 py-0.5 rounded-md truncate max-w-[150px]">
+                                {detail.categoryLabel}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Toggle selection checkbox */}
+                          <button
+                            type="button"
+                            onClick={() => toggleProduct(prod.code)}
+                            className={`h-5 w-5 rounded-full flex items-center justify-center border transition-all cursor-pointer ${
                               isSelected
                                 ? "bg-sky-600 border-sky-600 text-white"
-                                : "border-slate-300 bg-white"
+                                : "border-slate-300 bg-white hover:border-sky-400"
                             }`}
+                            title={isSelected ? "Remove from solution" : "Add to solution"}
                           >
                             {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
-                          </div>
+                          </button>
                         </div>
 
                         <div>
                           <h4 className="text-sm font-bold text-slate-900 leading-snug">
                             {prod.name}
                           </h4>
-                          <p className="text-[11px] text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                          <p className="text-[11px] text-slate-500 mt-0.5 line-clamp-2 leading-relaxed">
                             {prod.shortDescription}
                           </p>
                         </div>
@@ -673,26 +1252,303 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
                         </div>
                       </div>
 
-                      <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                      {/* Footer: Price + Pack Breakdown Inspector Toggle */}
+                      <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2 text-xs">
                         <div>
-                          <span className="text-[10px] text-slate-400 block">Base Price</span>
+                          <span className="text-[10px] text-slate-400 block">Base License</span>
                           <span className="font-extrabold text-slate-900">
                             {prod.isPriceOnRequest ? "On Request" : formatCurrency(prod.basePrice)}
                           </span>
                         </div>
-                        {prod.recurringPrice > 0 && (
-                          <div className="text-right">
-                            <span className="text-[10px] text-slate-400 block">Recurring</span>
-                            <span className="font-bold text-slate-600 text-[11px]">
-                              +{formatCurrency(prod.recurringPrice)}/mo
-                            </span>
-                          </div>
-                        )}
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!isSelected) toggleProduct(prod.code);
+                            setExpandedProductCode(isExpanded ? null : prod.code);
+                          }}
+                          className={`px-2.5 py-1.5 rounded-xl font-bold text-[11px] flex items-center gap-1 transition-all cursor-pointer ${
+                            isExpanded
+                              ? "bg-slate-900 text-white shadow-xs"
+                              : "bg-sky-50 text-sky-700 hover:bg-sky-100 border border-sky-200"
+                          }`}
+                        >
+                          <span>{isExpanded ? "Hide Details" : "Pack Breakdown"}</span>
+                          {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                        </button>
                       </div>
                     </div>
                   );
                 })}
               </div>
+
+              {/* Active Pack Breakdown & Customizer Card */}
+              {activeExpandedProduct && activePackDetail && (
+                <div className="mt-4 p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-sky-950 text-white border border-sky-800/40 shadow-xl space-y-5 animate-in fade-in duration-300">
+                  {/* Header */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30">
+                          {activePackDetail.categoryLabel}
+                        </span>
+                        <span className="text-xs text-slate-400 font-mono">
+                          {activeExpandedProduct.code}
+                        </span>
+                      </div>
+                      <h3 className="text-lg sm:text-xl font-black text-white mt-1">
+                        {activeExpandedProduct.name} — Pack Specifications
+                      </h3>
+                      <p className="text-xs text-sky-200/80 mt-0.5">
+                        {activePackDetail.tagline}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => toggleProduct(activeExpandedProduct.code)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                          selectedProductCodes.includes(activeExpandedProduct.code)
+                            ? "bg-emerald-500 text-slate-950 hover:bg-emerald-400"
+                            : "bg-sky-600 text-white hover:bg-sky-500"
+                        }`}
+                      >
+                        {selectedProductCodes.includes(activeExpandedProduct.code)
+                          ? "✓ Included in Solution"
+                          : "+ Add to Configuration"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setExpandedProductCode(null)}
+                        className="p-1.5 rounded-xl bg-slate-800 text-slate-400 hover:text-white cursor-pointer"
+                        title="Close breakdown"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Section A: What's Already Provided in this Pack Out-of-the-Box (₹0 Extra) */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                        <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">
+                          Provided In This Pack (Included Out-of-the-Box • ₹0 Extra)
+                        </span>
+                      </div>
+                      <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800/60 px-2 py-0.5 rounded-full">
+                        6 Base Services Ready
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      {activePackDetail.includedServices.map((srv, idx) => (
+                        <div
+                          key={idx}
+                          className="p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60 flex items-start gap-2.5"
+                        >
+                          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                          <div>
+                            <span className="text-xs font-bold text-white block">
+                              {srv.title}
+                            </span>
+                            <span className="text-[11px] text-slate-300/80 leading-relaxed block mt-0.5">
+                              {srv.desc}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Section B: Additional Modular Features (Optional Add-ons) */}
+                  <div className="space-y-3 pt-3 border-t border-slate-800">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Zap className="w-4 h-4 text-amber-400" />
+                        <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">
+                          Select Additional Features for this Pack
+                        </span>
+                      </div>
+                      <span className="text-[10px] text-slate-400">
+                        Modular extensions
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {activePackDetail.modularAddons.map((addon) => {
+                        const isChecked = selectedAddonIds.includes(addon.id);
+                        return (
+                          <div
+                            key={addon.id}
+                            onClick={() => toggleAddon(addon.id)}
+                            className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-start justify-between gap-3 ${
+                              isChecked
+                                ? "bg-sky-950/60 border-sky-400 ring-1 ring-sky-400/30"
+                                : "bg-slate-800/40 border-slate-700/60 hover:border-slate-600"
+                            }`}
+                          >
+                            <div className="flex items-start gap-2.5">
+                              <input
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={() => {}}
+                                className="h-4 w-4 rounded text-sky-500 mt-0.5"
+                              />
+                              <div>
+                                <span className="text-xs font-bold text-white block">
+                                  {addon.name}
+                                </span>
+                                <span className="text-[10px] text-slate-400 leading-tight block mt-0.5">
+                                  {addon.desc}
+                                </span>
+                              </div>
+                            </div>
+                            <span className="text-xs font-mono font-bold text-amber-300 shrink-0">
+                              +{formatCurrency(addon.price)}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Section C: Smart Cross-Pack Synergies & Future Work */}
+                  <div className="space-y-3 pt-3 border-t border-slate-800">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="w-4 h-4 text-sky-400" />
+                        <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">
+                          Smart Cross-Pack Synergies & Future Project Enhancements
+                        </span>
+                      </div>
+                      <span className="text-[10px] text-sky-300">
+                        Zero duplicate work
+                      </span>
+                    </div>
+
+                    <div className="space-y-2">
+                      {activePackDetail.smartSynergies.map((syn, idx) => {
+                        const isAlreadySelected = selectedProductCodes.includes(syn.linkedCode);
+                        return (
+                          <div
+                            key={idx}
+                            className="p-3 rounded-2xl bg-slate-800/50 border border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                          >
+                            <div className="space-y-0.5">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-bold text-sky-300">
+                                  {syn.reason}
+                                </span>
+                                <span className="text-[10px] text-slate-400 font-mono">
+                                  • with {syn.linkedName}
+                                </span>
+                              </div>
+                              <p className="text-[11px] text-slate-300 leading-relaxed">
+                                {syn.benefit}
+                              </p>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => toggleProduct(syn.linkedCode)}
+                              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer ${
+                                isAlreadySelected
+                                  ? "bg-slate-700 text-slate-300 hover:bg-slate-600"
+                                  : "bg-sky-500 hover:bg-sky-400 text-slate-950 shadow-xs"
+                              }`}
+                            >
+                              {isAlreadySelected ? "✓ Linked in Pack" : `+ Link ${syn.linkedCode}`}
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Section D: Add Custom Feature to this Pack */}
+                  <div className="space-y-3 pt-3 border-t border-slate-800">
+                    <div>
+                      <span className="text-xs font-bold text-slate-200 uppercase tracking-wider block">
+                        Need a Custom Feature for Your Business?
+                      </span>
+                      <p className="text-[11px] text-slate-400 mt-0.5">
+                        Type any custom workflow or requirement (e.g. Weighing scale, Tally sync, Regional language invoice) to include it in your custom solution.
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        placeholder="e.g. Add custom barcode scanner for weighed vegetables, or integrate with Tally ERP..."
+                        value={customFeatureInput}
+                        onChange={(e) => setCustomFeatureInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && customFeatureInput.trim()) {
+                            e.preventDefault();
+                            setCustomFeatures((prev) => [
+                              ...prev,
+                              {
+                                id: `cf-${Date.now()}`,
+                                productCode: activeExpandedProduct.code,
+                                text: customFeatureInput.trim(),
+                              },
+                            ]);
+                            setCustomFeatureInput("");
+                          }
+                        }}
+                        className="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-700 bg-slate-950 text-white text-xs placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (customFeatureInput.trim()) {
+                            setCustomFeatures((prev) => [
+                              ...prev,
+                              {
+                                id: `cf-${Date.now()}`,
+                                productCode: activeExpandedProduct.code,
+                                text: customFeatureInput.trim(),
+                              },
+                            ]);
+                            setCustomFeatureInput("");
+                          }
+                        }}
+                        className="px-4 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs shrink-0 cursor-pointer"
+                      >
+                        + Add Custom Feature
+                      </button>
+                    </div>
+
+                    {/* Active custom features tags for this product */}
+                    {customFeatures.filter((cf) => cf.productCode === activeExpandedProduct.code).length > 0 && (
+                      <div className="flex flex-wrap gap-2 pt-1">
+                        {customFeatures
+                          .filter((cf) => cf.productCode === activeExpandedProduct.code)
+                          .map((cf) => (
+                            <span
+                              key={cf.id}
+                              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-950 border border-sky-500/50 text-sky-200 text-xs font-medium"
+                            >
+                              <span>✨ {cf.text}</span>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setCustomFeatures((prev) => prev.filter((item) => item.id !== cf.id))
+                                }
+                                className="text-sky-400 hover:text-white cursor-pointer ml-1"
+                              >
+                                ×
+                              </button>
+                            </span>
+                          ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Step 2: Database Capacity & Tier Selection */}
@@ -722,6 +1578,7 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {databasePlans.map((plan) => {
                   const isSelected = !isCustomDatabase && selectedDatabaseGb === plan.sizeGb;
+                  const isMajorDefault = plan.sizeGb === 5;
                   return (
                     <button
                       key={plan.id}
@@ -730,13 +1587,18 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
                         setSelectedDatabaseGb(plan.sizeGb);
                         setIsCustomDatabase(false);
                       }}
-                      className={`p-3.5 rounded-2xl border-2 text-left transition-all cursor-pointer ${
+                      className={`p-3.5 rounded-2xl border-2 text-left transition-all cursor-pointer relative ${
                         isSelected
                           ? "border-sky-600 bg-sky-50/50 shadow-xs ring-1 ring-sky-500/20"
                           : "border-slate-200 bg-white hover:border-slate-300"
                       }`}
                     >
-                      <div className="flex items-center justify-between mb-1">
+                      {isMajorDefault && (
+                        <span className="absolute -top-2.5 left-2.5 text-[9px] font-bold px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 shadow-xs">
+                          ★ Default (Major Projects)
+                        </span>
+                      )}
+                      <div className="flex items-center justify-between mb-1 mt-1">
                         <span className="text-sm sm:text-base font-black text-slate-900 font-mono">
                           {plan.sizeGb === 0 ? "Own Server / DB" : `${plan.sizeGb} GB`}
                         </span>
@@ -962,6 +1824,32 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
                   ))}
                 </div>
               </div>
+
+              {/* Custom Business Features Added */}
+              {customFeatures.length > 0 && (
+                <div className="space-y-1.5 text-xs">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 block">
+                    Custom Features Added ({customFeatures.length}):
+                  </span>
+                  <div className="space-y-1 max-h-28 overflow-y-auto pr-1">
+                    {customFeatures.map((cf) => (
+                      <div
+                        key={cf.id}
+                        className="flex items-center justify-between p-1.5 rounded-lg bg-amber-950/40 border border-amber-800/50 text-[11px]"
+                      >
+                        <span className="truncate pr-1 text-amber-200">✨ {cf.text}</span>
+                        <button
+                          type="button"
+                          onClick={() => setCustomFeatures((prev) => prev.filter((item) => item.id !== cf.id))}
+                          className="text-amber-400 hover:text-white shrink-0 font-bold ml-1 cursor-pointer"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Database & Tenure Subscription Switcher */}
               <div className="p-3.5 rounded-2xl bg-slate-800/90 border border-slate-700/70 space-y-3 text-xs">
@@ -1199,9 +2087,9 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
                   className="bg-white rounded-3xl border border-slate-200 shadow-xs hover:border-sky-300 hover:shadow-lg transition-all flex flex-col justify-between overflow-hidden"
                 >
                   <div>
-                    {/* Header with image/cover */}
+                    {/* Header with image/cover - Compact Modern Aspect */}
                     {prod.imageUrl && (
-                      <div className="relative h-44 w-full bg-slate-900 overflow-hidden">
+                      <div className="relative h-28 sm:h-32 w-full bg-slate-900 overflow-hidden">
                         <Image
                           src={prod.imageUrl}
                           alt={prod.name}
@@ -1209,38 +2097,38 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
                           className="object-cover hover:scale-105 transition-transform duration-500"
                           unoptimized
                         />
-                        <div className="absolute top-3 left-3">
-                          <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-950/80 backdrop-blur-md text-sky-300 border border-slate-700">
+                        <div className="absolute top-2.5 left-2.5">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-950/80 backdrop-blur-md text-sky-300 border border-slate-700">
                             {prod.category}
                           </span>
                         </div>
                       </div>
                     )}
 
-                    <div className="p-6 space-y-4">
+                    <div className="p-4 sm:p-5 space-y-3">
                       <div>
                         <span className="text-[10px] font-mono text-slate-400 font-bold block">{prod.code}</span>
-                        <h3 className="text-base sm:text-lg font-bold text-slate-900">{prod.name}</h3>
-                        <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
+                        <h3 className="text-base font-bold text-slate-900 leading-snug">{prod.name}</h3>
+                        <p className="text-xs text-slate-600 mt-1 line-clamp-2 leading-relaxed">
                           {prod.shortDescription}
                         </p>
                       </div>
 
                       {/* Features */}
-                      <div className="space-y-1.5 pt-2 border-t border-slate-100 text-xs">
+                      <div className="space-y-1 pt-1.5 border-t border-slate-100 text-xs">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
                           Core Features:
                         </span>
-                        {features.slice(0, 3).map((f, idx) => (
+                        {features.slice(0, 2).map((f, idx) => (
                           <div key={idx} className="flex items-start gap-1.5 text-slate-700">
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                            <span className="text-[11px] leading-tight">{f}</span>
+                            <span className="text-[11px] leading-tight truncate">{f}</span>
                           </div>
                         ))}
                       </div>
 
                       {/* Pricing Tag */}
-                      <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between text-xs">
+                      <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between text-xs">
                         <div>
                           <span className="text-[10px] text-slate-400 block">One-Time License</span>
                           <span className="font-extrabold text-slate-900 text-sm">
@@ -1260,13 +2148,16 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
                   </div>
 
                   {/* Actions */}
-                  <div className="p-6 pt-0 flex items-center gap-2">
+                  <div className="p-4 sm:p-5 pt-0 flex items-center gap-2">
                     <button
                       onClick={() => {
-                        toggleProduct(prod.code);
+                        if (!selectedProductCodes.includes(prod.code)) {
+                          toggleProduct(prod.code);
+                        }
+                        setExpandedProductCode(prod.code);
                         setActiveTab("BUILDER");
                       }}
-                      className={`flex-1 py-2.5 px-4 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                      className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                         isSelected
                           ? "bg-emerald-600 hover:bg-emerald-700 text-white"
                           : "bg-slate-950 hover:bg-slate-800 text-white shadow-xs"
@@ -1275,12 +2166,12 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
                       {isSelected ? (
                         <>
                           <Check className="w-3.5 h-3.5" />
-                          <span>Configured (Edit)</span>
+                          <span>Configured (Customize)</span>
                         </>
                       ) : (
                         <>
                           <Plus className="w-3.5 h-3.5" />
-                          <span>Add to Solution</span>
+                          <span>Customize & Add</span>
                         </>
                       )}
                     </button>
