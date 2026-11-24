@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
+import { getSupabaseAdminClient } from "@/lib/supabase";
 
 export async function GET(req: NextRequest) {
   try {
@@ -62,6 +63,22 @@ export async function POST(req: NextRequest) {
         value: value.trim(),
       },
     });
+
+    // Mirror to Supabase cloud table
+    const supabase = getSupabaseAdminClient();
+    if (supabase) {
+      try {
+        await supabase.from("user_assets").upsert({
+          id: asset.id,
+          user_id: asset.userId,
+          name: asset.name,
+          type: asset.type,
+          value: asset.value,
+        });
+      } catch (sErr) {
+        console.warn("Supabase user_asset sync warning:", sErr);
+      }
+    }
 
     return NextResponse.json({ success: true, asset }, { status: 201 });
   } catch (error: any) {

@@ -56,36 +56,30 @@ export async function getSessionUser() {
     }
 
     if (!user) {
-      // In serverless / Vercel if DB query was temporarily unavailable but token is cryptographically verified,
+      // In serverless / Render if DB query was temporarily unavailable but token is cryptographically verified,
       // return a reconstructed session user so the authenticated user is not locked out
       if (payload.userId && payload.email) {
-        const isDemoAdmin = payload.email === "admin@abecsa.in" || payload.role === "ADMIN";
         return {
           id: payload.userId,
           email: payload.email,
-          name: isDemoAdmin ? "Abecsa Admin" : payload.name || "Authenticated User",
+          name: payload.name || "Authenticated User",
           role: payload.role,
           effectiveRole: payload.impersonatedRole || payload.role,
           actualRole: payload.role,
           isImpersonating: payload.role === "ADMIN" && !!payload.impersonatedRole && payload.impersonatedRole !== "ADMIN",
-          phone: "+91 98765 43210",
+          phone: "+91 94078 99216",
           status: "ACTIVE",
-          jobTitle: isDemoAdmin ? "Administrator" : payload.role,
+          jobTitle: payload.role === "ADMIN" ? "Administrator" : payload.role,
           department: "Management",
           createdAt: new Date(),
           updatedAt: new Date(),
-          customerProfile: payload.role === "CUSTOMER" ? { id: "cust_demo", companyName: "Client Enterprise", gstNumber: null, address: null, balanceDue: 0 } : null,
+          customerProfile: payload.role === "CUSTOMER" ? { id: "cust_demo", companyName: "Client Enterprise", address: null, balanceDue: 0 } : null,
         } as any;
       }
       return null;
     }
 
-    if (user.status !== "ACTIVE") return null;
-
-    if (user.role === "ADMIN" || user.email === "admin@abecsa.in") {
-      user.name = "Abecsa Admin";
-      user.jobTitle = "Administrator";
-    }
+    if (user.status !== "ACTIVE" || user.isLocked) return null;
 
     // Attach effective role (supports verified Admin impersonation)
     const effectiveRole = (user.role === "ADMIN" && payload.impersonatedRole)

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
+import { getSupabaseAdminClient } from "@/lib/supabase";
 
 export async function GET(req: NextRequest) {
   try {
@@ -68,6 +69,27 @@ export async function POST(req: NextRequest) {
         isActive: isActive !== undefined ? Boolean(isActive) : true,
       },
     });
+
+    // Mirror to Supabase cloud table
+    const supabase = getSupabaseAdminClient();
+    if (supabase) {
+      try {
+        await supabase.from("websites").insert({
+          name: website.name,
+          url: website.url,
+          description: website.description,
+          category: website.category,
+          icon_url: website.iconUrl,
+          plan: website.plan,
+          status: website.status,
+          user_id: website.userId,
+          manager_id: website.managerId,
+          is_active: website.isActive,
+        });
+      } catch (sErr) {
+        console.warn("Supabase website sync warning:", sErr);
+      }
+    }
 
     return NextResponse.json({ success: true, website }, { status: 201 });
   } catch (error: any) {

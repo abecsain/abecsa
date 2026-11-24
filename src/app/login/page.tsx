@@ -54,13 +54,6 @@ export default function LoginPage() {
     }
   };
 
-  // Quick Demo Account Pre-fill Helper
-  const fillCredentials = (roleEmail: string, rolePass: string) => {
-    setEmail(roleEmail);
-    setPassword(rolePass);
-    setErrorMsg("");
-  };
-
   return (
     <div className="min-h-screen flex flex-col justify-between bg-slate-50 selection:bg-sky-500 selection:text-white">
       {/* Top Banner */}
@@ -159,62 +152,15 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Quick Demo Role Switcher Pre-fills */}
-          <div className="pt-4 border-t border-slate-100">
-            <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-3">
-              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-              <span>Instant Demo Account Logins:</span>
+          {/* Enterprise Security Notice */}
+          <div className="pt-4 border-t border-slate-100 text-center">
+            <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-500">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Enterprise Protected Workspace • TLS 1.3 Encrypted</span>
             </div>
-
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <button
-                type="button"
-                onClick={() => fillCredentials("admin@abecsa.in", "Admin@123")}
-                className="p-2.5 rounded-lg border border-slate-200 hover:border-sky-400 hover:bg-sky-50/50 text-left transition-all group"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-800 group-hover:text-sky-600">Admin</span>
-                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-100 text-slate-600">Full Access</span>
-                </div>
-                <p className="text-[10px] text-slate-500 truncate mt-0.5">admin@abecsa.in</p>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => fillCredentials("manager@abecsa.in", "Manager@123")}
-                className="p-2.5 rounded-lg border border-slate-200 hover:border-emerald-400 hover:bg-emerald-50/50 text-left transition-all group"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-800 group-hover:text-emerald-600">Manager</span>
-                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700">Operations</span>
-                </div>
-                <p className="text-[10px] text-slate-500 truncate mt-0.5">manager@abecsa.in</p>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => fillCredentials("engineer@abecsa.in", "Engineer@123")}
-                className="p-2.5 rounded-lg border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/50 text-left transition-all group"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-800 group-hover:text-indigo-600">Engineer</span>
-                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-indigo-50 text-indigo-700">Lead Dev</span>
-                </div>
-                <p className="text-[10px] text-slate-500 truncate mt-0.5">engineer@abecsa.in</p>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => fillCredentials("client@abecsa.in", "Client@123")}
-                className="p-2.5 rounded-lg border border-slate-200 hover:border-amber-400 hover:bg-amber-50/50 text-left transition-all group"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-800 group-hover:text-amber-600">Customer</span>
-                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-50 text-amber-700">Client Portal</span>
-                </div>
-                <p className="text-[10px] text-slate-500 truncate mt-0.5">client@abecsa.in</p>
-              </button>
-            </div>
+            <p className="text-[10px] text-slate-400 mt-1">
+              Authorized personnel only. All access attempts are logged for security compliance.
+            </p>
           </div>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
+import { getSupabaseAdminClient } from "@/lib/supabase";
 
 export async function GET(req: NextRequest) {
   try {
@@ -57,6 +58,27 @@ export async function POST(req: NextRequest) {
         isActive: isActive !== undefined ? Boolean(isActive) : true,
       },
     });
+
+    // Mirror to Supabase cloud table
+    const supabase = getSupabaseAdminClient();
+    if (supabase) {
+      try {
+        await supabase.from("apps").upsert({
+          id: newApp.id,
+          name: newApp.name,
+          description: newApp.description,
+          version: newApp.version,
+          category: newApp.category,
+          icon_url: newApp.iconUrl,
+          apk_url: newApp.apkUrl,
+          apk_filename: newApp.apkFilename,
+          download_count: 0,
+          is_active: newApp.isActive,
+        });
+      } catch (sErr) {
+        console.warn("Supabase app sync warning:", sErr);
+      }
+    }
 
     return NextResponse.json({ success: true, app: newApp }, { status: 201 });
   } catch (error: any) {

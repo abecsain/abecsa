@@ -13,35 +13,34 @@ export function resolveDatabaseUrl(): string {
     return process.env.DATABASE_URL;
   }
 
-  // 2. For SQLite (both local dev and serverless/Vercel):
-  // We stage the active SQLite database in os.tmpdir() so that:
-  // - On Vercel: it runs in the writable /tmp filesystem without EROFS errors
-  // - In local Next.js dev: it lives OUTSIDE the watched project workspace.
-  //   This completely prevents Turbopack from detecting dev.db changes and triggering
-  //   an infinite hot-reload / page flickering loop!
+  // 2. For SQLite (both local dev and serverless/Render/Vercel):
   const tmpDbPath = path.join(os.tmpdir(), "abecsa_dev.db").replace(/\\/g, "/");
+  const sourceDb = path.join(process.cwd(), "prisma", "dev.db");
 
   let needsCopy = true;
   try {
     if (fs.existsSync(tmpDbPath) && fs.statSync(tmpDbPath).size > 0) {
-      needsCopy = false;
+      if (fs.existsSync(sourceDb)) {
+        const sourceMtime = fs.statSync(sourceDb).mtimeMs;
+        const tmpMtime = fs.statSync(tmpDbPath).mtimeMs;
+        needsCopy = sourceMtime > tmpMtime;
+      } else {
+        needsCopy = false;
+      }
     }
   } catch {
     needsCopy = true;
   }
 
-  if (needsCopy) {
-    const sourceDb = path.join(process.cwd(), "prisma", "dev.db");
+  if (needsCopy && fs.existsSync(sourceDb) && fs.statSync(sourceDb).size > 0) {
     try {
-      if (fs.existsSync(sourceDb) && fs.statSync(sourceDb).size > 0) {
-        fs.copyFileSync(sourceDb, tmpDbPath);
-      }
+      fs.copyFileSync(sourceDb, tmpDbPath);
     } catch {
       // non-fatal
     }
   }
 
-  return `file:${tmpDbPath}`;
+  return fs.existsSync(tmpDbPath) ? `file:${tmpDbPath}` : `file:${sourceDb}`;
 }
 
 export const prisma =

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
+import { getSupabaseAdminClient } from "@/lib/supabase";
 
 // Public POST for course, internship or student ambassador application
 export async function POST(req: NextRequest) {
@@ -27,6 +28,25 @@ export async function POST(req: NextRequest) {
         status: "Pending",
       },
     });
+
+    // Mirror to Supabase cloud table
+    const supabase = getSupabaseAdminClient();
+    if (supabase) {
+      try {
+        await supabase.from("course_applications").insert({
+          name: application.name,
+          email: application.email,
+          phone: application.phone,
+          course_name: application.courseName,
+          branch: application.branch,
+          message: application.message,
+          type: application.type,
+          status: application.status,
+        });
+      } catch (sErr) {
+        console.warn("Supabase course_application sync warning:", sErr);
+      }
+    }
 
     return NextResponse.json({ success: true, application }, { status: 201 });
   } catch (error: any) {

@@ -1,70 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { comparePassword, signToken, COOKIE_NAME } from "@/lib/auth";
+import { getSupabaseAdminClient } from "@/lib/supabase";
+import bcrypt from "bcryptjs";
 
-// Built-in demo accounts fallback for instant, resilient evaluation on Vercel
-const DEMO_FALLBACK_ACCOUNTS = [
-  {
-    id: "usr_admin_001",
-    email: "admin@abecsa.in",
-    password: "Admin@123",
-    name: "Abecsa Admin",
-    role: "ADMIN",
-    redirectUrl: "/admin",
-    customerProfile: null,
-  },
-  {
-    id: "usr_manager_001",
-    email: "manager@abecsa.in",
-    password: "Manager@123",
-    name: "Vikram Malhotra",
-    role: "MANAGER",
-    redirectUrl: "/manager",
-    customerProfile: null,
-  },
-  {
-    id: "usr_engineer_001",
-    email: "engineer@abecsa.in",
-    password: "Engineer@123",
-    name: "Priya Nair",
-    role: "ENGINEER",
-    redirectUrl: "/engineer",
-    customerProfile: null,
-  },
-  {
-    id: "usr_dev_001",
-    email: "dev@abecsa.in",
-    password: "Engineer@123",
-    name: "Kavita Rao",
-    role: "ENGINEER",
-    redirectUrl: "/engineer",
-    customerProfile: null,
-  },
-  {
-    id: "usr_client_001",
-    email: "client@abecsa.in",
-    password: "Client@123",
-    name: "Ananya Deshmukh",
-    role: "CUSTOMER",
-    redirectUrl: "/customer",
-    customerProfile: {
-      id: "cust_demo_001",
-      companyName: "Nexus Retail Enterprise",
-    },
-  },
-  {
-    id: "usr_client_002",
-    email: "client2@abecsa.in",
-    password: "Client@123",
-    name: "Rohan Gupta",
-    role: "CUSTOMER",
-    redirectUrl: "/customer",
-    customerProfile: {
-      id: "cust_demo_002",
-      companyName: "Veloce Fleet Logistics",
-    },
-  },
-];
+/**
+ * Maps Supabase profile role to ABECSA internal system role
+ */
+function mapSupabaseRole(role?: string): "ADMIN" | "MANAGER" | "ENGINEER" | "CUSTOMER" {
+  const normalized = (role || "").toLowerCase().trim();
+  if (normalized === "admin") return "ADMIN";
+  if (normalized === "marketing_manager" || normalized === "manager") return "MANAGER";
+  if (normalized === "engineer" || normalized === "developer") return "ENGINEER";
+  return "CUSTOMER";
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -80,74 +29,109 @@ export async function POST(req: NextRequest) {
     }
 
     let user: any = null;
-    let dbQueryFailed = false;
 
-    // 1. Attempt database lookup
+    // 1. Attempt lookup in local/staged database
     try {
       user = await prisma.user.findUnique({
         where: { email },
         include: { customerProfile: true },
       });
     } catch (dbErr) {
-      console.warn("Database query failed during login (serverless/cold start):", dbErr);
-      dbQueryFailed = true;
+      console.warn("Database query during login:", dbErr);
     }
 
-    // 2. If user found in database, verify credentials
-    if (user) {
-      if (user.status !== "ACTIVE") {
-        return NextResponse.json(
-          { error: "Account is suspended or inactive. Please contact your administrator." },
-          { status: 403 }
-        );
-      }
+    // 2. If not found in Prisma, check live Supabase profiles table
+    if (!user) {
+      const supabase = getSupabaseAdminClient();
+      if (supabase) {
+        try {
+          const { data: profile, error } = await supabase
+            .from("profiles")
+            .select("*")
+            .ilike("email", email)
+            .maybeSingle();
 
-      let isMatch = false;
-      try {
-        isMatch = await comparePassword(password, user.passwordHash);
-      } catch {
-        // Fallback for plaintext or direct comparison in edge cases
-        isMatch = password === user.passwordHash;
-      }
+          if (!error && profile) {
+            const rawPassword = profile.visible_password || "";
+            // Verify password against Supabase profile
+            if (rawPassword && rawPassword === password) {
+              const mappedRole = mapSupabaseRole(profile.role);
+              const passwordHash = await bcrypt.hash(password, 10);
 
-      // Also check against demo account password if hash check fails
-      if (!isMatch) {
-        const demoAccount = DEMO_FALLBACK_ACCOUNTS.find((a) => a.email === email);
-        if (demoAccount && demoAccount.password === password) {
-          isMatch = true;
+              user = await prisma.user.upsert({
+                where: { email: profile.email.toLowerCase().trim() },
+                update: {
+                  name: profile.full_name?.trim() || profile.email.split("@")[0],
+                  role: mappedRole,
+                  status: profile.is_locked ? "SUSPENDED" : "ACTIVE",
+                  passwordHash,
+                  visiblePassword: rawPassword,
+                },
+                create: {
+                  id: profile.id || undefined,
+                  email: profile.email.toLowerCase().trim(),
+                  name: profile.full_name?.trim() || profile.email.split("@")[0],
+                  role: mappedRole,
+                  status: profile.is_locked ? "SUSPENDED" : "ACTIVE",
+                  passwordHash,
+                  visiblePassword: rawPassword,
+                },
+                include: { customerProfile: true },
+              });
+            }
+          }
+        } catch (supErr) {
+          console.warn("Supabase profile fallback check failed:", supErr);
         }
       }
+    }
 
-      if (!isMatch) {
-        return NextResponse.json(
-          { error: "Invalid credentials" },
-          { status: 401 }
-        );
-      }
-    } else {
-      // 3. Fallback: If DB query failed or user not in DB, check against demo accounts
-      const demoAccount = DEMO_FALLBACK_ACCOUNTS.find(
-        (a) => a.email === email && a.password === password
+    // 3. User must exist in the database
+    if (!user) {
+      return NextResponse.json(
+        { error: "Invalid credentials. Please verify your email and password." },
+        { status: 401 }
       );
+    }
 
-      if (demoAccount) {
-        user = {
-          id: demoAccount.id,
-          email: demoAccount.email,
-          name: demoAccount.name,
-          role: demoAccount.role,
-          status: "ACTIVE",
-          customerProfile: demoAccount.customerProfile,
-        };
-      } else {
-        return NextResponse.json(
-          { error: "Invalid credentials" },
-          { status: 401 }
-        );
+    // 4. Verify account active status
+    if (user.status !== "ACTIVE" || user.isLocked) {
+      return NextResponse.json(
+        { error: "Account is suspended or locked. Please contact your system administrator." },
+        { status: 403 }
+      );
+    }
+
+    // 5. Verify credentials against bcrypt hash or DB password
+    let isMatch = false;
+    try {
+      isMatch = await comparePassword(password, user.passwordHash);
+    } catch {
+      isMatch = false;
+    }
+
+    // Fallback: check stored password in DB and upgrade to bcrypt
+    if (!isMatch && user.visiblePassword && user.visiblePassword === password) {
+      isMatch = true;
+      try {
+        const newHash = await bcrypt.hash(password, 10);
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { passwordHash: newHash },
+        });
+      } catch {
+        // non-fatal
       }
     }
 
-    // 4. Generate signed JWT token
+    if (!isMatch) {
+      return NextResponse.json(
+        { error: "Invalid credentials. Please verify your email and password." },
+        { status: 401 }
+      );
+    }
+
+    // 6. Generate signed JWT token
     const token = signToken({
       userId: user.id,
       email: user.email,
@@ -155,7 +139,7 @@ export async function POST(req: NextRequest) {
       name: user.name,
     });
 
-    // 5. Record audit log (non-fatal)
+    // 7. Record audit log (non-fatal)
     try {
       await prisma.auditLog.create({
         data: {
@@ -167,10 +151,10 @@ export async function POST(req: NextRequest) {
         },
       });
     } catch {
-      // non-fatal in serverless read-only mode
+      // non-fatal
     }
 
-    // 6. Update user visitor session (non-fatal)
+    // 8. Update user visitor session (non-fatal)
     const visitorToken = req.headers.get("x-visitor-token") || `vis_usr_${user.id.substring(0, 8)}`;
     try {
       await prisma.visitorSession.upsert({
@@ -200,7 +184,7 @@ export async function POST(req: NextRequest) {
       // non-fatal
     }
 
-    // 7. Determine target redirect URL based on role
+    // 9. Target redirect URL based on verified role
     let redirectUrl = "/customer";
     if (user.role === "ADMIN") redirectUrl = "/admin";
     else if (user.role === "MANAGER") redirectUrl = "/manager";
@@ -218,7 +202,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // 8. Set secure HTTP-only cookie
+    // 10. Set secure HTTP-only cookie
     response.cookies.set(COOKIE_NAME, token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",

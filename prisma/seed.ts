@@ -1,61 +1,46 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { syncSupabaseProductionData } from "../src/lib/supabaseSync";
 
 const prisma = new PrismaClient();
 
 async function main() {
   console.log("Seeding ABECSA database...");
 
-  // Clear existing records in correct order
-  await prisma.auditLog.deleteMany();
-  await prisma.workLog.deleteMany();
-  await prisma.attendance.deleteMany();
-  await prisma.leaveRequest.deleteMany();
-  await prisma.notification.deleteMany();
-  await prisma.whatsAppMessage.deleteMany();
-  await prisma.whatsAppTemplate.deleteMany();
-  await prisma.whatsAppAccount.deleteMany();
-  await prisma.crmActivity.deleteMany();
-  await prisma.crmLead.deleteMany();
-  await prisma.ticketMessage.deleteMany();
-  await prisma.supportTicket.deleteMany();
-  await prisma.noticeMessage.deleteMany();
-  await prisma.file.deleteMany();
-  await prisma.folder.deleteMany();
-  await prisma.payment.deleteMany();
-  await prisma.invoiceItem.deleteMany();
-  await prisma.invoice.deleteMany();
-  await prisma.quotationItem.deleteMany();
-  await prisma.quotation.deleteMany();
-  await prisma.milestoneApproval.deleteMany();
-  await prisma.milestone.deleteMany();
-  await prisma.taskChecklist.deleteMany();
-  await prisma.taskComment.deleteMany();
-  await prisma.task.deleteMany();
-  await prisma.projectMember.deleteMany();
-  await prisma.project.deleteMany();
-  await prisma.customerProfile.deleteMany();
-  await prisma.user.deleteMany();
-  await prisma.companySettings.deleteMany();
-
-  // 1. Company Settings
-  await prisma.companySettings.create({
-    data: {
-      id: "abecsa-settings",
+  // 1. Company Settings (Production)
+  await prisma.companySettings.upsert({
+    where: { id: "abecsa-settings" },
+    update: {
       companyName: "ABECSA Software Solutions",
       tagline: "Enterprise Digital & Software Engineering",
       logoUrl: "/logo.png",
-      email: "contact@abecsa.in",
-      phone: "+91 98765 43210",
+      email: "Abecsa.in@gmail.com",
+      phone: "+91 94078 99216",
       address: "Cyber City Tech Park, Tower B, Level 4, Bengaluru, Karnataka 560100",
       website: "https://abecsa.in",
-      gstNumber: "29AABCA1234F1Z8",
       currency: "INR",
       currencySymbol: "₹",
       defaultTaxRate: 18.0,
       invoicePrefix: "INV-2026-",
       quotationPrefix: "QT-2026-",
-      whatsappNumber: "+91 98765 43210",
+      whatsappNumber: "+91 94078 99216",
+      isConfigured: true,
+    },
+    create: {
+      id: "abecsa-settings",
+      companyName: "ABECSA Software Solutions",
+      tagline: "Enterprise Digital & Software Engineering",
+      logoUrl: "/logo.png",
+      email: "Abecsa.in@gmail.com",
+      phone: "+91 94078 99216",
+      address: "Cyber City Tech Park, Tower B, Level 4, Bengaluru, Karnataka 560100",
+      website: "https://abecsa.in",
+      currency: "INR",
+      currencySymbol: "₹",
+      defaultTaxRate: 18.0,
+      invoicePrefix: "INV-2026-",
+      quotationPrefix: "QT-2026-",
+      whatsappNumber: "+91 94078 99216",
       isConfigured: true,
     },
   });
@@ -879,12 +864,12 @@ async function main() {
     ],
   });
 
+  // 14. Sync production Supabase accounts, apps, websites & applications
+  console.log("Synchronizing live Supabase production cloud data...");
+  const syncResult = await syncSupabaseProductionData();
+  console.log("Supabase production sync finished:", syncResult);
+
   console.log("Database seeded successfully with enterprise records!");
-  console.log("Accounts ready for testing:");
-  console.log("  Admin:    admin@abecsa.in    / Admin@123");
-  console.log("  Manager:  manager@abecsa.in  / Manager@123");
-  console.log("  Engineer: engineer@abecsa.in / Engineer@123");
-  console.log("  Customer: client@abecsa.in   / Client@123");
 }
 
 main()
