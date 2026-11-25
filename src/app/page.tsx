@@ -384,22 +384,21 @@ export default function HomePage() {
       <PublicNavbar />
 
       {/* =========================================================================
-          HERO SECTION (Luminous Ambient Pastel Mesh Matching Brand Reference)
+          HERO SECTION — Compact laptop-first layout, single cohesive block
       ========================================================================= */}
-      <section className="relative pt-8 pb-14 sm:pt-16 sm:pb-24 overflow-hidden border-b border-slate-200/60">
-        {/* Soft Ambient Mesh Glow Accents */}
+      <section className="relative pt-6 pb-10 sm:pt-10 sm:pb-16 lg:pt-12 lg:pb-20 overflow-hidden border-b border-slate-200/60">
+        {/* Ambient glow (local hero accent, supplements layout glow) */}
         <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden" aria-hidden="true">
-          <div className="absolute -top-[12%] -left-[10%] w-[55vw] max-w-[650px] h-[55vw] max-h-[650px] rounded-full bg-sky-400/25 blur-[110px]" />
-          <div className="absolute -top-[10%] -right-[12%] w-[50vw] max-w-[600px] h-[50vw] max-h-[600px] rounded-full bg-purple-400/25 blur-[120px]" />
-          <div className="absolute top-[40%] -left-[10%] w-[50vw] max-w-[600px] h-[50vw] max-h-[600px] rounded-full bg-pink-400/22 blur-[120px]" />
+          <div className="absolute -top-[18%] -left-[8%] w-[45vw] max-w-[520px] h-[45vw] max-h-[520px] rounded-full bg-sky-400/20 blur-[100px]" />
+          <div className="absolute -top-[12%] -right-[8%] w-[42vw] max-w-[500px] h-[42vw] max-h-[500px] rounded-full bg-purple-400/20 blur-[110px]" />
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto space-y-4 sm:space-y-6">
-            
-            {/* Centered Brand Identity Logo */}
-            <div className="flex justify-center items-center pb-1">
-              <div className="relative h-14 sm:h-20 w-48 sm:w-64 drop-shadow-xs">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center space-y-3 sm:space-y-4">
+
+            {/* Logo — compact on laptop */}
+            <div className="flex justify-center">
+              <div className="relative h-10 sm:h-12 lg:h-14 w-36 sm:w-44 lg:w-52">
                 <Image
                   src="/logo.png"
                   alt="ABECSA Software Solutions"
@@ -410,123 +409,109 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Core Mission Tagline */}
-            <p className="text-sm sm:text-base md:text-xl font-medium text-slate-700 max-w-2xl mx-auto leading-relaxed">
-              We provide high-impact digital services to <span className="font-bold text-slate-950">Businesses</span>, <span className="font-bold text-slate-950">Shops</span>, and <span className="font-bold text-slate-950">Software Solutions for Everyone</span>.
+            {/* Tagline */}
+            <p className="text-xs sm:text-sm lg:text-base font-medium text-slate-600 max-w-xl mx-auto leading-relaxed">
+              We provide high-impact digital services to <span className="font-bold text-slate-900">Businesses</span>, <span className="font-bold text-slate-900">Shops</span>, and <span className="font-bold text-slate-900">Software Solutions for Everyone</span>.
             </p>
 
-            {/* 1-Tap Action Buttons Matching Reference UI */}
-            <div className="flex flex-wrap items-center justify-center gap-3 pt-1 max-w-lg sm:max-w-none mx-auto">
+            {/* CTA Buttons */}
+            <div className="flex flex-wrap items-center justify-center gap-2.5">
               <a
                 href="https://wa.me/919407899216?text=Hello%20ABECSA!%20I%20am%20interested%20in%20discussing%20a%20software%20project%20for%20my%20business."
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full text-xs sm:text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-600/25 transition-all active:scale-[0.98]"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs sm:text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-600/25 transition-all active:scale-[0.98]"
               >
-                <MessageSquare className="w-4 h-4 fill-white" />
+                <MessageSquare className="w-3.5 h-3.5" />
                 <span>Contact Us →</span>
               </a>
-
               <a
-                href="#services"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full text-xs sm:text-sm font-bold text-slate-700 bg-white/90 hover:bg-white border border-slate-200/90 shadow-xs transition-all active:scale-[0.98]"
+                href="#who-we-serve"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs sm:text-sm font-bold text-slate-700 bg-white/90 hover:bg-white border border-slate-200 shadow-xs transition-all active:scale-[0.98]"
               >
-                <span className="text-blue-600 text-xs">▶</span>
+                <span className="text-blue-600 text-[10px]">▶</span>
                 <span>Who We Serve</span>
               </a>
             </div>
 
-            {/* Star Rating Badge */}
-            <div className="pt-1 flex justify-center">
-              <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/80 border border-slate-200/80 text-slate-700 text-xs font-semibold shadow-xs backdrop-blur-xs">
+            {/* Trust Badge */}
+            <div className="flex justify-center">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/80 border border-slate-200/80 text-slate-600 text-[11px] font-semibold shadow-xs">
                 <span>⭐</span>
                 <span>Trusted by 100+ Clients</span>
               </div>
             </div>
 
-            {/* Main Headline */}
-            <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-slate-950 tracking-tight leading-[1.15] pt-6 sm:pt-8">
+            {/* Main Headline — tighter on laptop */}
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-slate-950 tracking-tight leading-[1.2] pt-2">
               We Engineer Custom Software That Powers Your{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-600 via-blue-600 to-indigo-600">
                 Business Growth
               </span>
             </h1>
 
-            {/* Generous Clear Description */}
-            <p className="text-xs sm:text-base md:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-              ABECSA delivers tailor-made web platforms, cross-platform mobile apps, complete ERP/CRM operating systems, and automated WhatsApp billing engines — with 100% source code ownership, guaranteed 99.9% uptime, and dedicated delivery managers.
+            {/* Sub-description */}
+            <p className="text-xs sm:text-sm lg:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed">
+              ABECSA delivers tailor-made web platforms, cross-platform mobile apps, complete ERP/CRM systems, and automated WhatsApp billing — with 100% source code ownership, 99.9% uptime SLA, and dedicated delivery managers.
             </p>
 
-            {/* Direct 1-Tap Solutions CTAs */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5 sm:gap-3.5 pt-1 sm:pt-2 max-w-lg sm:max-w-none mx-auto">
+            {/* Solutions CTAs */}
+            <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
               <Link
                 href="/solutions"
-                className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-sky-600 hover:bg-sky-700 shadow-md shadow-sky-600/25 transition-all active:scale-[0.98] cursor-pointer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-sky-600 hover:bg-sky-700 shadow-md shadow-sky-600/25 transition-all active:scale-[0.98]"
               >
-                <Sparkles className="w-4 h-4 text-sky-200" />
+                <Sparkles className="w-3.5 h-3.5 text-sky-200" />
                 <span>Build Your Software Solution</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-3.5 h-3.5" />
               </Link>
-
               <Link
                 href="/solutions?tab=PACKAGES"
-                className="flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-xs sm:text-sm font-bold text-slate-800 bg-white hover:bg-slate-100 border border-slate-300 shadow-xs transition-all active:scale-[0.98]"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-slate-800 bg-white hover:bg-slate-50 border border-slate-300 shadow-xs transition-all active:scale-[0.98]"
               >
-                <Package className="w-4 h-4 text-sky-600" />
-                <span>Explore Ready-Made Packages</span>
+                <Package className="w-3.5 h-3.5 text-sky-600" />
+                <span>Ready-Made Packages</span>
               </Link>
             </div>
 
-            {/* Direct Phone Assistance Bar */}
-            <div className="pt-1 flex items-center justify-center gap-1.5 text-xs text-slate-500 font-medium flex-wrap">
-              <Phone className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-              <span>Need immediate consultation? Chat on WhatsApp:</span>
+            {/* Contact bar */}
+            <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-500 flex-wrap pt-0.5">
+              <Phone className="w-3 h-3 text-emerald-600 shrink-0" />
+              <span>Immediate consultation:</span>
               <a
-                href="https://wa.me/919407899216?text=Hello%20ABECSA!%20I%20am%20interested%20in%20discussing%20a%20software%20project%20for%20my%20business."
+                href="https://wa.me/919407899216"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-bold text-emerald-700 hover:underline"
               >
                 +91 94078 99216
               </a>
-              <span className="text-slate-400">|</span>
-              <span className="text-slate-500">Email:</span>
+              <span className="text-slate-300">|</span>
               <a href="mailto:Abecsa.in@gmail.com" className="font-bold text-sky-700 hover:underline">
                 Abecsa.in@gmail.com
               </a>
             </div>
 
-            {/* Live Trust Metrics Grid (2x2 on mobile, 4-col on desktop) */}
-            <div className="pt-6 sm:pt-8 grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 border-t border-slate-200/80 mt-6 text-left">
-              <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200/70 shadow-xs">
-                <div className="flex items-center gap-2 text-emerald-600 font-black text-lg sm:text-2xl">
-                  <span>2-3 Days</span>
-                </div>
-                <div className="text-[11px] sm:text-xs font-semibold text-slate-700 mt-0.5">Rapid Deployment</div>
-                <div className="text-[10px] text-slate-400">Fast business onboarding</div>
+            {/* Trust metrics — 4 compact cards */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 mt-4 pt-4 border-t border-slate-200/70 text-left">
+              <div className="bg-white/80 p-3 rounded-xl border border-slate-200/70 shadow-xs">
+                <div className="text-emerald-600 font-black text-base sm:text-lg">45+</div>
+                <div className="text-[11px] font-semibold text-slate-700">Systems Deployed</div>
+                <div className="text-[10px] text-slate-400">Production-ready releases</div>
               </div>
-
-              <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200/70 shadow-xs">
-                <div className="flex items-center gap-2 text-sky-600 font-black text-lg sm:text-2xl">
-                  <span>99.9%</span>
-                </div>
-                <div className="text-[11px] sm:text-xs font-semibold text-slate-700 mt-0.5">Uptime SLA</div>
+              <div className="bg-white/80 p-3 rounded-xl border border-slate-200/70 shadow-xs">
+                <div className="text-sky-600 font-black text-base sm:text-lg">99.9%</div>
+                <div className="text-[11px] font-semibold text-slate-700">Uptime SLA</div>
                 <div className="text-[10px] text-slate-400">High-availability cloud</div>
               </div>
-
-              <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200/70 shadow-xs">
-                <div className="flex items-center gap-2 text-indigo-600 font-black text-lg sm:text-2xl">
-                  <span>100%</span>
-                </div>
-                <div className="text-[11px] sm:text-xs font-semibold text-slate-700 mt-0.5">Code Ownership</div>
+              <div className="bg-white/80 p-3 rounded-xl border border-slate-200/70 shadow-xs">
+                <div className="text-indigo-600 font-black text-base sm:text-lg">100%</div>
+                <div className="text-[11px] font-semibold text-slate-700">Code Ownership</div>
                 <div className="text-[10px] text-slate-400">Zero recurring vendor lock-in</div>
               </div>
-
-              <div className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200/70 shadow-xs">
-                <div className="flex items-center gap-2 text-amber-500 font-black text-lg sm:text-2xl">
-                  <span>24 Hrs</span>
-                </div>
-                <div className="text-[11px] sm:text-xs font-semibold text-slate-700 mt-0.5">Fast Proposals</div>
+              <div className="bg-white/80 p-3 rounded-xl border border-slate-200/70 shadow-xs">
+                <div className="text-amber-500 font-black text-base sm:text-lg">24 Hrs</div>
+                <div className="text-[11px] font-semibold text-slate-700">Fast Proposals</div>
                 <div className="text-[10px] text-slate-400">Itemized cost roadmap</div>
               </div>
             </div>
