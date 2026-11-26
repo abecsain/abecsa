@@ -14,7 +14,6 @@ function getJwtSecret(): string {
   return secret;
 }
 
-const JWT_SECRET = getJwtSecret();
 const COOKIE_NAME = "abecsa_session";
 
 export interface TokenPayload {
@@ -34,12 +33,12 @@ export async function comparePassword(password: string, hash: string): Promise<b
 }
 
 export function signToken(payload: TokenPayload): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: "7d" });
+  return jwt.sign(payload, getJwtSecret(), { expiresIn: "7d" });
 }
 
 export function verifyToken(token: string): TokenPayload | null {
   try {
-    return jwt.verify(token, JWT_SECRET) as TokenPayload;
+    return jwt.verify(token, getJwtSecret()) as TokenPayload;
   } catch {
     return null;
   }
