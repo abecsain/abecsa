@@ -2,7 +2,33 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 const COOKIE_NAME = "abecsa_session";
-const JWT_SECRET = process.env.JWT_SECRET || "";
+
+async function getEdgeJwtSecret(): Promise<string> {
+  const direct = process.env.JWT_SECRET?.trim();
+  if (direct) return direct;
+
+  const seed = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() || process.env.DATABASE_URL?.trim();
+  if (seed) {
+    const encoder = new TextEncoder();
+    const kdfKey = await crypto.subtle.importKey(
+      "raw",
+      encoder.encode("abecsa-jwt-key-derivation-v1"),
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["sign"]
+    );
+    const sig = await crypto.subtle.sign("HMAC", kdfKey, encoder.encode(seed));
+    return Array.from(new Uint8Array(sig))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+  }
+
+  if (process.env.NODE_ENV !== "production") {
+    return "abecsa-enterprise-jwt-dev-only-secret-2026";
+  }
+
+  return "";
+}
 
 function base64UrlToUint8Array(base64Url: string): Uint8Array {
   const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
@@ -32,8 +58,11 @@ function stringToBase64Url(str: string): string {
 
 // Cryptographically signs HMAC-SHA256 JWT using Edge-compatible Web Crypto API
 async function signJwtToken(payload: Record<string, any>): Promise<string> {
+  const secret = await getEdgeJwtSecret();
+  if (!secret) throw new Error("JWT secret not configured");
+
   const encoder = new TextEncoder();
-  const keyData = encoder.encode(JWT_SECRET);
+  const keyData = encoder.encode(secret);
   const cryptoKey = await crypto.subtle.importKey(
     "raw",
     keyData,
@@ -54,12 +83,15 @@ async function signJwtToken(payload: Record<string, any>): Promise<string> {
 // Cryptographically verifies HMAC-SHA256 signature using Edge-compatible Web Crypto API
 async function verifyAndDecodeToken(token: string) {
   try {
+    const secret = await getEdgeJwtSecret();
+    if (!secret) return null;
+
     const parts = token.split(".");
     if (parts.length !== 3) return null;
     const [headerB64, payloadB64, signatureB64] = parts;
 
     const encoder = new TextEncoder();
-    const keyData = encoder.encode(JWT_SECRET);
+    const keyData = encoder.encode(secret);
     const cryptoKey = await crypto.subtle.importKey(
       "raw",
       keyData,

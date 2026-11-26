@@ -1,8 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
+import crypto from "crypto";
 import prisma from "@/lib/prisma";
 import { comparePassword, signToken, COOKIE_NAME } from "@/lib/auth";
 import { getSupabaseAdminClient } from "@/lib/supabase";
 import bcrypt from "bcryptjs";
+
+/**
+ * Constant-time string comparison using SHA-256 digests to prevent timing and length side-channels.
+ */
+function safeEqual(a: string, b: string): boolean {
+  if (!a || !b) return false;
+  const hashA = crypto.createHash("sha256").update(a, "utf8").digest();
+  const hashB = crypto.createHash("sha256").update(b, "utf8").digest();
+  return crypto.timingSafeEqual(hashA, hashB);
+}
 
 // In-memory sliding window rate limiter for brute-force protection
 interface RateLimitRecord {
@@ -38,6 +49,13 @@ function checkRateLimit(key: string): { blocked: boolean; remainingSecs: number 
 
 function recordFailedAttempt(key: string) {
   const now = Date.now();
+  if (loginAttempts.size >= 10000) {
+    for (const [k, v] of loginAttempts.entries()) {
+      if (v.lockUntil > 0 && v.lockUntil <= now) loginAttempts.delete(k);
+    }
+    if (loginAttempts.size >= 10000) loginAttempts.clear();
+  }
+
   const record = loginAttempts.get(key) || { attempts: 0, lockUntil: 0 };
   record.attempts += 1;
 
@@ -66,13 +84,29 @@ function mapSupabaseRole(role?: string): "ADMIN" | "MANAGER" | "ENGINEER" | "CUS
 export async function POST(req: NextRequest) {
   try {
     const clientIp = getClientIp(req);
-    const body = await req.json();
+    let body: any;
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json(
+        { error: "Invalid request payload" },
+        { status: 400 }
+      );
+    }
+
     const email = body?.email ? String(body.email).toLowerCase().trim() : "";
     const password = body?.password ? String(body.password) : "";
 
     if (!email || !password) {
       return NextResponse.json(
         { error: "Email and password are required" },
+        { status: 400 }
+      );
+    }
+
+    if (email.length > 254 || password.length > 256) {
+      return NextResponse.json(
+        { error: "Invalid input length" },
         { status: 400 }
       );
     }
@@ -117,31 +151,46 @@ export async function POST(req: NextRequest) {
 
           if (!error && profile) {
             const rawPassword = profile.visible_password || "";
-            // Verify password against Supabase profile
-            if (rawPassword && rawPassword === password) {
+            // Verify password against Supabase profile using constant-time comparison
+            if (rawPassword && safeEqual(rawPassword, password)) {
               const mappedRole = mapSupabaseRole(profile.role);
-              const passwordHash = await bcrypt.hash(password, 10);
+              const passwordHash = await bcrypt.hash(password, 12);
 
-              user = await prisma.user.upsert({
-                where: { email: profile.email.toLowerCase().trim() },
-                update: {
-                  name: profile.full_name?.trim() || profile.email.split("@")[0],
-                  role: mappedRole,
-                  status: profile.is_locked ? "SUSPENDED" : "ACTIVE",
-                  passwordHash,
-                  visiblePassword: rawPassword,
-                },
-                create: {
-                  id: profile.id || undefined,
+              try {
+                user = await prisma.user.upsert({
+                  where: { email: profile.email.toLowerCase().trim() },
+                  update: {
+                    name: profile.full_name?.trim() || profile.email.split("@")[0],
+                    role: mappedRole,
+                    status: profile.is_locked ? "SUSPENDED" : "ACTIVE",
+                    passwordHash,
+                    visiblePassword: null,
+                  },
+                  create: {
+                    id: profile.id || undefined,
+                    email: profile.email.toLowerCase().trim(),
+                    name: profile.full_name?.trim() || profile.email.split("@")[0],
+                    role: mappedRole,
+                    status: profile.is_locked ? "SUSPENDED" : "ACTIVE",
+                    passwordHash,
+                    visiblePassword: null,
+                  },
+                  include: { customerProfile: true },
+                });
+              } catch (upsertErr) {
+                // If local SQLite/Prisma upsert fails in read-only/serverless, still allow verified Supabase user
+                console.warn("Prisma user upsert warning during Supabase login:", upsertErr);
+                user = {
+                  id: profile.id,
                   email: profile.email.toLowerCase().trim(),
                   name: profile.full_name?.trim() || profile.email.split("@")[0],
                   role: mappedRole,
                   status: profile.is_locked ? "SUSPENDED" : "ACTIVE",
+                  isLocked: Boolean(profile.is_locked),
                   passwordHash,
-                  visiblePassword: rawPassword,
-                },
-                include: { customerProfile: true },
-              });
+                  customerProfile: null,
+                };
+              }
             }
           }
         } catch (supErr) {
@@ -176,21 +225,21 @@ export async function POST(req: NextRequest) {
       isMatch = false;
     }
 
-    // Fallback 1: check stored password in DB and upgrade to bcrypt
-    if (!isMatch && user.visiblePassword && user.visiblePassword === password) {
+    // Fallback 1: check legacy stored password in DB using constant-time comparison and upgrade to bcrypt
+    if (!isMatch && user.visiblePassword && safeEqual(user.visiblePassword, password)) {
       isMatch = true;
       try {
-        const newHash = await bcrypt.hash(password, 10);
+        const newHash = await bcrypt.hash(password, 12);
         await prisma.user.update({
           where: { id: user.id },
-          data: { passwordHash: newHash },
+          data: { passwordHash: newHash, visiblePassword: null },
         });
       } catch {
         // non-fatal
       }
     }
 
-    // Fallback 2: verify live against Supabase profiles table
+    // Fallback 2: verify live against Supabase profiles table using constant-time comparison
     if (!isMatch) {
       const supabase = getSupabaseAdminClient();
       if (supabase) {
@@ -201,12 +250,12 @@ export async function POST(req: NextRequest) {
             .ilike("email", email)
             .maybeSingle();
 
-          if (profile?.visible_password && profile.visible_password === password) {
+          if (profile?.visible_password && safeEqual(profile.visible_password, password)) {
             isMatch = true;
-            const newHash = await bcrypt.hash(password, 10);
+            const newHash = await bcrypt.hash(password, 12);
             await prisma.user.update({
               where: { id: user.id },
-              data: { passwordHash: newHash, visiblePassword: password },
+              data: { passwordHash: newHash, visiblePassword: null },
             });
           }
         } catch {
@@ -229,12 +278,21 @@ export async function POST(req: NextRequest) {
     clearRateLimit(`acc_${email}`);
 
     // 6. Generate signed JWT token
-    const token = signToken({
-      userId: user.id,
-      email: user.email,
-      role: user.role,
-      name: user.name,
-    });
+    let token: string;
+    try {
+      token = signToken({
+        userId: user.id,
+        email: user.email,
+        role: user.role,
+        name: user.name,
+      });
+    } catch (tokenErr: any) {
+      console.error("Token signing error during login:", tokenErr?.message || tokenErr);
+      return NextResponse.json(
+        { error: "Authentication service is not configured. Please contact administrator." },
+        { status: 503 }
+      );
+    }
 
     // 7. Record audit log (non-fatal)
     try {

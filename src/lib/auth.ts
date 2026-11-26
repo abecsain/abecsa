@@ -1,17 +1,31 @@
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import prisma from "./prisma";
 
+const VALID_ROLES = new Set(["ADMIN", "MANAGER", "ENGINEER", "CUSTOMER"]);
+
 function getJwtSecret(): string {
-  const secret = process.env.JWT_SECRET;
-  if (!secret) {
-    if (process.env.NODE_ENV === "production") {
-      throw new Error("SECURITY FATAL: JWT_SECRET environment variable must be configured in production.");
-    }
-    return "abecsa-enterprise-jwt-super-secret-key-2026";
+  const secret = process.env.JWT_SECRET?.trim();
+  if (secret) {
+    return secret;
   }
-  return secret;
+
+  // Derive a deterministic 256-bit secret from server-only environment secrets if JWT_SECRET is omitted
+  const seed = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() || process.env.DATABASE_URL?.trim();
+  if (seed) {
+    return crypto
+      .createHmac("sha256", "abecsa-jwt-key-derivation-v1")
+      .update(seed)
+      .digest("hex");
+  }
+
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("AUTH_CONFIG_ERROR: JWT_SECRET environment variable must be configured in production.");
+  }
+
+  return "abecsa-enterprise-jwt-dev-only-secret-2026";
 }
 
 const COOKIE_NAME = "abecsa_session";
@@ -91,16 +105,20 @@ export async function getSessionUser() {
 
     if (user.status !== "ACTIVE" || user.isLocked) return null;
 
-    // Attach effective role (supports verified Admin impersonation)
-    const effectiveRole = (user.role === "ADMIN" && payload.impersonatedRole)
-      ? payload.impersonatedRole
-      : user.role;
+    // Attach effective role (supports verified Admin impersonation with strict allowlist)
+    const validImpersonated =
+      user.role === "ADMIN" &&
+      payload.impersonatedRole &&
+      VALID_ROLES.has(payload.impersonatedRole)
+        ? payload.impersonatedRole
+        : undefined;
+    const effectiveRole = validImpersonated || user.role;
 
     return {
       ...user,
       effectiveRole,
       actualRole: user.role,
-      isImpersonating: user.role === "ADMIN" && !!payload.impersonatedRole && payload.impersonatedRole !== "ADMIN",
+      isImpersonating: Boolean(validImpersonated && validImpersonated !== "ADMIN"),
     };
   } catch (error: any) {
     if (error && typeof error === "object" && (error.digest || error.message?.includes("cookies"))) {
