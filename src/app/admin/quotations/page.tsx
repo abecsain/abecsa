@@ -1687,10 +1687,14 @@ export default function AdminQuotationsPage() {
                           <td className="py-2 px-3 text-right">
                             <input
                               type="number"
-                              value={it.price}
+                              placeholder="0"
+                              value={it.price === 0 ? "" : it.price}
+                              onFocus={(e) => e.target.select()}
                               onChange={(e) => {
+                                const val = e.target.value.replace(/^0+(?=\d)/, "");
+                                e.target.value = val;
                                 const updated = [...officialForm.items];
-                                updated[idx].price = Number(e.target.value);
+                                updated[idx].price = val === "" ? 0 : Number(val);
                                 setOfficialForm({ ...officialForm, items: updated });
                               }}
                               className="w-full px-2 py-1 rounded-md border border-slate-200 text-right font-bold text-sky-700 text-xs"
@@ -1744,13 +1748,16 @@ export default function AdminQuotationsPage() {
                   <input
                     type="number"
                     placeholder="Price (₹)"
-                    value={officialForm.newCustomItem.price || ""}
-                    onChange={(e) =>
+                    value={officialForm.newCustomItem.price === 0 ? "" : officialForm.newCustomItem.price}
+                    onFocus={(e) => e.target.select()}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/^0+(?=\d)/, "");
+                      e.target.value = val;
                       setOfficialForm({
                         ...officialForm,
-                        newCustomItem: { ...officialForm.newCustomItem, price: Number(e.target.value) },
-                      })
-                    }
+                        newCustomItem: { ...officialForm.newCustomItem, price: val === "" ? 0 : Number(val) },
+                      });
+                    }}
                     className="w-24 px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-xs text-right font-bold"
                   />
                   <button
@@ -1785,8 +1792,13 @@ export default function AdminQuotationsPage() {
                         <label className="text-xs font-bold text-slate-700 w-28">Discount (₹):</label>
                         <input
                           type="number"
-                          value={officialForm.discount}
-                          onChange={(e) => setOfficialForm({ ...officialForm, discount: Number(e.target.value) })}
+                          value={officialForm.discount === 0 ? "" : officialForm.discount}
+                          onFocus={(e) => e.target.select()}
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/^0+(?=\d)/, "");
+                            e.target.value = val;
+                            setOfficialForm({ ...officialForm, discount: val === "" ? 0 : Number(val) });
+                          }}
                           placeholder="0"
                           className="w-32 px-3 py-1.5 rounded-xl border border-slate-300 bg-white font-bold text-emerald-700 text-xs"
                         />
@@ -2201,10 +2213,13 @@ export default function AdminQuotationsPage() {
                         <input
                           type="number"
                           placeholder="Qty"
-                          value={item.quantity}
+                          value={item.quantity === 0 ? "" : item.quantity}
+                          onFocus={(e) => e.target.select()}
                           onChange={(e) => {
+                            const val = e.target.value.replace(/^0+(?=\d)/, "");
+                            e.target.value = val;
                             const newItems = [...formData.items];
-                            newItems[idx].quantity = Number(e.target.value);
+                            newItems[idx].quantity = val === "" ? 0 : Number(val);
                             setFormData({ ...formData, items: newItems });
                           }}
                           className="w-16 px-2 py-1.5 rounded-lg border border-slate-300 bg-white text-xs text-center"
@@ -2212,10 +2227,13 @@ export default function AdminQuotationsPage() {
                         <input
                           type="number"
                           placeholder="Rate"
-                          value={item.unitPrice}
+                          value={item.unitPrice === 0 ? "" : item.unitPrice}
+                          onFocus={(e) => e.target.select()}
                           onChange={(e) => {
+                            const val = e.target.value.replace(/^0+(?=\d)/, "");
+                            e.target.value = val;
                             const newItems = [...formData.items];
-                            newItems[idx].unitPrice = Number(e.target.value);
+                            newItems[idx].unitPrice = val === "" ? 0 : Number(val);
                             setFormData({ ...formData, items: newItems });
                           }}
                           className="w-28 px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-xs text-right font-semibold"
@@ -2240,8 +2258,14 @@ export default function AdminQuotationsPage() {
                       <label className="block text-[11px] font-bold text-slate-600 mb-1">Commercial Discount (₹)</label>
                       <input
                         type="number"
-                        value={formData.discount}
-                        onChange={(e) => setFormData({ ...formData, discount: Number(e.target.value) })}
+                        placeholder="0"
+                        value={formData.discount === 0 ? "" : formData.discount}
+                        onFocus={(e) => e.target.select()}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/^0+(?=\d)/, "");
+                          e.target.value = val;
+                          setFormData({ ...formData, discount: val === "" ? 0 : Number(val) });
+                        }}
                         className="w-full px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-xs"
                       />
                     </div>
@@ -2249,8 +2273,14 @@ export default function AdminQuotationsPage() {
                       <label className="block text-[11px] font-bold text-slate-600 mb-1">GST Tax Rate (%)</label>
                       <input
                         type="number"
-                        value={formData.taxRate}
-                        onChange={(e) => setFormData({ ...formData, taxRate: Number(e.target.value) })}
+                        placeholder="0"
+                        value={formData.taxRate === 0 ? "" : formData.taxRate}
+                        onFocus={(e) => e.target.select()}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/^0+(?=\d)/, "");
+                          e.target.value = val;
+                          setFormData({ ...formData, taxRate: val === "" ? 0 : Number(val) });
+                        }}
                         className="w-full px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-xs"
                       />
                     </div>

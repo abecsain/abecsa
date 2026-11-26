@@ -512,9 +512,15 @@ export default function AdminInvoicesPage() {
                 <input
                   type="number"
                   required
+                  placeholder="0"
                   max={selectedInvoice.balanceAmount}
-                  value={payAmount}
-                  onChange={(e) => setPayAmount(e.target.value)}
+                  value={payAmount === "0" ? "" : payAmount}
+                  onFocus={(e) => e.target.select()}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/^0+(?=\d)/, "");
+                    e.target.value = val;
+                    setPayAmount(val);
+                  }}
                   className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-sky-500"
                 />
               </div>
@@ -627,13 +633,17 @@ export default function AdminInvoicesPage() {
                   <input
                     type="number"
                     required
-                    value={formData.items[0].unitPrice}
-                    onChange={(e) =>
+                    placeholder="0"
+                    value={formData.items[0].unitPrice === 0 ? "" : formData.items[0].unitPrice}
+                    onFocus={(e) => e.target.select()}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/^0+(?=\d)/, "");
+                      e.target.value = val;
                       setFormData({
                         ...formData,
-                        items: [{ ...formData.items[0], unitPrice: Number(e.target.value) }],
-                      })
-                    }
+                        items: [{ ...formData.items[0], unitPrice: val === "" ? 0 : Number(val) }],
+                      });
+                    }}
                     className="w-full px-3 py-2 rounded-lg border border-slate-300"
                   />
                 </div>
@@ -728,9 +738,15 @@ export default function AdminInvoicesPage() {
                 <input
                   type="number"
                   min="0"
+                  placeholder="0"
                   max={editingInvoice.totalAmount}
-                  value={editFormData.amountPaid}
-                  onChange={(e) => setEditFormData({ ...editFormData, amountPaid: Number(e.target.value) })}
+                  value={editFormData.amountPaid === 0 ? "" : editFormData.amountPaid}
+                  onFocus={(e) => e.target.select()}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/^0+(?=\d)/, "");
+                    e.target.value = val;
+                    setEditFormData({ ...editFormData, amountPaid: val === "" ? 0 : Number(val) });
+                  }}
                   className="w-full px-3 py-2 rounded-lg border border-slate-300 font-mono text-xs"
                 />
                 <p className="text-[10px] text-slate-400 mt-1">

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -33,20 +34,64 @@ import {
   GraduationCap,
   Globe,
   FileText,
+  Shield,
+  ChevronDown,
+  Check,
+  RefreshCw,
 } from "lucide-react";
 
 interface SidebarProps {
   role: string; // "ADMIN" | "MANAGER" | "ENGINEER" | "CUSTOMER"
+  actualRole?: string;
   mobileOpen?: boolean;
   onCloseMobile?: () => void;
 }
 
+const ROLE_OPTIONS = [
+  { key: "ADMIN", label: "Admin Console", path: "/admin" },
+  { key: "MANAGER", label: "View as Manager", path: "/manager" },
+  { key: "ENGINEER", label: "View as Engineer", path: "/engineer" },
+  { key: "CUSTOMER", label: "View as Customer", path: "/customer" },
+];
+
 export default function DashboardSidebar({
   role,
+  actualRole,
   mobileOpen = false,
   onCloseMobile,
 }: SidebarProps) {
   const pathname = usePathname();
+  const [showRoleOptions, setShowRoleOptions] = useState(false);
+  const [switchingRole, setSwitchingRole] = useState(false);
+  const [targetSwitchingRole, setTargetSwitchingRole] = useState<string | null>(null);
+
+  const handleRoleSwitch = async (targetRole: string) => {
+    if (targetRole === role || switchingRole) return;
+    setSwitchingRole(true);
+    setTargetSwitchingRole(targetRole);
+
+    try {
+      const res = await fetch("/api/auth/switch-role", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ targetRole }),
+      });
+
+      const data = await res.json();
+      if (data.success && data.redirectUrl) {
+        window.location.href = data.redirectUrl;
+      } else {
+        alert(data.error || "Failed to switch role");
+        setSwitchingRole(false);
+        setTargetSwitchingRole(null);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error switching role");
+      setSwitchingRole(false);
+      setTargetSwitchingRole(null);
+    }
+  };
 
   const getNavLinks = () => {
     switch (role) {
@@ -194,7 +239,7 @@ export default function DashboardSidebar({
         })}
       </div>
 
-      {/* Footer / Logout */}
+      {/* Footer / Change Role & Logout */}
       <div className="p-3 border-t border-slate-800 space-y-2">
         <Link
           href="/"
@@ -211,6 +256,67 @@ export default function DashboardSidebar({
           <LogOut className="w-4 h-4" />
           <span>Sign Out Session</span>
         </button>
+
+        {/* Change Role (At Last / Bottom of Left Bar - Admin Only) */}
+        {actualRole === "ADMIN" && (
+          <div className="pt-2 border-t border-slate-800/80">
+            <button
+              onClick={() => setShowRoleOptions((prev) => !prev)}
+              className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/35 hover:bg-amber-500/25 transition-all shadow-xs"
+            >
+              <div className="flex items-center gap-2">
+                <Shield className="w-4 h-4 text-amber-400 shrink-0" />
+                <span className="font-semibold">Change Role</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] uppercase font-bold bg-amber-500/30 text-amber-200 px-2 py-0.5 rounded">
+                  {role}
+                </span>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 text-amber-400 transition-transform duration-200 ${
+                    showRoleOptions ? "rotate-180" : ""
+                  }`}
+                />
+              </div>
+            </button>
+
+            {/* Role Options Drawer / Dropdown */}
+            {showRoleOptions && (
+              <div className="mt-1.5 p-1.5 bg-slate-950/90 rounded-lg border border-amber-500/30 space-y-1 shadow-lg">
+                <div className="px-2 py-1 text-[10px] uppercase tracking-wider text-slate-400 font-bold border-b border-slate-800/80 mb-1 flex items-center justify-between">
+                  <span>Select Workspace Role</span>
+                </div>
+                {ROLE_OPTIONS.map((opt) => {
+                  const isActive = role === opt.key;
+                  return (
+                    <button
+                      key={opt.key}
+                      disabled={switchingRole}
+                      onClick={() => handleRoleSwitch(opt.key)}
+                      className={`w-full flex items-center justify-between px-2.5 py-2 rounded-md text-xs font-medium transition-all ${
+                        isActive
+                          ? "bg-amber-600 text-white shadow-xs font-semibold"
+                          : "text-slate-300 hover:text-white hover:bg-slate-800/80"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        {isActive ? (
+                          <Check className="w-3.5 h-3.5 text-white shrink-0" />
+                        ) : (
+                          <span className="w-3.5 h-3.5 rounded-full border border-slate-600 shrink-0" />
+                        )}
+                        <span>{opt.label}</span>
+                      </div>
+                      {switchingRole && targetSwitchingRole === opt.key && (
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin text-white" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

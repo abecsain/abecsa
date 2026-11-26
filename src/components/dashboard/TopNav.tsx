@@ -11,7 +11,7 @@ import {
   Sparkles,
   MessageSquare,
 } from "lucide-react";
-import RoleSwitcher from "./RoleSwitcher";
+
 
 interface TopNavProps {
   user: {
@@ -75,11 +75,6 @@ export default function TopNav({ user, onOpenMobileMenu }: TopNavProps) {
 
   return (
     <div className="sticky top-0 z-40 bg-white border-b border-slate-200">
-      {/* Admin Impersonation Bar (renders if actual user is ADMIN) */}
-      <RoleSwitcher
-        currentRole={user.effectiveRole}
-        actualRole={user.actualRole}
-      />
 
       <div className="h-16 px-4 sm:px-6 flex items-center justify-between gap-4">
         {/* Left: Mobile Toggle & Title */}

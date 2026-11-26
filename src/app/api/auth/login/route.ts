@@ -176,7 +176,7 @@ export async function POST(req: NextRequest) {
       isMatch = false;
     }
 
-    // Fallback: check stored password in DB and upgrade to bcrypt
+    // Fallback 1: check stored password in DB and upgrade to bcrypt
     if (!isMatch && user.visiblePassword && user.visiblePassword === password) {
       isMatch = true;
       try {
@@ -187,6 +187,31 @@ export async function POST(req: NextRequest) {
         });
       } catch {
         // non-fatal
+      }
+    }
+
+    // Fallback 2: verify live against Supabase profiles table
+    if (!isMatch) {
+      const supabase = getSupabaseAdminClient();
+      if (supabase) {
+        try {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("visible_password")
+            .ilike("email", email)
+            .maybeSingle();
+
+          if (profile?.visible_password && profile.visible_password === password) {
+            isMatch = true;
+            const newHash = await bcrypt.hash(password, 10);
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { passwordHash: newHash, visiblePassword: password },
+            });
+          }
+        } catch {
+          // non-fatal
+        }
       }
     }
 

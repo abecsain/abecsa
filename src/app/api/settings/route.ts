@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
+import { safeErrorResponse } from "@/lib/security";
+import { isValidEmail } from "@/lib/validation";
 
 export async function GET() {
   let settings = await prisma.companySettings.findUnique({
@@ -46,13 +48,44 @@ export async function PATCH(req: NextRequest) {
   }
 
   try {
-    const data = await req.json();
+    const rawData = await req.json();
+
+    // Mass assignment prevention: Only allow safe configurable keys
+    const allowedKeys = [
+      "companyName",
+      "tagline",
+      "logoUrl",
+      "email",
+      "phone",
+      "whatsappNumber",
+      "address",
+      "website",
+      "gstNumber",
+      "currency",
+      "defaultTaxRate",
+    ];
+
+    const cleanData: any = {};
+    for (const key of allowedKeys) {
+      if (rawData[key] !== undefined) {
+        cleanData[key] = rawData[key];
+      }
+    }
+
+    if (cleanData.email && !isValidEmail(cleanData.email)) {
+      return NextResponse.json({ error: "Invalid company email address format" }, { status: 400 });
+    }
+
+    if (cleanData.defaultTaxRate !== undefined) {
+      cleanData.defaultTaxRate = Number(cleanData.defaultTaxRate) || 0;
+    }
+
     const updated = await prisma.companySettings.upsert({
       where: { id: "abecsa-settings" },
-      update: data,
+      update: cleanData,
       create: {
         id: "abecsa-settings",
-        ...data,
+        ...cleanData,
       },
     });
 
@@ -67,7 +100,6 @@ export async function PATCH(req: NextRequest) {
 
     return NextResponse.json({ success: true, settings: updated });
   } catch (error) {
-    console.error("Settings update error:", error);
-    return NextResponse.json({ error: "Failed to update settings" }, { status: 500 });
+    return safeErrorResponse(error, "Failed to update settings");
   }
 }

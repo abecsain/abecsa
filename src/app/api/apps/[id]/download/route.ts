@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { incrementAppDownloadCount } from "@/lib/supabase";
+import { applyRateLimit, safeErrorResponse } from "@/lib/security";
 
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  // Rate limit: max 20 download increments per minute per IP
+  const rateLimitRes = applyRateLimit(req, "app_download", 20, 60 * 1000);
+  if (rateLimitRes) return rateLimitRes;
+
   try {
     const { id } = await params;
     if (!id) {

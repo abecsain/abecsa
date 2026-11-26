@@ -612,8 +612,13 @@ export default function EngineerTasksPage() {
                   step="0.5"
                   required
                   placeholder="e.g. 2.5"
-                  value={hoursInput}
-                  onChange={(e) => setHoursInput(e.target.value)}
+                  value={hoursInput === "0" ? "" : hoursInput}
+                  onFocus={(e) => e.target.select()}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/^0+(?=\d)/, "");
+                    e.target.value = val;
+                    setHoursInput(val);
+                  }}
                   className="w-20 px-2 py-1 rounded border border-slate-300 bg-white text-center"
                 />
                 <button
@@ -722,8 +727,14 @@ export default function EngineerTasksPage() {
                   <label className="block font-semibold text-slate-700 mb-1">Estimated Hours</label>
                   <input
                     type="number"
-                    value={newTaskHours}
-                    onChange={(e) => setNewTaskHours(e.target.value)}
+                    placeholder="0"
+                    value={newTaskHours === "0" ? "" : newTaskHours}
+                    onFocus={(e) => e.target.select()}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/^0+(?=\d)/, "");
+                      e.target.value = val;
+                      setNewTaskHours(val);
+                    }}
                     className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-sky-500"
                   />
                 </div>

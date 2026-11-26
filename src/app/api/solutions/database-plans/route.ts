@@ -22,7 +22,13 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   const sessionUser = await getSessionUser();
-  if (!sessionUser || sessionUser.effectiveRole !== "ADMIN") {
+  const isAdminOrManager = sessionUser && (
+    sessionUser.role === "ADMIN" || 
+    sessionUser.effectiveRole === "ADMIN" || 
+    sessionUser.role === "MANAGER" || 
+    sessionUser.effectiveRole === "MANAGER"
+  );
+  if (!isAdminOrManager) {
     return NextResponse.json({ error: "Unauthorized: Admin access required" }, { status: 403 });
   }
 
@@ -66,7 +72,13 @@ export async function POST(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   const sessionUser = await getSessionUser();
-  if (!sessionUser || sessionUser.effectiveRole !== "ADMIN") {
+  const isAdminOrManager = sessionUser && (
+    sessionUser.role === "ADMIN" || 
+    sessionUser.effectiveRole === "ADMIN" || 
+    sessionUser.role === "MANAGER" || 
+    sessionUser.effectiveRole === "MANAGER"
+  );
+  if (!isAdminOrManager) {
     return NextResponse.json({ error: "Unauthorized: Admin access required" }, { status: 403 });
   }
 
@@ -88,16 +100,27 @@ export async function PATCH(req: NextRequest) {
     }
 
     // Updating Storage Plan
-    if (!id) {
-      return NextResponse.json({ error: "Plan ID is required" }, { status: 400 });
+    if (!id && data.sizeGb === undefined) {
+      return NextResponse.json({ error: "Plan ID or Size is required" }, { status: 400 });
     }
 
     if (data.sizeGb !== undefined) data.sizeGb = Number(data.sizeGb);
     if (data.monthlyPrice !== undefined) data.monthlyPrice = Number(data.monthlyPrice);
     if (data.annualPrice !== undefined) data.annualPrice = Number(data.annualPrice);
 
+    let target = null;
+    if (id) {
+      target = await prisma.databaseStoragePlan.findUnique({ where: { id } });
+    }
+    if (!target && data.sizeGb !== undefined) {
+      target = await prisma.databaseStoragePlan.findUnique({ where: { sizeGb: data.sizeGb } });
+    }
+    if (!target) {
+      return NextResponse.json({ error: "Storage plan not found" }, { status: 404 });
+    }
+
     const updated = await prisma.databaseStoragePlan.update({
-      where: { id },
+      where: { id: target.id },
       data,
     });
 
@@ -110,7 +133,13 @@ export async function PATCH(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   const sessionUser = await getSessionUser();
-  if (!sessionUser || sessionUser.effectiveRole !== "ADMIN") {
+  const isAdminOrManager = sessionUser && (
+    sessionUser.role === "ADMIN" || 
+    sessionUser.effectiveRole === "ADMIN" || 
+    sessionUser.role === "MANAGER" || 
+    sessionUser.effectiveRole === "MANAGER"
+  );
+  if (!isAdminOrManager) {
     return NextResponse.json({ error: "Unauthorized: Admin access required" }, { status: 403 });
   }
 

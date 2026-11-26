@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { applyRateLimit, safeErrorResponse } from "@/lib/security";
 
 // GET Meta Webhook Verification
 export async function GET(req: NextRequest) {
@@ -8,10 +9,14 @@ export async function GET(req: NextRequest) {
   const token = searchParams.get("hub.verify_token");
   const challenge = searchParams.get("hub.challenge");
 
-  const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN || "abecsa_waba_verify_token_2026";
+  const configuredToken = process.env.WHATSAPP_VERIFY_TOKEN;
+  const VERIFY_TOKEN = configuredToken || "abecsa_waba_verify_token_2026";
 
-  if (mode === "subscribe" && token === VERIFY_TOKEN) {
-    return new NextResponse(challenge, { status: 200 });
+  if (mode === "subscribe") {
+    if (token && token === VERIFY_TOKEN && challenge) {
+      return new NextResponse(challenge, { status: 200 });
+    }
+    return NextResponse.json({ error: "Verification token mismatch" }, { status: 403 });
   }
 
   return NextResponse.json({ status: "Verified webhook endpoint ready" });
@@ -19,6 +24,9 @@ export async function GET(req: NextRequest) {
 
 // POST Meta Webhook Status Event & Message Ingestion
 export async function POST(req: NextRequest) {
+  const rateLimitRes = applyRateLimit(req, "whatsapp_webhook", 120, 60 * 1000);
+  if (rateLimitRes) return rateLimitRes;
+
   try {
     const body = await req.json();
 

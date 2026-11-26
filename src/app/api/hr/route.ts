@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
+import { safeErrorResponse } from "@/lib/security";
 
 export async function GET(req: NextRequest) {
   const sessionUser = await getSessionUser();
   if (!sessionUser) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Strict Authorization: Customers are completely forbidden from viewing internal HR operations
+  if (sessionUser.effectiveRole === "CUSTOMER") {
+    return NextResponse.json({ error: "Forbidden: Client accounts cannot access internal HR operations" }, { status: 403 });
   }
 
   const { searchParams } = new URL(req.url);
@@ -63,7 +69,11 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ workLogs });
   }
 
-  // Combined overview for HR
+  // Combined overview for HR: Only Admin and Manager can access full company employee overview
+  if (!["ADMIN", "MANAGER"].includes(sessionUser.effectiveRole)) {
+    return NextResponse.json({ error: "Forbidden: Management credentials required for staff roster overview" }, { status: 403 });
+  }
+
   const [employees, leaves, attendance, workLogs] = await Promise.all([
     prisma.user.findMany({
       where: { role: { in: ["ENGINEER", "MANAGER"] } },
@@ -298,7 +308,6 @@ export async function DELETE(req: NextRequest) {
 
     return NextResponse.json({ error: "Invalid type" }, { status: 400 });
   } catch (error) {
-    console.error("HR DELETE error:", error);
-    return NextResponse.json({ error: "Failed to delete HR record" }, { status: 500 });
+    return safeErrorResponse(error, "Failed to delete HR record");
   }
 }

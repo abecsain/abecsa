@@ -208,28 +208,86 @@ export async function DELETE(req: NextRequest) {
     );
   }
 
-  const { searchParams } = new URL(req.url);
-  const id = searchParams.get("id");
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
 
-  if (!id) {
-    return NextResponse.json({ error: "User ID required" }, { status: 400 });
+    if (!id) {
+      return NextResponse.json({ error: "User ID required" }, { status: 400 });
+    }
+
+    if (id === sessionUser.id) {
+      return NextResponse.json({ error: "Cannot delete your own admin account" }, { status: 400 });
+    }
+
+    const target = await prisma.user.findUnique({
+      where: { id },
+      include: {
+        _count: {
+          select: {
+            managedProjects: true,
+            assignedTasks: true,
+            createdTasks: true,
+            workLogs: true,
+          },
+        },
+      },
+    });
+
+    if (!target) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // If user has linked projects or tasks, perform safe soft delete / deactivation to preserve integrity
+    const hasActiveReferences =
+      target._count.managedProjects > 0 ||
+      target._count.assignedTasks > 0 ||
+      target._count.createdTasks > 0 ||
+      target._count.workLogs > 0;
+
+    if (hasActiveReferences) {
+      await prisma.user.update({
+        where: { id },
+        data: {
+          status: "SUSPENDED",
+          isLocked: true,
+        },
+      });
+
+      await prisma.auditLog.create({
+        data: {
+          userId: sessionUser.id,
+          action: "DEACTIVATE_USER",
+          entityType: "USER",
+          entityId: id,
+          details: `User account ${target.name} (${target.email}) deactivated and suspended by ${sessionUser.name} due to active project dependencies`,
+        },
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: "User account deactivated and suspended (historical project records preserved)",
+      });
+    }
+
+    // Clean delete if no blocking dependencies
+    await prisma.customerProfile.deleteMany({ where: { userId: id } });
+    await prisma.projectMember.deleteMany({ where: { userId: id } });
+    await prisma.notification.deleteMany({ where: { userId: id } });
+    await prisma.user.delete({ where: { id } });
+
+    await prisma.auditLog.create({
+      data: {
+        userId: sessionUser.id,
+        action: "DELETE_USER",
+        entityType: "USER",
+        entityId: id,
+        details: `User account ${target.name} (${target.email}) permanently removed by ${sessionUser.name}`,
+      },
+    });
+
+    return NextResponse.json({ success: true, message: "User deleted successfully" });
+  } catch (error) {
+    return NextResponse.json({ error: "Failed to delete user account" }, { status: 500 });
   }
-
-  if (id === sessionUser.id) {
-    return NextResponse.json({ error: "Cannot delete your own admin account" }, { status: 400 });
-  }
-
-  await prisma.user.delete({ where: { id } });
-
-  await prisma.auditLog.create({
-    data: {
-      userId: sessionUser.id,
-      action: "DELETE_USER",
-      entityType: "USER",
-      entityId: id,
-      details: `User account deleted by ${sessionUser.name}`,
-    },
-  });
-
-  return NextResponse.json({ success: true, message: "User deleted successfully" });
 }

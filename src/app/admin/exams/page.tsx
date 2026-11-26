@@ -235,8 +235,14 @@ export default function AdminExamsPage() {
                       min="5"
                       max="300"
                       required
-                      value={form.durationMinutes}
-                      onChange={(e) => setForm({ ...form, durationMinutes: Number(e.target.value) })}
+                      placeholder="60"
+                      value={form.durationMinutes === 0 ? "" : form.durationMinutes}
+                      onFocus={(e) => e.target.select()}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/^0+(?=\d)/, "");
+                        e.target.value = val;
+                        setForm({ ...form, durationMinutes: val === "" ? 0 : Number(val) });
+                      }}
                       className="w-full px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-sky-500 outline-none"
                     />
                   </div>

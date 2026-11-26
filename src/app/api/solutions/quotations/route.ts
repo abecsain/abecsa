@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
+import { applyRateLimit, safeErrorResponse } from "@/lib/security";
 
 export async function GET(req: NextRequest) {
   const sessionUser = await getSessionUser();
@@ -40,6 +41,10 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  // Rate limit: max 6 quotation submissions per minute per IP
+  const rateLimitRes = applyRateLimit(req, "quote_request", 6, 60 * 1000);
+  if (rateLimitRes) return rateLimitRes;
+
   try {
     const body = await req.json();
     const {

@@ -13,31 +13,21 @@ export function resolveDatabaseUrl(): string {
     return process.env.DATABASE_URL;
   }
 
-  // 2. For SQLite (both local dev and serverless/Render/Vercel):
-  const tmpDbPath = path.join(os.tmpdir(), "abecsa_dev.db").replace(/\\/g, "/");
-  const sourceDb = path.join(process.cwd(), "prisma", "dev.db");
+  const sourceDb = path.join(process.cwd(), "prisma", "dev.db").replace(/\\/g, "/");
 
-  let needsCopy = true;
-  try {
-    if (fs.existsSync(tmpDbPath) && fs.statSync(tmpDbPath).size > 0) {
-      if (fs.existsSync(sourceDb)) {
-        const sourceMtime = fs.statSync(sourceDb).mtimeMs;
-        const tmpMtime = fs.statSync(tmpDbPath).mtimeMs;
-        needsCopy = sourceMtime > tmpMtime;
-      } else {
-        needsCopy = false;
-      }
-    }
-  } catch {
-    needsCopy = true;
+  // 2. In local development or persistent environment, write directly to prisma/dev.db
+  if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
+    return `file:${sourceDb}`;
   }
 
-  if (needsCopy && fs.existsSync(sourceDb) && fs.statSync(sourceDb).size > 0) {
-    try {
+  // 3. For serverless read-only runtime (Vercel Lambda):
+  const tmpDbPath = path.join(os.tmpdir(), "abecsa_dev.db").replace(/\\/g, "/");
+  try {
+    if (!fs.existsSync(tmpDbPath) && fs.existsSync(sourceDb)) {
       fs.copyFileSync(sourceDb, tmpDbPath);
-    } catch {
-      // non-fatal
     }
+  } catch {
+    // non-fatal
   }
 
   return fs.existsSync(tmpDbPath) ? `file:${tmpDbPath}` : `file:${sourceDb}`;

@@ -82,15 +82,20 @@ export default function LoginPage() {
       <div className="flex-1 flex items-center justify-center p-4 sm:p-6 my-6">
         <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-200/90 p-8 sm:p-10 space-y-6">
           <div className="text-center space-y-2">
-            <div className="h-12 w-12 rounded-xl bg-sky-600/10 text-sky-600 flex items-center justify-center mx-auto mb-3">
-              <ShieldCheck className="w-6 h-6" />
+            <div className="flex justify-center mb-3">
+              <Image
+                src="/logo.png"
+                alt="ABECSA Software Solutions"
+                width={190}
+                height={65}
+                className="h-12 w-auto object-contain"
+                priority
+                unoptimized
+              />
             </div>
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
               Enterprise Portal Login
             </h1>
-            <p className="text-xs text-slate-500 max-w-xs mx-auto">
-              Sign in to access your role-based workspace (Admin, Manager, Engineer, or Customer).
-            </p>
           </div>
 
           {errorMsg && (

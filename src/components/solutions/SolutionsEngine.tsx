@@ -732,6 +732,7 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
   const handleOpenCategory = (categoryId: string, productCode: string) => {
     setBuilderCategoryFilter(categoryId);
     setExpandedProductCode(productCode);
+    setSelectedProductCodes((prev) => (prev.includes(productCode) ? prev : [...prev, productCode]));
     scrollToCategoryTop();
   };
 
@@ -885,22 +886,36 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
 
   // Dynamic Pricing Calculations (Affordable MSME Pricing: ₹14,999 with 15GB DB, 1/3/5 Year Tenure)
   const pricingSummary = useMemo(() => {
+    let baseSoftwareSubtotal = 0;
+    let addonsSubtotal = 0;
     let oneTimeSubtotal = 0;
     let recurringMonthlySubtotal = 0;
     let recurringAnnualSubtotal = 0;
     let hasCustomPrice = false;
 
-    const selectedProductsList = products.filter((p) => selectedProductCodes.includes(p.code));
+    // Active products to price: selected products OR active expanded product being configured
+    const activeCodes = Array.from(
+      new Set([
+        ...selectedProductCodes,
+        ...(expandedProductCode ? [expandedProductCode] : []),
+      ])
+    );
+
+    const selectedProductsList = products.filter((p) => activeCodes.includes(p.code));
 
     // Base Products
     selectedProductsList.forEach((p) => {
+      let productBase = 0;
       if (p.isPriceOnRequest || p.basePrice === 0) {
         hasCustomPrice = true;
       } else if (p.code === "WEBSITE-PAGEWISE") {
-        oneTimeSubtotal += calculatedWebsitePrice;
+        productBase = calculatedWebsitePrice;
       } else {
-        oneTimeSubtotal += p.basePrice;
+        productBase = p.basePrice;
       }
+
+      baseSoftwareSubtotal += productBase;
+      oneTimeSubtotal += productBase;
 
       if (p.recurringPrice > 0) {
         if (p.recurringInterval === "MONTHLY") {
@@ -939,6 +954,7 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
           } else {
             if (addon.sharedModuleId) sharedModulesCounted.add(addon.sharedModuleId);
             activeAddons.push(addon);
+            addonsSubtotal += addon.price;
             oneTimeSubtotal += addon.price;
             if (addon.recurringPrice > 0) {
               recurringMonthlySubtotal += addon.recurringPrice;
@@ -990,28 +1006,33 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
 
     // Tenure Multiplier & Multi-Year Savings
     let chosenRecurring = 0;
+    let chosenDbRecurring = 0;
     let tenureSavings = 0;
     let tenureMultiplier = 1;
     let tenureLabel = "1 Year (Annual Plan)";
 
     if (selectedTenure === "MONTHLY") {
       chosenRecurring = recurringMonthlySubtotal;
+      chosenDbRecurring = dbMonthly;
       tenureMultiplier = 1;
       tenureLabel = "1 Month Subscription";
     } else if (selectedTenure === "1_YEAR") {
       chosenRecurring = recurringAnnualSubtotal;
+      chosenDbRecurring = dbAnnual;
       tenureMultiplier = 1;
       tenureLabel = "1 Year Plan";
     } else if (selectedTenure === "3_YEARS") {
       tenureMultiplier = 3;
       const baseThreeYears = recurringAnnualSubtotal * 3;
       chosenRecurring = Math.round(baseThreeYears * 0.85); // 15% multi-year discount
+      chosenDbRecurring = Math.round(dbAnnual * 3 * 0.85);
       tenureSavings = baseThreeYears - chosenRecurring;
       tenureLabel = "3 Years Tenure (15% Multi-Year Savings)";
     } else if (selectedTenure === "5_YEARS") {
       tenureMultiplier = 5;
       const baseFiveYears = recurringAnnualSubtotal * 5;
       chosenRecurring = Math.round(baseFiveYears * 0.75); // 25% multi-year discount
+      chosenDbRecurring = Math.round(dbAnnual * 5 * 0.75);
       tenureSavings = baseFiveYears - chosenRecurring;
       tenureLabel = "5 Years Tenure (25% Multi-Year Savings)";
     }
@@ -1023,12 +1044,15 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
     return {
       selectedProductsList,
       activeAddons,
+      baseSoftwareSubtotal,
+      addonsSubtotal,
       oneTimeSubtotal,
       bundleDiscount,
       sharedModuleDeduplicationDiscount,
       netOneTime,
       dbMonthly,
       dbAnnual,
+      chosenDbRecurring,
       recurringMonthlySubtotal,
       recurringAnnualSubtotal,
       chosenRecurring,
@@ -1044,6 +1068,7 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
   }, [
     products,
     selectedProductCodes,
+    expandedProductCode,
     selectedAddonIds,
     selectedDatabaseGb,
     isCustomDatabase,
@@ -1798,8 +1823,16 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
                           <span className="text-[10px] uppercase font-bold text-sky-400 block tracking-wider">
                             Package Configuration Investment
                           </span>
-                          <div className="text-sm font-semibold text-slate-300">
+                          <div className="text-sm font-semibold text-slate-200">
                             {activeExpandedProduct.name} + Selected Features & Database
+                          </div>
+                          <div className="text-[11px] text-slate-400 flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 font-mono">
+                            <span>Project: <strong className="text-white">{formatCurrency(activeExpandedProduct.code === "WEBSITE-PAGEWISE" ? calculatedWebsitePrice : activeExpandedProduct.basePrice)}</strong></span>
+                            {pricingSummary.addonsSubtotal > 0 && (
+                              <span className="text-sky-300 font-semibold">Additions: +{formatCurrency(pricingSummary.addonsSubtotal)}</span>
+                            )}
+                            <span>DB: <strong className="text-white">{pricingSummary.effectiveGb === 0 ? "Own Server (₹0)" : `${pricingSummary.effectiveGb}GB (+${formatCurrency(pricingSummary.chosenDbRecurring)})`}</strong></span>
+                            <span>GST (18%): <strong className="text-white">+{formatCurrency(pricingSummary.taxAmount)}</strong></span>
                           </div>
                         </div>
                         <div className="sm:text-right">
@@ -2041,8 +2074,27 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
               {/* Financial Calculation Breakdown */}
               <div className="space-y-2 pt-2 border-t border-slate-800 text-xs">
                 <div className="flex items-center justify-between text-slate-400">
-                  <span>Software Base Cost:</span>
-                  <span className="font-mono text-white">{formatCurrency(pricingSummary.oneTimeSubtotal)}</span>
+                  <span>Software License / Project Cost:</span>
+                  <span className="font-mono text-white">{formatCurrency(pricingSummary.baseSoftwareSubtotal)}</span>
+                </div>
+
+                {pricingSummary.addonsSubtotal > 0 && (
+                  <div className="flex items-center justify-between text-sky-400 font-semibold">
+                    <span>Selected Additions ({pricingSummary.activeAddons.length}):</span>
+                    <span className="font-mono text-sky-300">+{formatCurrency(pricingSummary.addonsSubtotal)}</span>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between text-slate-400">
+                  <span>
+                    Cloud Database ({pricingSummary.effectiveGb === 0 ? "Own Server" : `${pricingSummary.effectiveGb} GB`}):
+                  </span>
+                  <span className="font-mono text-white">
+                    {pricingSummary.effectiveGb === 0 ? "₹0 (BYO)" : `+${formatCurrency(pricingSummary.chosenDbRecurring)}`}
+                    <span className="text-[10px] text-slate-400 ml-1">
+                      {selectedTenure === "MONTHLY" ? "/mo" : `(${pricingSummary.tenureMultiplier} Yr)`}
+                    </span>
+                  </span>
                 </div>
 
                 {pricingSummary.bundleDiscount > 0 && (
@@ -2058,20 +2110,6 @@ export default function SolutionsEngine({ initialTab = "BUILDER" }: { initialTab
                     <span className="font-mono">-{formatCurrency(pricingSummary.tenureSavings)}</span>
                   </div>
                 )}
-
-                <div className="flex items-center justify-between text-slate-400">
-                  <span>
-                    {selectedTenure === "MONTHLY"
-                      ? "Monthly Cloud Infrastructure:"
-                      : `Cloud Infrastructure (${pricingSummary.tenureMultiplier} Yr${pricingSummary.tenureMultiplier > 1 ? "s" : ""}):`}
-                  </span>
-                  <span className="font-mono text-white">
-                    {formatCurrency(pricingSummary.chosenRecurring)}
-                    <span className="text-[10px] text-slate-400 ml-1">
-                      {selectedTenure === "MONTHLY" ? "/mo" : `(${pricingSummary.tenureMultiplier} Yr)`}
-                    </span>
-                  </span>
-                </div>
 
                 <div className="flex items-center justify-between text-slate-400">
                   <span>GST Applicable (18%):</span>

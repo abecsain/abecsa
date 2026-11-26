@@ -99,9 +99,14 @@ export default function EngineerLogsPage() {
               type="number"
               step="0.5"
               required
-              value={hours}
-              onChange={(e) => setHours(e.target.value)}
               placeholder="e.g. 4.5"
+              value={hours === "0" ? "" : hours}
+              onFocus={(e) => e.target.select()}
+              onChange={(e) => {
+                const val = e.target.value.replace(/^0+(?=\d)/, "");
+                e.target.value = val;
+                setHours(val);
+              }}
               className="w-full px-3 py-2 rounded-lg border border-slate-300"
             />
           </div>

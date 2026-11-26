@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
+import { isSafeFilename, isSafeFileUrl, validateCsrf, safeErrorResponse } from "@/lib/security";
 
 export async function GET(req: NextRequest) {
   const sessionUser = await getSessionUser();
@@ -71,6 +72,10 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  if (!validateCsrf(req)) {
+    return NextResponse.json({ error: "Forbidden: Cross-origin request rejected" }, { status: 403 });
+  }
+
   const sessionUser = await getSessionUser();
   if (!sessionUser || !["ADMIN", "MANAGER", "ENGINEER"].includes(sessionUser.effectiveRole)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
@@ -147,17 +152,39 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "File name and URL are required" }, { status: 400 });
       }
 
+      // Security check: validate extension and URL protocol
+      const safeName = fileName.trim();
+      if (!isSafeFilename(safeName)) {
+        return NextResponse.json(
+          { error: "Security restriction: Disallowed file type or dangerous executable extension." },
+          { status: 400 }
+        );
+      }
+
+      if (!isSafeFileUrl(fileUrl)) {
+        return NextResponse.json(
+          { error: "Security restriction: Invalid or untrusted file URL protocol." },
+          { status: 400 }
+        );
+      }
+
+      // Enforce 50 MB maximum size limit
+      const parsedSize = Number(fileSize) || 0;
+      if (parsedSize > 50 * 1024 * 1024) {
+        return NextResponse.json({ error: "File exceeds 50 MB maximum allowable size limit." }, { status: 400 });
+      }
+
       const file = await prisma.file.create({
         data: {
           folderId: cleanFolderId,
           projectId: cleanProjectId,
           customerId: finalCustomerId,
           uploadedById: sessionUser.id,
-          fileName: fileName.trim(),
-          originalName: originalName || fileName.trim(),
-          fileUrl,
+          fileName: safeName,
+          originalName: (originalName || safeName).trim(),
+          fileUrl: fileUrl.trim(),
           fileType: fileType || "IMAGE",
-          fileSize: Number(fileSize),
+          fileSize: parsedSize,
           mimeType: mimeType || "application/octet-stream",
           isCustomerVisible: finalCustomerVisible,
           description,
@@ -291,6 +318,16 @@ export async function DELETE(req: NextRequest) {
     }
 
     if (type === "FOLDER") {
+      const folder = await prisma.folder.findUnique({ where: { id } });
+      if (!folder) {
+        return NextResponse.json({ error: "Folder not found" }, { status: 404 });
+      }
+
+      // Engineer can only delete folders they created
+      if (sessionUser.effectiveRole === "ENGINEER" && folder.createdById !== sessionUser.id) {
+        return NextResponse.json({ error: "Forbidden: Engineers can only delete folders they created" }, { status: 403 });
+      }
+
       // Delete children files first
       await prisma.file.deleteMany({ where: { folderId: id } });
       await prisma.folder.delete({ where: { id } });
@@ -298,13 +335,22 @@ export async function DELETE(req: NextRequest) {
     }
 
     if (type === "FILE") {
+      const file = await prisma.file.findUnique({ where: { id } });
+      if (!file) {
+        return NextResponse.json({ error: "File not found" }, { status: 404 });
+      }
+
+      // Engineer can only delete files they uploaded
+      if (sessionUser.effectiveRole === "ENGINEER" && file.uploadedById !== sessionUser.id) {
+        return NextResponse.json({ error: "Forbidden: Engineers can only delete files they uploaded" }, { status: 403 });
+      }
+
       await prisma.file.delete({ where: { id } });
       return NextResponse.json({ success: true, message: "File deleted successfully" });
     }
 
     return NextResponse.json({ error: "Invalid type" }, { status: 400 });
   } catch (error) {
-    console.error("Vault DELETE error:", error);
-    return NextResponse.json({ error: "Failed to delete vault item" }, { status: 500 });
+    return safeErrorResponse(error, "Failed to delete vault item");
   }
 }

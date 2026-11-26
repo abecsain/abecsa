@@ -5,7 +5,10 @@ import { ensureSolutionsSeed } from "@/lib/solutionsSeed";
 
 export async function GET(req: NextRequest) {
   try {
-    await ensureSolutionsSeed();
+    const prodCount = await prisma.catalogProduct.count();
+    if (prodCount === 0) {
+      await ensureSolutionsSeed();
+    }
 
     const { searchParams } = new URL(req.url);
     const category = searchParams.get("category");
@@ -56,7 +59,13 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const sessionUser = await getSessionUser();
-  if (!sessionUser || sessionUser.effectiveRole !== "ADMIN") {
+  const isAdminOrManager = sessionUser && (
+    sessionUser.role === "ADMIN" || 
+    sessionUser.effectiveRole === "ADMIN" || 
+    sessionUser.role === "MANAGER" || 
+    sessionUser.effectiveRole === "MANAGER"
+  );
+  if (!isAdminOrManager) {
     return NextResponse.json({ error: "Unauthorized: Admin access required" }, { status: 403 });
   }
 
@@ -138,7 +147,13 @@ export async function POST(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   const sessionUser = await getSessionUser();
-  if (!sessionUser || sessionUser.effectiveRole !== "ADMIN") {
+  const isAdminOrManager = sessionUser && (
+    sessionUser.role === "ADMIN" || 
+    sessionUser.effectiveRole === "ADMIN" || 
+    sessionUser.role === "MANAGER" || 
+    sessionUser.effectiveRole === "MANAGER"
+  );
+  if (!isAdminOrManager) {
     return NextResponse.json({ error: "Unauthorized: Admin access required" }, { status: 403 });
   }
 
@@ -146,8 +161,8 @@ export async function PATCH(req: NextRequest) {
     const body = await req.json();
     const { id, ...data } = body;
 
-    if (!id) {
-      return NextResponse.json({ error: "Product ID is required" }, { status: 400 });
+    if (!id && !data.code) {
+      return NextResponse.json({ error: "Product ID or Code is required" }, { status: 400 });
     }
 
     if (data.keyFeatures && typeof data.keyFeatures !== "string") {
@@ -163,12 +178,28 @@ export async function PATCH(req: NextRequest) {
       data.compatibleProductIds = JSON.stringify(data.compatibleProductIds);
     }
 
-    if (data.basePrice !== undefined) data.basePrice = Number(data.basePrice);
-    if (data.recurringPrice !== undefined) data.recurringPrice = Number(data.recurringPrice);
-    if (data.orderIndex !== undefined) data.orderIndex = Number(data.orderIndex);
+    if (data.basePrice !== undefined) data.basePrice = Number(data.basePrice) || 0;
+    if (data.recurringPrice !== undefined) data.recurringPrice = Number(data.recurringPrice) || 0;
+    if (data.orderIndex !== undefined) data.orderIndex = Number(data.orderIndex) || 0;
+    if (data.isPriceOnRequest !== undefined) data.isPriceOnRequest = Boolean(data.isPriceOnRequest);
+    if (data.isFeatured !== undefined) data.isFeatured = Boolean(data.isFeatured);
+    if (data.code) {
+      data.code = String(data.code).trim().toUpperCase().replace(/\s+/g, "-");
+    }
+
+    let target = null;
+    if (id) {
+      target = await prisma.catalogProduct.findUnique({ where: { id } });
+    }
+    if (!target && data.code) {
+      target = await prisma.catalogProduct.findUnique({ where: { code: data.code } });
+    }
+    if (!target) {
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    }
 
     const updated = await prisma.catalogProduct.update({
-      where: { id },
+      where: { id: target.id },
       data,
     });
 
@@ -181,7 +212,13 @@ export async function PATCH(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   const sessionUser = await getSessionUser();
-  if (!sessionUser || sessionUser.effectiveRole !== "ADMIN") {
+  const isAdminOrManager = sessionUser && (
+    sessionUser.role === "ADMIN" || 
+    sessionUser.effectiveRole === "ADMIN" || 
+    sessionUser.role === "MANAGER" || 
+    sessionUser.effectiveRole === "MANAGER"
+  );
+  if (!isAdminOrManager) {
     return NextResponse.json({ error: "Unauthorized: Admin access required" }, { status: 403 });
   }
 

@@ -3,7 +3,18 @@ import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import prisma from "./prisma";
 
-const JWT_SECRET = process.env.JWT_SECRET || "abecsa-enterprise-jwt-super-secret-key-2026";
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("SECURITY FATAL: JWT_SECRET environment variable must be configured in production.");
+    }
+    return "abecsa-enterprise-jwt-super-secret-key-2026";
+  }
+  return secret;
+}
+
+const JWT_SECRET = getJwtSecret();
 const COOKIE_NAME = "abecsa_session";
 
 export interface TokenPayload {

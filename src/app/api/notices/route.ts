@@ -95,27 +95,46 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const data = await req.json();
-  const { id, title, message, priority, actionUrl, actionLabel, isRead } = data;
-  if (!id) return NextResponse.json({ error: "Notice ID required" }, { status: 400 });
+  try {
+    const data = await req.json();
+    const { id, title, message, priority, actionUrl, actionLabel, isRead } = data;
+    if (!id) return NextResponse.json({ error: "Notice ID required" }, { status: 400 });
 
-  const updateData: any = {};
-  if (isRead !== undefined) {
-    updateData.isRead = Boolean(isRead);
-    if (isRead) updateData.readAt = new Date();
+    const existingNotice = await prisma.noticeMessage.findUnique({
+      where: { id },
+    });
+
+    if (!existingNotice) {
+      return NextResponse.json({ error: "Notice not found" }, { status: 404 });
+    }
+
+    // IDOR protection: Customer can only mark their own notices as read
+    if (sessionUser.effectiveRole === "CUSTOMER") {
+      if (!sessionUser.customerProfile || existingNotice.customerId !== sessionUser.customerProfile.id) {
+        return NextResponse.json({ error: "Forbidden: You cannot modify notices belonging to other clients" }, { status: 403 });
+      }
+    }
+
+    const updateData: any = {};
+    if (isRead !== undefined) {
+      updateData.isRead = Boolean(isRead);
+      if (isRead) updateData.readAt = new Date();
+    }
+    if (title && ["ADMIN", "MANAGER"].includes(sessionUser.effectiveRole)) updateData.title = title.trim();
+    if (message && ["ADMIN", "MANAGER"].includes(sessionUser.effectiveRole)) updateData.message = message.trim();
+    if (priority && ["ADMIN", "MANAGER"].includes(sessionUser.effectiveRole)) updateData.priority = priority;
+    if (actionUrl !== undefined && ["ADMIN", "MANAGER"].includes(sessionUser.effectiveRole)) updateData.actionUrl = actionUrl;
+    if (actionLabel !== undefined && ["ADMIN", "MANAGER"].includes(sessionUser.effectiveRole)) updateData.actionLabel = actionLabel;
+
+    const notice = await prisma.noticeMessage.update({
+      where: { id },
+      data: updateData,
+    });
+
+    return NextResponse.json({ success: true, notice });
+  } catch (error) {
+    return NextResponse.json({ error: "Failed to update notice" }, { status: 500 });
   }
-  if (title && ["ADMIN", "MANAGER"].includes(sessionUser.effectiveRole)) updateData.title = title.trim();
-  if (message && ["ADMIN", "MANAGER"].includes(sessionUser.effectiveRole)) updateData.message = message.trim();
-  if (priority && ["ADMIN", "MANAGER"].includes(sessionUser.effectiveRole)) updateData.priority = priority;
-  if (actionUrl !== undefined) updateData.actionUrl = actionUrl;
-  if (actionLabel !== undefined) updateData.actionLabel = actionLabel;
-
-  const notice = await prisma.noticeMessage.update({
-    where: { id },
-    data: updateData,
-  });
-
-  return NextResponse.json({ success: true, notice });
 }
 
 export async function DELETE(req: NextRequest) {
@@ -131,11 +150,15 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: "Notice ID is required" }, { status: 400 });
     }
 
+    const notice = await prisma.noticeMessage.findUnique({ where: { id } });
+    if (!notice) {
+      return NextResponse.json({ error: "Notice not found" }, { status: 404 });
+    }
+
     await prisma.noticeMessage.delete({ where: { id } });
 
     return NextResponse.json({ success: true, message: "Notice deleted successfully" });
   } catch (error) {
-    console.error("Delete notice error:", error);
     return NextResponse.json({ error: "Failed to delete notice" }, { status: 500 });
   }
 }

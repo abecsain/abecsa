@@ -753,8 +753,14 @@ export default function ManagerDashboardPage() {
                   <label className="block font-semibold text-slate-700 mb-1">Budget (INR)</label>
                   <input
                     type="number"
-                    value={projectForm.budget}
-                    onChange={(e) => setProjectForm({ ...projectForm, budget: e.target.value })}
+                    placeholder="0"
+                    value={projectForm.budget === "0" ? "" : projectForm.budget}
+                    onFocus={(e) => e.target.select()}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/^0+(?=\d)/, "");
+                      e.target.value = val;
+                      setProjectForm({ ...projectForm, budget: val });
+                    }}
                     className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-sky-500"
                   />
                 </div>

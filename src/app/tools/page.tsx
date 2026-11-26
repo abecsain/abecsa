@@ -441,8 +441,14 @@ export default function ToolsHubPage() {
                 <label className="block font-bold text-slate-700 mb-1">Total Base / Gross Amount (₹)</label>
                 <input
                   type="number"
-                  value={gstAmount}
-                  onChange={(e) => setGstAmount(parseFloat(e.target.value) || 0)}
+                  placeholder="0"
+                  value={gstAmount === 0 ? "" : gstAmount}
+                  onFocus={(e) => e.target.select()}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/^0+(?=\d)/, "");
+                    e.target.value = val;
+                    setGstAmount(val === "" ? 0 : parseFloat(val) || 0);
+                  }}
                   className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm font-bold"
                 />
               </div>

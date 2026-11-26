@@ -192,8 +192,14 @@ export default function CustomerInvoicesPage() {
                 <input
                   type="number"
                   required
-                  value={payAmount}
-                  onChange={(e) => setPayAmount(e.target.value)}
+                  placeholder="0"
+                  value={payAmount === "0" ? "" : payAmount}
+                  onFocus={(e) => e.target.select()}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/^0+(?=\d)/, "");
+                    e.target.value = val;
+                    setPayAmount(val);
+                  }}
                   className="w-full px-3 py-2 rounded-lg border border-slate-300"
                 />
               </div>

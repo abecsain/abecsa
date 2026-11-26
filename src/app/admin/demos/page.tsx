@@ -484,8 +484,14 @@ export default function AdminDemosPage() {
                   <label className="block font-semibold text-slate-700 mb-1">Display Order</label>
                   <input
                     type="number"
-                    value={formData.orderIndex}
-                    onChange={(e) => setFormData({ ...formData, orderIndex: Number(e.target.value) })}
+                    placeholder="0"
+                    value={formData.orderIndex === 0 ? "" : formData.orderIndex}
+                    onFocus={(e) => e.target.select()}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/^0+(?=\d)/, "");
+                      e.target.value = val;
+                      setFormData({ ...formData, orderIndex: val === "" ? 0 : Number(val) });
+                    }}
                     className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs"
                   />
                 </div>

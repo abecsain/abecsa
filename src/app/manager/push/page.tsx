@@ -524,8 +524,14 @@ export default function ManagerPushToolsPage() {
               <input
                 type="number"
                 required
-                value={quoteAmount}
-                onChange={(e) => setQuoteAmount(Number(e.target.value))}
+                placeholder="0"
+                value={quoteAmount === 0 ? "" : quoteAmount}
+                onFocus={(e) => e.target.select()}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/^0+(?=\d)/, "");
+                  e.target.value = val;
+                  setQuoteAmount(val === "" ? 0 : Number(val));
+                }}
                 className="w-full px-3 py-2 rounded-lg border border-slate-300"
               />
             </div>

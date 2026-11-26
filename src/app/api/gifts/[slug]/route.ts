@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { applyRateLimit, safeErrorResponse } from "@/lib/security";
 
 export async function GET(
   req: NextRequest,
@@ -73,10 +74,18 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
+  // Rate limit: max 15 scratch/claim actions per minute per IP
+  const rateLimitRes = applyRateLimit(req, "gift_action", 15, 60 * 1000);
+  if (rateLimitRes) return rateLimitRes;
+
   try {
     const { slug } = await params;
     const body = await req.json();
     const { action } = body; // "SCRATCH" or "CLAIM"
+
+    if (!action || !["SCRATCH", "CLAIM"].includes(action)) {
+      return NextResponse.json({ error: "Invalid action. Allowed: SCRATCH, CLAIM" }, { status: 400 });
+    }
 
     const gift = await prisma.scratchGift.findUnique({
       where: { slug },

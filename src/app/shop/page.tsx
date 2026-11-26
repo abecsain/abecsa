@@ -396,8 +396,13 @@ export default function ShopPage() {
                     type="number"
                     required
                     placeholder="24999"
-                    value={newProduct.price}
-                    onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+                    value={newProduct.price === "0" ? "" : newProduct.price}
+                    onFocus={(e) => e.target.select()}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/^0+(?=\d)/, "");
+                      e.target.value = val;
+                      setNewProduct({ ...newProduct, price: val });
+                    }}
                     className="w-full px-3 py-2 rounded-lg border border-slate-300"
                   />
                 </div>

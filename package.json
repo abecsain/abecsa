@@ -2,12 +2,15 @@
   "name": "company_managmet_system",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "prisma generate && node --max-old-space-size=400 ./node_modules/next/dist/bin/next build",
     "postinstall": "prisma generate",
-    "vercel-build": "prisma generate && next build",
-    "start": "next start",
+    "vercel-build": "prisma generate && node --max-old-space-size=400 ./node_modules/next/dist/bin/next build",
+    "start": "node --max-old-space-size=350 ./node_modules/next/dist/bin/next start",
     "lint": "eslint",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",

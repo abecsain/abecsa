@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { applyRateLimit, validateCsrf, safeErrorResponse } from "@/lib/security";
 
 function isBlockedTarget(urlString: string): boolean {
   try {
@@ -61,6 +62,15 @@ function isBlockedTarget(urlString: string): boolean {
 }
 
 export async function POST(req: NextRequest) {
+  // 1. Rate limiting: max 12 ping requests per minute per IP
+  const rateLimitRes = applyRateLimit(req, "tool_ping", 12, 60 * 1000);
+  if (rateLimitRes) return rateLimitRes;
+
+  // 2. CSRF Origin validation
+  if (!validateCsrf(req)) {
+    return NextResponse.json({ error: "Forbidden: Cross-origin request rejected" }, { status: 403 });
+  }
+
   try {
     const { targetUrl } = await req.json();
 
@@ -131,7 +141,6 @@ export async function POST(req: NextRequest) {
       timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
-    console.error("Ping inspector error:", error);
-    return NextResponse.json({ error: "Ping execution failed" }, { status: 500 });
+    return safeErrorResponse(error, "Ping execution failed");
   }
 }

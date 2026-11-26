@@ -5,7 +5,10 @@ import { ensureSolutionsSeed } from "@/lib/solutionsSeed";
 
 export async function GET() {
   try {
-    await ensureSolutionsSeed();
+    const demoCount = await prisma.interactiveDemo.count();
+    if (demoCount === 0) {
+      await ensureSolutionsSeed();
+    }
 
     const demos = await prisma.interactiveDemo.findMany({
       where: { isActive: true },

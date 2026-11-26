@@ -29,6 +29,7 @@ export default function DashboardClientShell({
       {/* Sidebar (Desktop and Mobile Drawer) */}
       <DashboardSidebar
         role={user.effectiveRole}
+        actualRole={user.actualRole}
         mobileOpen={mobileMenuOpen}
         onCloseMobile={() => setMobileMenuOpen(false)}
       />

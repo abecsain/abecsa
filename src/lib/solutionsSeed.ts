@@ -112,11 +112,20 @@ export async function ensureSolutionsSeed(forceReset = false) {
     ];
 
     for (const t of storageTiers) {
-      await prisma.databaseStoragePlan.upsert({
-        where: { sizeGb: t.sizeGb },
-        update: t,
-        create: t,
-      });
+      if (forceReset) {
+        await prisma.databaseStoragePlan.upsert({
+          where: { sizeGb: t.sizeGb },
+          update: t,
+          create: t,
+        });
+      } else {
+        const existing = await prisma.databaseStoragePlan.findUnique({
+          where: { sizeGb: t.sizeGb },
+        });
+        if (!existing) {
+          await prisma.databaseStoragePlan.create({ data: t });
+        }
+      }
     }
 
     // 3. Clear, Understandable, Affordable Catalog Products (~₹2,999 - ₹6,999)
@@ -393,54 +402,87 @@ export async function ensureSolutionsSeed(forceReset = false) {
     ];
 
     for (const p of defaultProducts) {
-      await prisma.catalogProduct.upsert({
-        where: { code: p.code },
-        update: {
-          name: p.name,
-          category: p.category,
-          shortDescription: p.shortDescription,
-          fullDescription: p.fullDescription,
-          icon: p.icon,
-          imageUrl: p.imageUrl,
-          basePrice: p.basePrice,
-          recurringPrice: p.recurringPrice,
-          recurringInterval: p.recurringInterval,
-          isPriceOnRequest: p.isPriceOnRequest,
-          keyFeatures: p.keyFeatures,
-          configurableAddons: typeof p.configurableAddons === "string" ? p.configurableAddons : JSON.stringify(p.configurableAddons || []),
-          suitableFor: p.suitableFor,
-          recommendedDatabaseTier: p.recommendedDatabaseTier,
-          deploymentOptions: p.deploymentOptions,
-          pricingModel: p.pricingModel,
-          sharedModuleIds: p.sharedModuleIds,
-          compatibleProductIds: p.compatibleProductIds,
-          isFeatured: p.isFeatured,
-          orderIndex: p.orderIndex,
-        },
-        create: {
-          code: p.code,
-          name: p.name,
-          category: p.category,
-          shortDescription: p.shortDescription,
-          fullDescription: p.fullDescription,
-          icon: p.icon,
-          imageUrl: p.imageUrl,
-          basePrice: p.basePrice,
-          recurringPrice: p.recurringPrice,
-          recurringInterval: p.recurringInterval,
-          isPriceOnRequest: p.isPriceOnRequest,
-          keyFeatures: p.keyFeatures,
-          configurableAddons: typeof p.configurableAddons === "string" ? p.configurableAddons : JSON.stringify(p.configurableAddons || []),
-          suitableFor: p.suitableFor,
-          recommendedDatabaseTier: p.recommendedDatabaseTier,
-          deploymentOptions: p.deploymentOptions,
-          pricingModel: p.pricingModel,
-          sharedModuleIds: p.sharedModuleIds,
-          compatibleProductIds: p.compatibleProductIds,
-          isFeatured: p.isFeatured,
-          orderIndex: p.orderIndex,
-        },
-      });
+      if (forceReset) {
+        await prisma.catalogProduct.upsert({
+          where: { code: p.code },
+          update: {
+            name: p.name,
+            category: p.category,
+            shortDescription: p.shortDescription,
+            fullDescription: p.fullDescription,
+            icon: p.icon,
+            imageUrl: p.imageUrl,
+            basePrice: p.basePrice,
+            recurringPrice: p.recurringPrice,
+            recurringInterval: p.recurringInterval,
+            isPriceOnRequest: p.isPriceOnRequest,
+            keyFeatures: p.keyFeatures,
+            configurableAddons: typeof p.configurableAddons === "string" ? p.configurableAddons : JSON.stringify(p.configurableAddons || []),
+            suitableFor: p.suitableFor,
+            recommendedDatabaseTier: p.recommendedDatabaseTier,
+            deploymentOptions: p.deploymentOptions,
+            pricingModel: p.pricingModel,
+            sharedModuleIds: p.sharedModuleIds,
+            compatibleProductIds: p.compatibleProductIds,
+            isFeatured: p.isFeatured,
+            orderIndex: p.orderIndex,
+          },
+          create: {
+            code: p.code,
+            name: p.name,
+            category: p.category,
+            shortDescription: p.shortDescription,
+            fullDescription: p.fullDescription,
+            icon: p.icon,
+            imageUrl: p.imageUrl,
+            basePrice: p.basePrice,
+            recurringPrice: p.recurringPrice,
+            recurringInterval: p.recurringInterval,
+            isPriceOnRequest: p.isPriceOnRequest,
+            keyFeatures: p.keyFeatures,
+            configurableAddons: typeof p.configurableAddons === "string" ? p.configurableAddons : JSON.stringify(p.configurableAddons || []),
+            suitableFor: p.suitableFor,
+            recommendedDatabaseTier: p.recommendedDatabaseTier,
+            deploymentOptions: p.deploymentOptions,
+            pricingModel: p.pricingModel,
+            sharedModuleIds: p.sharedModuleIds,
+            compatibleProductIds: p.compatibleProductIds,
+            isFeatured: p.isFeatured,
+            orderIndex: p.orderIndex,
+          },
+        });
+      } else {
+        const existing = await prisma.catalogProduct.findUnique({
+          where: { code: p.code },
+        });
+        if (!existing) {
+          await prisma.catalogProduct.create({
+            data: {
+              code: p.code,
+              name: p.name,
+              category: p.category,
+              shortDescription: p.shortDescription,
+              fullDescription: p.fullDescription,
+              icon: p.icon,
+              imageUrl: p.imageUrl,
+              basePrice: p.basePrice,
+              recurringPrice: p.recurringPrice,
+              recurringInterval: p.recurringInterval,
+              isPriceOnRequest: p.isPriceOnRequest,
+              keyFeatures: p.keyFeatures,
+              configurableAddons: typeof p.configurableAddons === "string" ? p.configurableAddons : JSON.stringify(p.configurableAddons || []),
+              suitableFor: p.suitableFor,
+              recommendedDatabaseTier: p.recommendedDatabaseTier,
+              deploymentOptions: p.deploymentOptions,
+              pricingModel: p.pricingModel,
+              sharedModuleIds: p.sharedModuleIds,
+              compatibleProductIds: p.compatibleProductIds,
+              isFeatured: p.isFeatured,
+              orderIndex: p.orderIndex,
+            },
+          });
+        }
+      }
     }
 
     // 4. Turnkey Packages (Including Flagship Retail Pro + Showcasing + 15 GB DB @ ₹14,999)
@@ -575,11 +617,20 @@ export async function ensureSolutionsSeed(forceReset = false) {
     ];
 
     for (const pkg of turnkeyPackages) {
-      await prisma.catalogPackage.upsert({
-        where: { slug: pkg.slug },
-        update: pkg,
-        create: pkg,
-      });
+      if (forceReset) {
+        await prisma.catalogPackage.upsert({
+          where: { slug: pkg.slug },
+          update: pkg,
+          create: pkg,
+        });
+      } else {
+        const existing = await prisma.catalogPackage.findUnique({
+          where: { slug: pkg.slug },
+        });
+        if (!existing) {
+          await prisma.catalogPackage.create({ data: pkg });
+        }
+      }
     }
 
     // 5. Seed Relevant Interactive Demos (Billing, E-Com, Inventory, School/College, CRM, HR/Payroll, Identity/Personal Websites)
@@ -739,11 +790,20 @@ export async function ensureSolutionsSeed(forceReset = false) {
     ];
 
     for (const demo of relevantDemos) {
-      await prisma.interactiveDemo.upsert({
-        where: { id: demo.id },
-        update: demo,
-        create: demo,
-      });
+      if (forceReset) {
+        await prisma.interactiveDemo.upsert({
+          where: { id: demo.id },
+          update: demo,
+          create: demo,
+        });
+      } else {
+        const existing = await prisma.interactiveDemo.findUnique({
+          where: { id: demo.id },
+        });
+        if (!existing) {
+          await prisma.interactiveDemo.create({ data: demo });
+        }
+      }
     }
 
     console.log("Solutions & Interactive Demos seed initialized successfully!");

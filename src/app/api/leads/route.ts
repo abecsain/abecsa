@@ -1,16 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
+import { applyRateLimit, safeErrorResponse } from "@/lib/security";
 
 // Public Quote/Contact Form Submission
 export async function POST(req: NextRequest) {
+  // Rate limit: max 6 lead inquiries per minute per IP
+  const rateLimitRes = applyRateLimit(req, "lead_submit", 6, 60 * 1000);
+  if (rateLimitRes) return rateLimitRes;
+
   try {
     const data = await req.json();
     const { name, email, phone, companyName, serviceInterested, budgetRange, preferredContact, message } = data;
 
-    if (!name || !email) {
+    if (!name || !email || !String(email).includes("@")) {
       return NextResponse.json(
-        { error: "Name and email are required" },
+        { error: "A valid name and email address are required" },
         { status: 400 }
       );
     }

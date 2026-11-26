@@ -214,8 +214,14 @@ export default function AdminSettingsPage() {
               <label className="block font-semibold text-slate-700 mb-1">Default GST Rate (%)</label>
               <input
                 type="number"
-                value={settings.defaultTaxRate}
-                onChange={(e) => setSettings({ ...settings, defaultTaxRate: Number(e.target.value) })}
+                placeholder="18"
+                value={settings.defaultTaxRate === 0 ? "" : settings.defaultTaxRate}
+                onFocus={(e) => e.target.select()}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/^0+(?=\d)/, "");
+                  e.target.value = val;
+                  setSettings({ ...settings, defaultTaxRate: val === "" ? 0 : Number(val) });
+                }}
                 className="w-full px-3 py-2 rounded-lg border border-slate-300"
               />
             </div>

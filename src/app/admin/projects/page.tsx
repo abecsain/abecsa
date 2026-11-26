@@ -453,9 +453,14 @@ export default function AdminProjectsPage() {
                   <input
                     type="number"
                     required
-                    value={formData.budget}
-                    onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
                     placeholder="1200000"
+                    value={formData.budget === "0" ? "" : formData.budget}
+                    onFocus={(e) => e.target.select()}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/^0+(?=\d)/, "");
+                      e.target.value = val;
+                      setFormData({ ...formData, budget: val });
+                    }}
                     className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-sky-500"
                   />
                 </div>
@@ -584,8 +589,14 @@ export default function AdminProjectsPage() {
                   <label className="block font-semibold text-slate-700 mb-1">Budget (INR)</label>
                   <input
                     type="number"
-                    value={formData.budget}
-                    onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
+                    placeholder="0"
+                    value={formData.budget === "0" ? "" : formData.budget}
+                    onFocus={(e) => e.target.select()}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/^0+(?=\d)/, "");
+                      e.target.value = val;
+                      setFormData({ ...formData, budget: val });
+                    }}
                     className="w-full px-3 py-2 rounded-lg border border-slate-300"
                   />
                 </div>

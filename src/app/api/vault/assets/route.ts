@@ -2,9 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
 import { getSupabaseAdminClient } from "@/lib/supabase";
+import { syncSupabaseToPrisma } from "@/lib/dbSyncService";
 
 export async function GET(req: NextRequest) {
   try {
+    // Background sync to ensure Supabase user assets are reflected
+    syncSupabaseToPrisma().catch(() => {});
+
     const sessionUser = await getSessionUser();
     if (!sessionUser) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
@@ -13,14 +17,15 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const targetUserId = searchParams.get("userId");
 
-    // Admin can query any user's assets, customers only query their own
-    let userId = sessionUser.id;
-    if (sessionUser.role === "ADMIN" && targetUserId) {
-      userId = targetUserId;
+    // Admin/Manager can query all or target user's assets; customer queries own
+    let whereClause: any = { userId: sessionUser.id };
+    if (["ADMIN", "MANAGER"].includes(sessionUser.role)) {
+      whereClause = targetUserId ? { userId: targetUserId } : {};
     }
 
     const assets = await prisma.userAsset.findMany({
-      where: { userId },
+      where: whereClause,
+      include: { user: { select: { id: true, name: true, email: true } } },
       orderBy: { createdAt: "desc" },
     });
 

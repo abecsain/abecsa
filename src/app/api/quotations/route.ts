@@ -4,11 +4,15 @@ import { getSessionUser } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
   const sessionUser = await getSessionUser();
+  if (!sessionUser) {
+    return NextResponse.json({ error: "Unauthorized: Authentication required" }, { status: 401 });
+  }
+
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
   const customerId = searchParams.get("customerId");
 
-  // Allow fetching a single quotation for web presentation if authenticated or valid token
+  // Allow fetching a single quotation for web presentation
   if (id) {
     const quotation = await prisma.quotation.findUnique({
       where: { id },
@@ -32,10 +36,12 @@ export async function GET(req: NextRequest) {
     }
 
     // IDOR protection: if user is CUSTOMER, ensure they own this quotation
-    if (sessionUser && sessionUser.effectiveRole === "CUSTOMER") {
+    if (sessionUser.effectiveRole === "CUSTOMER") {
       if (!sessionUser.customerProfile || quotation.customerId !== sessionUser.customerProfile.id) {
         return NextResponse.json({ error: "Access denied: Unauthorized quotation reference" }, { status: 403 });
       }
+    } else if (sessionUser.effectiveRole === "ENGINEER") {
+      return NextResponse.json({ error: "Forbidden: Engineers do not have access to commercial agreements" }, { status: 403 });
     }
 
     // Parse structured metadata in clientResponse if JSON
@@ -459,6 +465,15 @@ export async function PATCH(req: NextRequest) {
 
     // 1. DIGITAL E-SIGNATURE EXECUTION
     if (action === "ESIGN") {
+      if (!sessionUser) {
+        return NextResponse.json({ error: "Unauthorized: Sign-in required to execute agreements" }, { status: 401 });
+      }
+      if (sessionUser.effectiveRole === "CUSTOMER" && (!sessionUser.customerProfile || quotation.customerId !== sessionUser.customerProfile.id)) {
+        return NextResponse.json({ error: "Forbidden: You can only execute agreements for your own company" }, { status: 403 });
+      }
+      if (sessionUser.effectiveRole === "ENGINEER") {
+        return NextResponse.json({ error: "Forbidden: Engineers cannot execute legal client agreements" }, { status: 403 });
+      }
       const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "127.0.0.1";
       const signTimestamp = new Date().toISOString();
       const verificationHash = `ABECSA-SIG-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
@@ -757,8 +772,33 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: "Quotation ID is required" }, { status: 400 });
     }
 
+    const quotation = await prisma.quotation.findUnique({
+      where: { id },
+      include: { project: true },
+    });
+
+    if (!quotation) {
+      return NextResponse.json({ error: "Quotation not found" }, { status: 404 });
+    }
+
+    if (sessionUser.effectiveRole === "MANAGER" && sessionUser.actualRole !== "ADMIN") {
+      if (quotation.project?.managerId && quotation.project.managerId !== sessionUser.id) {
+        return NextResponse.json({ error: "Forbidden: Managers can only delete quotations for their projects" }, { status: 403 });
+      }
+    }
+
     await prisma.quotationItem.deleteMany({ where: { quotationId: id } });
     await prisma.quotation.delete({ where: { id } });
+
+    await prisma.auditLog.create({
+      data: {
+        userId: sessionUser.id,
+        action: "DELETE_QUOTATION",
+        entityType: "QUOTATION",
+        entityId: id,
+        details: `Deleted quotation ${quotation.quotationNumber} by ${sessionUser.name}`,
+      },
+    });
 
     return NextResponse.json({ success: true, message: "Quotation deleted successfully" });
   } catch (error) {

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 const COOKIE_NAME = "abecsa_session";
-const JWT_SECRET = process.env.JWT_SECRET || "abecsa-enterprise-jwt-super-secret-key-2026";
+const JWT_SECRET = process.env.JWT_SECRET || "";
 
 function base64UrlToUint8Array(base64Url: string): Uint8Array {
   const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
@@ -14,6 +14,41 @@ function base64UrlToUint8Array(base64Url: string): Uint8Array {
     bytes[i] = binary.charCodeAt(i);
   }
   return bytes;
+}
+
+function toBase64Url(buffer: ArrayBuffer | Uint8Array): string {
+  const bytes = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
+  let binary = "";
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+function stringToBase64Url(str: string): string {
+  const encoder = new TextEncoder();
+  return toBase64Url(encoder.encode(str));
+}
+
+// Cryptographically signs HMAC-SHA256 JWT using Edge-compatible Web Crypto API
+async function signJwtToken(payload: Record<string, any>): Promise<string> {
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(JWT_SECRET);
+  const cryptoKey = await crypto.subtle.importKey(
+    "raw",
+    keyData,
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+
+  const headerB64 = stringToBase64Url(JSON.stringify({ alg: "HS256", typ: "JWT" }));
+  const payloadB64 = stringToBase64Url(JSON.stringify(payload));
+  const data = encoder.encode(`${headerB64}.${payloadB64}`);
+  const signature = await crypto.subtle.sign("HMAC", cryptoKey, data);
+  const signatureB64 = toBase64Url(signature);
+
+  return `${headerB64}.${payloadB64}.${signatureB64}`;
 }
 
 // Cryptographically verifies HMAC-SHA256 signature using Edge-compatible Web Crypto API
@@ -61,8 +96,42 @@ async function verifyAndDecodeToken(token: string) {
   }
 }
 
+const ALLOWED_ORIGINS = [
+  "https://abecsa.in",
+  "https://www.abecsa.in",
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+];
+
+function applySecurityHeaders(res: NextResponse): NextResponse {
+  res.headers.set("X-Content-Type-Options", "nosniff");
+  res.headers.set("X-Frame-Options", "SAMEORIGIN");
+  res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(), browsing-topics=()");
+  res.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
+  res.headers.set("X-XSS-Protection", "1; mode=block");
+  return res;
+}
+
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+  const origin = req.headers.get("origin");
+
+  // Handle CORS Preflight for APIs
+  if (pathname.startsWith("/api/")) {
+    if (req.method === "OPTIONS") {
+      const isAllowed = !origin || ALLOWED_ORIGINS.includes(origin);
+      const preflight = new NextResponse(null, { status: 204 });
+      if (isAllowed && origin) {
+        preflight.headers.set("Access-Control-Allow-Origin", origin);
+        preflight.headers.set("Access-Control-Allow-Credentials", "true");
+        preflight.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+        preflight.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization, x-visitor-token, x-requested-with");
+        preflight.headers.set("Access-Control-Max-Age", "86400");
+      }
+      return applySecurityHeaders(preflight);
+    }
+  }
 
   // Protect internal role workspaces
   const isProtectedPath =
@@ -71,8 +140,53 @@ export async function middleware(req: NextRequest) {
     pathname.startsWith("/engineer") ||
     pathname.startsWith("/customer");
 
+  // Sliding Session constants
+  const SEVEN_DAYS_SECONDS = 7 * 24 * 60 * 60; // 604,800 seconds
+  const REFRESH_THRESHOLD_SECONDS = 6 * 24 * 60 * 60; // Refresh JWT token when < 6 days remain
+
   if (!isProtectedPath) {
-    return NextResponse.next();
+    const res = NextResponse.next();
+    if (origin && ALLOWED_ORIGINS.includes(origin) && pathname.startsWith("/api/")) {
+      res.headers.set("Access-Control-Allow-Origin", origin);
+      res.headers.set("Access-Control-Allow-Credentials", "true");
+    }
+
+    // Rolling session: if logged in and visiting any public page within 7 days, refresh session
+    const publicToken = req.cookies.get(COOKIE_NAME)?.value;
+    if (publicToken) {
+      const publicPayload = await verifyAndDecodeToken(publicToken);
+      if (publicPayload && publicPayload.userId) {
+        const nowSec = Math.floor(Date.now() / 1000);
+        const secondsRemaining = (publicPayload.exp || 0) - nowSec;
+        let activeToken = publicToken;
+
+        if (secondsRemaining < REFRESH_THRESHOLD_SECONDS) {
+          try {
+            activeToken = await signJwtToken({
+              userId: publicPayload.userId,
+              email: publicPayload.email,
+              role: publicPayload.role,
+              name: publicPayload.name,
+              impersonatedRole: publicPayload.impersonatedRole,
+              iat: nowSec,
+              exp: nowSec + SEVEN_DAYS_SECONDS,
+            });
+          } catch {
+            activeToken = publicToken;
+          }
+        }
+
+        res.cookies.set(COOKIE_NAME, activeToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          maxAge: SEVEN_DAYS_SECONDS,
+          path: "/",
+        });
+      }
+    }
+
+    return applySecurityHeaders(res);
   }
 
   const token = req.cookies.get(COOKIE_NAME)?.value;
@@ -80,7 +194,7 @@ export async function middleware(req: NextRequest) {
   if (!token) {
     const loginUrl = new URL("/login", req.url);
     loginUrl.searchParams.set("from", pathname);
-    return NextResponse.redirect(loginUrl);
+    return applySecurityHeaders(NextResponse.redirect(loginUrl));
   }
 
   // Cryptographic signature and expiration check
@@ -88,7 +202,10 @@ export async function middleware(req: NextRequest) {
   if (!payload || !payload.userId) {
     const loginUrl = new URL("/login", req.url);
     loginUrl.searchParams.set("from", pathname);
-    return NextResponse.redirect(loginUrl);
+    const redirectRes = NextResponse.redirect(loginUrl);
+    // Invalidate invalid/tampered cookie
+    redirectRes.cookies.delete(COOKIE_NAME);
+    return applySecurityHeaders(redirectRes);
   }
 
   const effectiveRole =
@@ -99,30 +216,58 @@ export async function middleware(req: NextRequest) {
   // Strict route permission verification:
   if (pathname.startsWith("/admin")) {
     if (effectiveRole !== "ADMIN" && payload.role !== "ADMIN") {
-      return NextResponse.redirect(new URL("/login", req.url));
+      return applySecurityHeaders(NextResponse.redirect(new URL("/login", req.url)));
     }
   } else if (pathname.startsWith("/manager")) {
     if (effectiveRole !== "MANAGER" && payload.role !== "ADMIN") {
-      return NextResponse.redirect(new URL("/login", req.url));
+      return applySecurityHeaders(NextResponse.redirect(new URL("/login", req.url)));
     }
   } else if (pathname.startsWith("/engineer")) {
     if (effectiveRole !== "ENGINEER" && payload.role !== "ADMIN") {
-      return NextResponse.redirect(new URL("/login", req.url));
+      return applySecurityHeaders(NextResponse.redirect(new URL("/login", req.url)));
     }
   } else if (pathname.startsWith("/customer")) {
     if (effectiveRole !== "CUSTOMER" && payload.role !== "ADMIN") {
-      return NextResponse.redirect(new URL("/login", req.url));
+      return applySecurityHeaders(NextResponse.redirect(new URL("/login", req.url)));
     }
   }
 
-  return NextResponse.next();
+  const res = NextResponse.next();
+
+  // Sliding Session Window: Refresh 7-day expiration so active users are never logged out
+  const nowSec = Math.floor(Date.now() / 1000);
+  const secondsRemaining = (payload.exp || 0) - nowSec;
+  let activeToken = token;
+
+  if (secondsRemaining < REFRESH_THRESHOLD_SECONDS) {
+    try {
+      activeToken = await signJwtToken({
+        userId: payload.userId,
+        email: payload.email,
+        role: payload.role,
+        name: payload.name,
+        impersonatedRole: payload.impersonatedRole,
+        iat: nowSec,
+        exp: nowSec + SEVEN_DAYS_SECONDS,
+      });
+    } catch {
+      activeToken = token;
+    }
+  }
+
+  res.cookies.set(COOKIE_NAME, activeToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: SEVEN_DAYS_SECONDS,
+    path: "/",
+  });
+
+  return applySecurityHeaders(res);
 }
 
 export const config = {
   matcher: [
-    "/admin/:path*",
-    "/manager/:path*",
-    "/engineer/:path*",
-    "/customer/:path*",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
   ],
 };

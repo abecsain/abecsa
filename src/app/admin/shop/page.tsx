@@ -467,9 +467,14 @@ export default function AdminShopPage() {
                   <input
                     type="number"
                     required
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                     placeholder="75000"
+                    value={formData.price === "0" ? "" : formData.price}
+                    onFocus={(e) => e.target.select()}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/^0+(?=\d)/, "");
+                      e.target.value = val;
+                      setFormData({ ...formData, price: val });
+                    }}
                     className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-sky-500"
                   />
                 </div>

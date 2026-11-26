@@ -16,7 +16,13 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   const sessionUser = await getSessionUser();
-  if (!sessionUser || sessionUser.effectiveRole !== "ADMIN") {
+  const isAdminOrManager = sessionUser && (
+    sessionUser.role === "ADMIN" || 
+    sessionUser.effectiveRole === "ADMIN" || 
+    sessionUser.role === "MANAGER" || 
+    sessionUser.effectiveRole === "MANAGER"
+  );
+  if (!isAdminOrManager) {
     return NextResponse.json({ error: "Unauthorized: Admin access required" }, { status: 403 });
   }
 
@@ -89,7 +95,13 @@ export async function POST(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   const sessionUser = await getSessionUser();
-  if (!sessionUser || sessionUser.effectiveRole !== "ADMIN") {
+  const isAdminOrManager = sessionUser && (
+    sessionUser.role === "ADMIN" || 
+    sessionUser.effectiveRole === "ADMIN" || 
+    sessionUser.role === "MANAGER" || 
+    sessionUser.effectiveRole === "MANAGER"
+  );
+  if (!isAdminOrManager) {
     return NextResponse.json({ error: "Unauthorized: Admin access required" }, { status: 403 });
   }
 
@@ -97,8 +109,8 @@ export async function PATCH(req: NextRequest) {
     const body = await req.json();
     const { id, ...data } = body;
 
-    if (!id) {
-      return NextResponse.json({ error: "Package ID is required" }, { status: 400 });
+    if (!id && !data.slug) {
+      return NextResponse.json({ error: "Package ID or slug is required" }, { status: 400 });
     }
 
     if (data.includedProductCodes && typeof data.includedProductCodes !== "string") {
@@ -108,13 +120,25 @@ export async function PATCH(req: NextRequest) {
       data.includedFeatures = JSON.stringify(data.includedFeatures);
     }
 
-    if (data.basePrice !== undefined) data.basePrice = Number(data.basePrice);
-    if (data.recurringPrice !== undefined) data.recurringPrice = Number(data.recurringPrice);
-    if (data.discountAmount !== undefined) data.discountAmount = Number(data.discountAmount);
-    if (data.orderIndex !== undefined) data.orderIndex = Number(data.orderIndex);
+    if (data.basePrice !== undefined) data.basePrice = Number(data.basePrice) || 0;
+    if (data.recurringPrice !== undefined) data.recurringPrice = Number(data.recurringPrice) || 0;
+    if (data.discountAmount !== undefined) data.discountAmount = Number(data.discountAmount) || 0;
+    if (data.orderIndex !== undefined) data.orderIndex = Number(data.orderIndex) || 0;
+    if (data.isFeatured !== undefined) data.isFeatured = Boolean(data.isFeatured);
+
+    let target = null;
+    if (id) {
+      target = await prisma.catalogPackage.findUnique({ where: { id } });
+    }
+    if (!target && data.slug) {
+      target = await prisma.catalogPackage.findUnique({ where: { slug: data.slug } });
+    }
+    if (!target) {
+      return NextResponse.json({ error: "Package not found" }, { status: 404 });
+    }
 
     const updated = await prisma.catalogPackage.update({
-      where: { id },
+      where: { id: target.id },
       data,
     });
 
@@ -127,7 +151,13 @@ export async function PATCH(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   const sessionUser = await getSessionUser();
-  if (!sessionUser || sessionUser.effectiveRole !== "ADMIN") {
+  const isAdminOrManager = sessionUser && (
+    sessionUser.role === "ADMIN" || 
+    sessionUser.effectiveRole === "ADMIN" || 
+    sessionUser.role === "MANAGER" || 
+    sessionUser.effectiveRole === "MANAGER"
+  );
+  if (!isAdminOrManager) {
     return NextResponse.json({ error: "Unauthorized: Admin access required" }, { status: 403 });
   }
 

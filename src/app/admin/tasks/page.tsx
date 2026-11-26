@@ -501,8 +501,14 @@ export default function AdminTasksPage() {
                   <label className="block font-semibold text-slate-700 mb-1">Est. Hours</label>
                   <input
                     type="number"
-                    value={formData.estimatedHours}
-                    onChange={(e) => setFormData({ ...formData, estimatedHours: e.target.value })}
+                    placeholder="0"
+                    value={formData.estimatedHours === "0" ? "" : formData.estimatedHours}
+                    onFocus={(e) => e.target.select()}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/^0+(?=\d)/, "");
+                      e.target.value = val;
+                      setFormData({ ...formData, estimatedHours: val });
+                    }}
                     className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-sky-500"
                   />
                 </div>

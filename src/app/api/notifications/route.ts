@@ -85,7 +85,7 @@ export async function PATCH(req: NextRequest) {
   const { id } = await req.json();
 
   if (id) {
-    await prisma.notification.update({
+    await prisma.notification.updateMany({
       where: { id, userId: sessionUser.id },
       data: { isRead: true },
     });
